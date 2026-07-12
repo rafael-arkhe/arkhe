@@ -28,12 +28,41 @@ reinventing any of them:
 `spawn_agent_session` is what makes an AAVM an actual execution
 environment, not just an identity/lifecycle record:
 
+This is the exact pattern used in
+`manager.rs::tests::spawned_agent_session_processes_when_llm_inference_is_allowed`
+(run for real, not just sketched — see Status above):
+
 ```rust
+use std::sync::Arc;
+use arkhe_agent_vm::{AAVMManager, AgentPolicy};
+use arkhe_core::InMemoryAgentMemory;
+use arkhe_inference::{ModelId, NullEngine}; // or a real backend: MistralRsEngine, etc.
+use arkhe_web3_security::agents::EvidenceBus;
+
+let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+
+// AgiCoordinator's SafetyVerifier check always asks about the fixed action
+// "llm_inference" (see arkhe-agi/src/coordinator.rs) — the policy must
+// allow exactly that string, or every process() call will be rejected.
+let policy = AgentPolicy {
+    max_lifetime_secs: 3600,
+    allowed_capabilities: vec!["llm_inference".to_string()],
+};
+let vm = manager.create_vm(policy).await?; // FI-A01 + FI-A02 checked and recorded here
+
 let coordinator = manager
-    .spawn_agent_session(&vm_id, memory, inference, "session-1", "You are helpful.")
+    .spawn_agent_session(
+        &vm.id,
+        Arc::new(InMemoryAgentMemory::new()),
+        Arc::new(NullEngine::new(ModelId::new("test", "null"))), // swap for a real InferenceEngine in production
+        "session-1",
+        "You are helpful.",
+    )
     .await?;
 
-coordinator.process("hello").await // gated by FI-A04, see below
+let response = coordinator.process("hello").await?; // gated by FI-A04, see below
+
+manager.destroy_vm(&vm.id).await?; // FI-A03 recorded; next process() call on `coordinator` now fails
 ```
 
 Every `process()` call goes through [`session::PolicyVerifier`], which

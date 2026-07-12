@@ -15,6 +15,7 @@ Raw command output backing the claims in `web3-security-architecture.md`'s
 | `cargo-check-workspace-2026-07-11-post-aavm.txt` | `cargo check --workspace` | 0 | Re-run after adding `arkhe-agent-vm` as a 22nd workspace member — still clean. |
 | `cargo-test-arkhe-agent-vm-session-integration-2026-07-11.txt` | `cargo test -p arkhe-agent-vm` | 0 | After adding `session.rs` (`PolicyVerifier`, wiring `spawn_agent_session` to a real `arkhe_agi::AgiCoordinator`): 25/25 tests pass, including an end-to-end test that destroys a VM mid-session and confirms the *already-spawned* coordinator's next `process()` call is rejected — live enforcement, not a snapshot taken at spawn time. |
 | `cargo-check-workspace-2026-07-11-post-session-integration.txt` | `cargo check --workspace` | 0 | Re-run after the session-integration change — still clean. |
+| `cargo-test-workspace-2026-07-11-post-stale-test-removal.txt` | `cargo test --workspace` | 101 | After deleting `arkhe-agi/tests/coordinator_test.rs` (dead, broken, fully superseded by `tests/coordinator.rs` — old 2-arg `AgiCoordinator::new()` signature, and a `coordinator.session_id()` method that doesn't exist on the real type): the workspace build no longer aborts before running tests. **29 passing test-result blocks** now actually run. Exit code is still 101 — but only because of the same two pre-existing, unrelated failures noted above (`eval-fixture`, `arkhe-session-evaluator`), not because of anything this session touched. |
 
 ## Bottom line
 
@@ -24,11 +25,12 @@ pre-existing `arkhe-identity` and `arkhe-agi` they depend on) are clean:
 10 + 7 + 80 + 25 + 12 = 134 tests pass, workspace `cargo check` is clean.
 `arkhe-agi`'s *library* is real and working (confirmed via its own
 `tests/coordinator.rs`, 4/4 passing, which `arkhe-agent-vm` now builds on
-directly) — only its separate, stale `tests/coordinator_test.rs` (old
-constructor signature) is broken, and that predates this session. The
-workspace as a whole has other pre-existing, unrelated breakage
-(`eval-fixture`, `arkhe-session-evaluator`) that also predates this session
-and is out of scope for it.
+directly) — its separate, stale `tests/coordinator_test.rs` (old
+constructor signature, predated this session) has since been deleted, which
+is what was blocking `cargo test --workspace` from running *any* test at
+all. The workspace as a whole still has two other pre-existing, unrelated
+failures (`eval-fixture`, `arkhe-session-evaluator`) that predate this
+session and haven't been addressed — flag if you want those fixed too.
 
 Regenerate any of these yourself with the exact commands in the table above,
 run from `safe-core-monorepo/`.

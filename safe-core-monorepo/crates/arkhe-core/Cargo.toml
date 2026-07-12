@@ -2,7 +2,10 @@
 name = "arkhe-core"
 version.workspace = true
 edition.workspace = true
+authors.workspace = true
 description = "Foundation types, traits, and error handling for Arkhe OS"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 serde = { workspace = true }
