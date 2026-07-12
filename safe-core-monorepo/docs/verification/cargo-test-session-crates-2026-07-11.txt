@@ -1,0 +1,288 @@
+   Compiling arkhe-core v0.1.0 (C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine\safe-core-monorepo\crates\arkhe-core)
+warning: missing documentation for a module
+  --> crates\arkhe-core\src\lib.rs:12:1
+   |
+12 | pub mod error;
+   | ^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> crates\arkhe-core\src\lib.rs:9:9
+   |
+ 9 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a module
+  --> crates\arkhe-core\src\lib.rs:13:1
+   |
+13 | pub mod hash;
+   | ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:13:5
+   |
+13 |     Internal(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:16:5
+   |
+16 |     NotFound(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:19:5
+   |
+19 |     InvalidInput(String),
+   |     ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:22:5
+   |
+22 |     PermissionDenied(String),
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:25:5
+   |
+25 |     Timeout(std::time::Duration),
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:28:5
+   |
+28 |     Serialization(String),
+   |     ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:31:5
+   |
+31 |     Other(#[from] Box<dyn std::error::Error + Send + Sync>),
+   |     ^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\safety.rs:38:5
+   |
+38 |     pub reason: String,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:12:5
+   |
+12 |     pub key: String,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:13:5
+   |
+13 |     pub value: String,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:14:5
+   |
+14 |     pub score: f32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:15:5
+   |
+15 |     pub layer: MemoryLayer,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:16:5
+   |
+16 |     pub timestamp: DateTime<Utc>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:22:5
+   |
+22 |     Working,
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:23:5
+   |
+23 |     Episodic,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:24:5
+   |
+24 |     Semantic,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:25:5
+   |
+25 |     Procedural,
+   |     ^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-core\src\memory_traits.rs:51:5
+   |
+51 |     pub fn new() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+   Compiling arkhe-identity v0.1.0 (C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine\safe-core-monorepo\crates\arkhe-identity)
+   Compiling arkhe-web3-security v0.1.0 (C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine\safe-core-monorepo\crates\arkhe-web3-security)
+warning: `arkhe-core` (lib) generated 20 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.66s
+     Running unittests src\lib.rs (target\debug\deps\arkhe_crypto_pqc-ef1a667263da0962.exe)
+
+running 10 tests
+test kem::tests::encaps_decaps_shared_secret_matches ... ok
+test kem::tests::tampered_ciphertext_yields_different_key ... ok
+test kem::tests::different_keypairs_derive_different_keys ... ok
+test signature::tests::signature_derived_from_signing_key_matches_verifying_key ... ok
+test signature::tests::tampered_ed25519_half_fails_verify ... ok
+test signature::tests::sign_and_verify_roundtrip ... ok
+test signature::tests::verify_ml_dsa_only_rejects_tampered_ml_dsa_half ... ok
+test signature::tests::tampered_message_fails_verify ... ok
+test signature::tests::verify_ml_dsa_only_ignores_tampered_ed25519_half ... ok
+test signature::tests::tampered_ml_dsa_half_fails_verify ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_identity-df5a4b196425882f.exe)
+
+running 12 tests
+test gdid::crl::tests::valid_inclusion_proof_verifies ... ok
+test gdid::hubble::tests::short_projection_preserves_prefix_version_and_hash ... ok
+test gdid::tests::base58_encoding_is_stable_and_decodable ... ok
+test gdid::tests::accessors_roundtrip_through_from_parts ... ok
+test gdid::crl::tests::tampered_root_fails_verification ... ok
+test gdid::tests::derivation_is_deterministic ... ok
+test gdid::tests::different_namespace_yields_different_gdid ... ok
+test gdid::tests::different_nonce_yields_different_gdid ... ok
+test gdid::cert::tests::expired_certificate_is_rejected ... ok
+test gdid::cert::tests::wrong_issuer_key_is_rejected ... ok
+test gdid::cert::tests::valid_certificate_verifies ... ok
+test gdid::cert::tests::tampered_payload_fails_signature_check ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_pqc_core-f50983767fa8064a.exe)
+
+running 7 tests
+test kem::tests::ciphertext_has_expected_length ... ok
+test kem::tests::encaps_decaps_shared_secret_matches ... ok
+test kem::tests::different_keypairs_yield_different_shared_secrets ... ok
+test hybrid::tests::ml_dsa_signature_is_dilithium3_length ... ok
+test hybrid::tests::sign_and_verify_roundtrip ... ok
+test hybrid::tests::tampered_ed25519_half_fails_verify ... ok
+test hybrid::tests::tampered_message_fails_verify ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_web3_security-4a65a0217036c38e.exe)
+
+running 80 tests
+test agents::gap_filling::tests::reports_every_id_as_a_gap_when_nothing_was_checked ... ok
+test analyzers::delegatecall::tests::delegatecall_to_current_implementation_holds ... ok
+test agents::gap_filling::tests::excludes_checked_ids_from_the_gap_list ... ok
+test analyzers::delegatecall::tests::delegatecall_to_attacker_contract_is_rejected ... ok
+test analyzers::flash_loan::tests::drained_trace_is_flagged ... ok
+test agents::recon::tests::deduplicates_by_name ... ok
+test analyzers::gas::tests::bounded_iteration_holds ... ok
+test analyzers::flash_loan::tests::fully_repaid_trace_holds ... ok
+test analyzers::gas::tests::gas_exceeding_reserve_is_rejected ... ok
+test analyzers::gas::tests::gas_within_limit_holds ... ok
+test agents::evidence_bus::tests::stores_and_returns_evidence_in_order ... ok
+test agents::pipeline::tests::empty_input_is_rejected ... ok
+test agents::pipeline::tests::reentrant_trace_is_flagged_in_the_report ... ok
+test agents::pipeline::tests::clean_input_produces_holding_verdicts_and_records_evidence ... ok
+test analyzers::gas::tests::unbounded_growth_is_rejected ... ok
+test analyzers::mev::tests::independent_swaps_hold ... ok
+test analyzers::mev::tests::same_sender_different_token_is_not_sandwich ... ok
+test analyzers::mev::tests::sandwich_pattern_is_detected ... ok
+test analyzers::price_oracle::tests::manipulated_spot_price_is_rejected ... ok
+test analyzers::price_oracle::tests::small_deviation_holds ... ok
+test analyzers::reentrancy::tests::linear_call_chain_holds ... ok
+test analyzers::reentrancy::tests::reentrant_call_back_into_vault_is_flagged ... ok
+test blockchain::consensus::tests::below_two_thirds_violates ... ok
+test blockchain::consensus::tests::distinct_identities_hold ... ok
+test blockchain::consensus::tests::duplicate_identity_is_sybil ... ok
+test blockchain::consensus::tests::two_thirds_honest_holds ... ok
+test blockchain::evm::tests::call_depth_limit_enforced ... ok
+test blockchain::evm::tests::normal_arithmetic_succeeds ... ok
+test blockchain::evm::tests::safe_add_overflow_is_rejected ... ok
+test blockchain::evm::tests::safe_mul_overflow_is_rejected ... ok
+test blockchain::evm::tests::safe_sub_underflow_is_rejected ... ok
+test blockchain::p2p::tests::authenticated_known_peer_holds ... ok
+test blockchain::p2p::tests::single_client_violates ... ok
+test blockchain::p2p::tests::three_distinct_clients_hold ... ok
+test blockchain::p2p::tests::unauthenticated_message_violates ... ok
+test blockchain::p2p::tests::unknown_peer_violates ... ok
+test contracts::access_control::tests::granted_capability_allows_execution ... ok
+test contracts::access_control::tests::revoked_capability_is_rejected ... ok
+test contracts::access_control::tests::unauthorized_caller_is_rejected ... ok
+test contracts::flash_loan::tests::fully_repaid_loan_keeps_pool_solvent ... ok
+test contracts::flash_loan::tests::under_repaid_loan_is_rejected ... ok
+test contracts::proxy::tests::admin_can_upgrade ... ok
+test contracts::proxy::tests::double_initialization_is_rejected ... ok
+test contracts::proxy::tests::non_admin_upgrade_is_rejected ... ok
+test contracts::proxy::tests::uninitialized_proxy_is_unsafe ... ok
+test contracts::reentrancy::tests::effect_after_external_call_violates_cei ... ok
+test contracts::reentrancy::tests::effects_before_interactions_hold ... ok
+test contracts::reentrancy::tests::execute_guarded_prevents_nested_reentry ... ok
+test contracts::reentrancy::tests::reentrant_call_is_rejected ... ok
+test dapps::api::tests::authenticated_request_within_limit_holds ... ok
+test dapps::api::tests::request_over_limit_is_rejected ... ok
+test dapps::api::tests::unauthenticated_request_is_rejected ... ok
+test dapps::approvals::tests::exact_needed_amount_holds ... ok
+test dapps::approvals::tests::minimal_approval_holds ... ok
+test dapps::approvals::tests::unlimited_allowance_is_rejected ... ok
+test dapps::frontend::tests::allowed_https_origin_holds ... ok
+test dapps::frontend::tests::non_https_origin_is_rejected ... ok
+test dapps::frontend::tests::phishing_lookalike_domain_is_rejected ... ok
+test reports::owasp::tests::compliance_rate_is_computed_correctly ... ok
+test reports::owasp::tests::report_filters_only_violations ... ok
+test reports::swc::tests::covered_entries_are_non_empty_and_unique ... ok
+test wallets::eip712::tests::cross_chain_replay_is_rejected ... ok
+test wallets::eip712::tests::matching_domain_and_nonce_is_valid ... ok
+test wallets::eip712::tests::wrong_nonce_is_rejected ... ok
+test wallets::recovery::tests::fresh_backed_up_key_holds ... ok
+test wallets::recovery::tests::key_without_backup_is_rejected ... ok
+test wallets::recovery::tests::quorum_met_holds ... ok
+test wallets::recovery::tests::quorum_not_met_is_rejected ... ok
+test wallets::recovery::tests::stale_key_is_rejected ... ok
+test wallets::signature::tests::accounts_are_tracked_independently ... ok
+test wallets::signature::tests::out_of_order_nonce_is_rejected ... ok
+test wallets::signature::tests::replayed_nonce_is_rejected ... ok
+test wallets::signature::tests::strictly_increasing_nonces_hold ... ok
+test web3_adapter::tests::clean_transaction_produces_clean_evidence ... ok
+test web3_adapter::tests::different_transaction_ids_produce_different_content_hashes ... ok
+test web3_adapter::tests::failed_domain_check_marks_evidence_unclean ... ok
+test web3_adapter::tests::same_input_produces_the_same_content_hash ... ok
+test wallets::hybrid_wallet::tests::pqc_only_ignores_broken_classical_half ... ok
+test wallets::hybrid_wallet::tests::strict_pqc_behaves_like_pqc_only_until_classical_key_is_exported ... ok
+test wallets::hybrid_wallet::tests::hybrid_only_requires_both_halves_valid ... ok
+
+test result: ok. 80 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+   Doc-tests arkhe_crypto_pqc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_identity
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_pqc_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_web3_security
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
