@@ -12,9 +12,13 @@ arkhe-core = { path = "../arkhe-core", version = "0.1.0" }
 arkhe-identity = { path = "../arkhe-identity", version = "0.1.0" }
 arkhe-crypto-pqc = { path = "../arkhe-crypto-pqc", version = "0.1.0" }
 arkhe-web3-security = { path = "../arkhe-web3-security", version = "0.1.0" }
+arkhe-agi = { path = "../arkhe-agi", version = "0.1.0" }
+arkhe-inference = { path = "../arkhe-inference", version = "0.1.0" }
+arkhe-session-evaluator = { path = "../arkhe-session-evaluator", version = "0.1.0" }
 blake3 = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 thiserror = { workspace = true }
+async-trait = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

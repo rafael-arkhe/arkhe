@@ -11,13 +11,53 @@ reinventing any of them:
   for why this crate specifically, not `arkhe-pqc-core`: real secret-key
   zeroization matters here, since `create_vm` briefly holds live secret
   material).
-- **`arkhe-web3-security`** — creation and destruction checks are recorded
-  to its `EvidenceBus` under invariant IDs `FI-A01`–`FI-A03`.
+- **`arkhe-web3-security`** — creation, destruction, and per-action checks
+  are recorded to its `EvidenceBus` under invariant IDs `FI-A01`–`FI-A04`.
+- **`arkhe-agi`** — `AAVMManager::spawn_agent_session` wraps a real
+  `AgiCoordinator` (safety check → inference call → memory write → history
+  update) so every `process()` call is gated by the owning AAVM's *live*
+  `AgentPolicy` and `LifecycleState`. See "Execution environment" below.
 
 ## Status
 
-17/17 tests pass. Verified: `../docs/verification/README.md` (run from
+25/25 tests pass. Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
+
+## Execution environment: policy-gated agent sessions
+
+`spawn_agent_session` is what makes an AAVM an actual execution
+environment, not just an identity/lifecycle record:
+
+```rust
+let coordinator = manager
+    .spawn_agent_session(&vm_id, memory, inference, "session-1", "You are helpful.")
+    .await?;
+
+coordinator.process("hello").await // gated by FI-A04, see below
+```
+
+Every `process()` call goes through [`session::PolicyVerifier`], which
+implements `arkhe_core::SafetyVerifier` — the exact hook `AgiCoordinator`
+already calls before every inference request, not a new one invented for
+this. It enforces **FI-A04**: an action is allowed only if
+`AgentPolicy::allows(action)` holds *and* the VM's `LifecycleState` is
+`Running`. Both are read live through a shared `Arc<RwLock<Lifecycle>>` /
+`Arc<AgentPolicy>` — so `destroy_vm`/`sweep_expired` called on a VM after a
+session was already spawned from it takes effect on that session's *next*
+`process()` call, not just on newly-spawned sessions. Proven with an actual
+`AgiCoordinator`+`NullEngine` in
+`manager.rs::tests::destroying_the_vm_blocks_further_process_calls_on_an_already_spawned_session`.
+
+**What this is not:** in-process, type-system-level policy enforcement —
+not OS-level sandboxing. Nothing in this workspace does process isolation,
+resource limiting, or syscall filtering yet (`arkhe-tool-sandbox` and
+`arkhe-syscall-bridge` are both non-functional placeholders). A
+`PolicyVerifier` stops a disallowed `process()` call from *starting*; it
+does not constrain what an allowed call can do once inference actually
+runs.
+
+FI-A04 is formalized in `proofs/lean/AgentVm/PolicyGate.lean` (not
+type-checked in this session — see that directory's `README.md`).
 
 ## What each module actually does
 

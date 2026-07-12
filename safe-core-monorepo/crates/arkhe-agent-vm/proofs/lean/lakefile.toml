@@ -1,0 +1,9 @@
+# Not locally verified with `lake build` — no Lean/Lake toolchain installed
+# in this dev environment. Mirrors the structure of
+# ../../arkhe-web3-security/proofs/lean/ (the first Lake project in this
+# repo); see ../README.md here for what "not verified" means.
+name = "agent_vm_invariants"
+defaultTargets = ["AgentVm"]
+
+[[lean_lib]]
+name = "AgentVm"

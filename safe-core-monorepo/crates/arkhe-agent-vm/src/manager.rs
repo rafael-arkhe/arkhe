@@ -22,7 +22,7 @@ use arkhe_crypto_pqc::{generate_hybrid_keypair, HybridVerifyingKey};
 use arkhe_identity::Gdid;
 use arkhe_web3_security::agents::{AuditEvidence, EvidenceBus};
 use arkhe_web3_security::InvariantVerdict;
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, RwLock};
 
 use crate::lifecycle::{InvalidTransition, Lifecycle, LifecycleState};
 use crate::policy::AgentPolicy;
@@ -48,8 +48,22 @@ struct AavmHandle {
     id: String,
     gdid: Gdid,
     verifying_key: HybridVerifyingKey,
-    lifecycle: Lifecycle,
-    policy: AgentPolicy,
+    /// Shared, not owned outright: `session::PolicyVerifier` (built by
+    /// [`AAVMManager::spawn_agent_session`]) holds a clone of this same
+    /// `Arc`, so a `destroy_vm`/`sweep_expired` call takes effect
+    /// immediately for any agent session already spawned from this VM —
+    /// not just for VMs created after the fact. A plain owned `Lifecycle`
+    /// (as in the first version of this module) couldn't do that: it would
+    /// only ever reflect the state at the moment a session was spawned.
+    lifecycle: Arc<RwLock<Lifecycle>>,
+    policy: Arc<AgentPolicy>,
+}
+
+impl AavmHandle {
+    async fn summary(&self) -> AavmSummary {
+        let lifecycle = self.lifecycle.read().await;
+        AavmSummary { id: self.id.clone(), gdid: self.gdid, state: lifecycle.state(), age_secs: lifecycle.age_secs() }
+    }
 }
 
 /// A read-only snapshot of an AAVM's public state — no secret key
@@ -60,12 +74,6 @@ pub struct AavmSummary {
     pub gdid: Gdid,
     pub state: LifecycleState,
     pub age_secs: u64,
-}
-
-impl From<&AavmHandle> for AavmSummary {
-    fn from(h: &AavmHandle) -> Self {
-        Self { id: h.id.clone(), gdid: h.gdid, state: h.lifecycle.state(), age_secs: h.lifecycle.age_secs() }
-    }
 }
 
 pub struct AAVMManager {
@@ -122,8 +130,14 @@ impl AAVMManager {
         let mut lifecycle = Lifecycle::new();
         lifecycle.start()?;
 
-        let handle = AavmHandle { id: gdid.to_base58(), gdid, verifying_key: keypair.verifying_key, lifecycle, policy };
-        let summary = AavmSummary::from(&handle);
+        let handle = AavmHandle {
+            id: gdid.to_base58(),
+            gdid,
+            verifying_key: keypair.verifying_key,
+            lifecycle: Arc::new(RwLock::new(lifecycle)),
+            policy: Arc::new(policy),
+        };
+        let summary = handle.summary().await;
 
         self.vms.lock().await.push(handle);
         Ok(summary)
@@ -131,16 +145,21 @@ impl AAVMManager {
 
     /// Destroys the AAVM identified by `id`: `Running -> Terminating ->
     /// Destroyed`, then removes it from the manager. Records FI-A03
-    /// (graceful termination) as evidence.
+    /// (graceful termination) as evidence. Takes effect immediately for any
+    /// agent session already spawned from this VM via
+    /// [`Self::spawn_agent_session`] — see [`AavmHandle::lifecycle`].
     pub async fn destroy_vm(&self, id: &str) -> Result<(), AavmError> {
         let mut vms = self.vms.lock().await;
         let pos = vms.iter().position(|h| h.id == id).ok_or_else(|| AavmError::NotFound(id.to_string()))?;
 
-        let result: Result<(), InvalidTransition> = (|| {
-            vms[pos].lifecycle.begin_terminate()?;
-            vms[pos].lifecycle.destroy()?;
-            Ok(())
-        })();
+        let result: Result<(), InvalidTransition> = {
+            let mut lifecycle = vms[pos].lifecycle.write().await;
+            (|| {
+                lifecycle.begin_terminate()?;
+                lifecycle.destroy()?;
+                Ok(())
+            })()
+        };
 
         let verdict = match &result {
             Ok(()) => InvariantVerdict::Holds,
@@ -154,7 +173,12 @@ impl AAVMManager {
     }
 
     pub async fn list_vms(&self) -> Vec<AavmSummary> {
-        self.vms.lock().await.iter().map(AavmSummary::from).collect()
+        let vms = self.vms.lock().await;
+        let mut out = Vec::with_capacity(vms.len());
+        for h in vms.iter() {
+            out.push(h.summary().await);
+        }
+        out
     }
 
     /// Terminates every AAVM whose own [`AgentPolicy::is_expired`] says it
@@ -164,7 +188,13 @@ impl AAVMManager {
     pub async fn sweep_expired(&self) -> Vec<String> {
         let expired_ids: Vec<String> = {
             let vms = self.vms.lock().await;
-            vms.iter().filter(|h| h.policy.is_expired(&h.lifecycle)).map(|h| h.id.clone()).collect()
+            let mut ids = Vec::new();
+            for h in vms.iter() {
+                if h.policy.is_expired(&*h.lifecycle.read().await) {
+                    ids.push(h.id.clone());
+                }
+            }
+            ids
         };
 
         let mut destroyed = Vec::new();
@@ -182,6 +212,50 @@ impl AAVMManager {
     /// the module doc comment).
     pub async fn verifying_key(&self, id: &str) -> Option<HybridVerifyingKey> {
         self.vms.lock().await.iter().find(|h| h.id == id).map(|h| h.verifying_key.clone())
+    }
+
+    /// Returns the shared `Lifecycle` and `AgentPolicy` handles for a live
+    /// AAVM — used by [`Self::spawn_agent_session`] to build a
+    /// `SafetyVerifier` that enforces this VM's *live* state, not a
+    /// point-in-time snapshot.
+    async fn session_handles(&self, id: &str) -> Option<(Arc<RwLock<Lifecycle>>, Arc<AgentPolicy>)> {
+        self.vms.lock().await.iter().find(|h| h.id == id).map(|h| (h.lifecycle.clone(), h.policy.clone()))
+    }
+
+    /// Spawns an `AgiCoordinator` "inside" AAVM `id`: every `process()` call
+    /// the coordinator makes is gated by `id`'s live `AgentPolicy` and
+    /// `LifecycleState` via [`crate::session::PolicyVerifier`], which
+    /// implements `arkhe_core::SafetyVerifier` — the exact hook
+    /// `AgiCoordinator` already calls before every inference request. If
+    /// `destroy_vm`/`sweep_expired` later terminates this VM, the *next*
+    /// `process()` call on the returned coordinator is rejected — the
+    /// enforcement is live, not a permission check taken once at spawn
+    /// time. See `crate::session` for what's checked and what isn't (this
+    /// is in-process policy enforcement, not OS-level sandboxing).
+    pub async fn spawn_agent_session<M, I>(
+        &self,
+        id: &str,
+        memory: Arc<M>,
+        inference: Arc<I>,
+        session_id: &str,
+        system_prompt: &str,
+    ) -> Result<arkhe_agi::AgiCoordinator<crate::session::PolicyVerifier, M, I>, AavmError>
+    where
+        M: arkhe_core::AgentMemory,
+        I: arkhe_inference::InferenceEngine,
+    {
+        let (lifecycle, policy) =
+            self.session_handles(id).await.ok_or_else(|| AavmError::NotFound(id.to_string()))?;
+
+        let verifier = Arc::new(crate::session::PolicyVerifier::new(
+            id.to_string(),
+            policy,
+            lifecycle,
+            self.evidence_bus.clone(),
+        ));
+
+        let evaluator = Arc::new(arkhe_session_evaluator::SessionEvaluator::new());
+        Ok(arkhe_agi::AgiCoordinator::new(verifier, memory, inference, evaluator, session_id, system_prompt))
     }
 }
 
@@ -265,6 +339,95 @@ mod tests {
         manager.create_vm(permissive_policy()).await.unwrap();
         assert!(manager.sweep_expired().await.is_empty());
         assert_eq!(manager.list_vms().await.len(), 1);
+    }
+
+    fn null_inference() -> Arc<arkhe_inference::NullEngine> {
+        Arc::new(arkhe_inference::NullEngine::new(arkhe_inference::ModelId::new("test", "null")))
+    }
+
+    #[tokio::test]
+    async fn spawned_agent_session_rejects_when_llm_inference_not_in_policy() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+
+        let coordinator = manager
+            .spawn_agent_session(
+                &summary.id,
+                Arc::new(arkhe_core::InMemoryAgentMemory::new()),
+                null_inference(),
+                "test-session",
+                "You are helpful.",
+            )
+            .await
+            .unwrap();
+
+        // permissive_policy() only lists "web3.audit" — AgiCoordinator
+        // always checks the fixed action "llm_inference", so this must be
+        // rejected even though the VM itself is Running.
+        assert!(coordinator.process("hello").await.is_err());
+    }
+
+    #[tokio::test]
+    async fn spawned_agent_session_processes_when_llm_inference_is_allowed() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let policy = AgentPolicy { max_lifetime_secs: 3600, allowed_capabilities: vec!["llm_inference".to_string()] };
+        let summary = manager.create_vm(policy).await.unwrap();
+
+        let coordinator = manager
+            .spawn_agent_session(
+                &summary.id,
+                Arc::new(arkhe_core::InMemoryAgentMemory::new()),
+                null_inference(),
+                "test-session",
+                "You are helpful.",
+            )
+            .await
+            .unwrap();
+
+        let response = coordinator.process("hello").await.unwrap();
+        assert!(!response.is_empty());
+    }
+
+    #[tokio::test]
+    async fn destroying_the_vm_blocks_further_process_calls_on_an_already_spawned_session() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let policy = AgentPolicy { max_lifetime_secs: 3600, allowed_capabilities: vec!["llm_inference".to_string()] };
+        let summary = manager.create_vm(policy).await.unwrap();
+
+        let coordinator = manager
+            .spawn_agent_session(
+                &summary.id,
+                Arc::new(arkhe_core::InMemoryAgentMemory::new()),
+                null_inference(),
+                "test-session",
+                "You are helpful.",
+            )
+            .await
+            .unwrap();
+
+        assert!(coordinator.process("first call, before destroy").await.is_ok());
+
+        manager.destroy_vm(&summary.id).await.unwrap();
+
+        // The coordinator handle is still held by the caller (it doesn't
+        // know the VM was destroyed) — but the *shared* Lifecycle it reads
+        // through PolicyVerifier reflects the change immediately.
+        assert!(coordinator.process("second call, after destroy").await.is_err());
+    }
+
+    #[tokio::test]
+    async fn spawn_agent_session_fails_for_unknown_vm() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let result = manager
+            .spawn_agent_session(
+                "nonexistent",
+                Arc::new(arkhe_core::InMemoryAgentMemory::new()),
+                null_inference(),
+                "test-session",
+                "sys",
+            )
+            .await;
+        assert!(matches!(result, Err(AavmError::NotFound(_))));
     }
 
     #[tokio::test]

@@ -1,0 +1,37 @@
+# CI for crates/arkhe-agent-vm (in safe-core-monorepo) plus its
+# formal-verification artifacts. Separate from web3-security.yml since this
+# is a different crate with its own dependency set (arkhe-agi,
+# arkhe-inference, arkhe-crypto-pqc, arkhe-identity, arkhe-web3-security).
+#
+# Not locally run/verified in CI — this session has no `lean`/`lake`
+# installed, only `rustc`/`cargo`. `rust-build-test` mirrors exactly what
+# was actually run locally: cargo test -p arkhe-agent-vm, 25/25 passing
+# (see safe-core-monorepo/docs/verification/).
+name: Agent VM CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  rust-build-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: safe-core-monorepo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cargo check --workspace
+      - run: cargo test -p arkhe-agent-vm
+
+  lean-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: safe-core-monorepo/crates/arkhe-agent-vm/proofs/lean
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
