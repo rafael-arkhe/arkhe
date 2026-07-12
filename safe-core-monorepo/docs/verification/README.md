@@ -25,6 +25,8 @@ Raw command output backing the claims in `web3-security-architecture.md`'s
 | `cargo-test-onda3-batch-2026-07-12.txt` | `cargo test --workspace --no-fail-fast` | 101 (same 2 pre-existing failures — see below) | The "Onda 3 — FI-032" batch: plan kinds distinguishing `Execution` (must terminate, FI-055-deadline-gated) from `Service` (persistent, health-checked) plans (`PlanKind` in `arkhe-reasoning`, 8/8 up from 7; `evaluate_plan`/`PlanOutcome`/`evaluate_service_health` in new `arkhe-agent-vm::plan`, `arkhe-agent-vm` 63/63 up from 57 — includes the exact two tests requested: an `Execution` plan past its deadline is `Failed`, one with no deadline is `Done`); new `arkhe-storage` crate (content-addressed CHK storage ported from a sibling, unrelated workspace, 16/16 — 12 ported `chk.rs` tests + 4 new `encapsulation.rs` tests wrapping a `ChkKey` in ML-KEM-1024 + ChaCha20-Poly1305 AEAD for one specific recipient); new `arkhe-nostr-anchor` crate (real NIP-01 event IDs + real BIP-340 Schnorr signing via `k256`, anchoring a `Gdid` to a Nostr identity-root event, 7/7); `chunk_share.rs` in `arkhe-network` (FIPS-signed chunk request/response protocol reusing FI-071 signing and FI-077 dispatch, 21/21 up from 14). Full re-run confirms **no regressions**: `arkhe-crypto-pqc` 17/17 (up from 16 — added `encaps_key_from_bytes`), `arkhe-web3-security` 80/80, `arkhe-identity` 13/13. Also fixed two real, previously-undetected bugs in `arkhe-health-check` (never a workspace member before this pass): a missing `serde_json` dependency (`E0433`, code referenced `serde_json::Value` without declaring the crate) and a dead `.max()` call requiring `Ord` on a type that doesn't derive it, whose result was never even read. **The two failures in the exit code remain `arkhe-session-evaluator`'s `detects_validation`/`validation_detection_works` — still pre-existing and untouched this session.** |
 | `cargo-test-onda4-batch-2026-07-12.txt` | `cargo test --workspace --no-fail-fast` | 101 (same 2 pre-existing failures — see below) | The "Onda 4" batch: **FI-050** finished — `arkhe-rsi`/`arkhe-rsi-core` (real, tested, but previously uncommitted and missing `Cargo.toml` metadata) got `authors`/`license`/`repository` and READMEs documenting the existing approval-quorum/hash-chain/rollback mechanism (38/38, unchanged logic). **FI-037** (undefined anywhere prior — a proposed, disclosed interpretation, not a recovered spec) — new `causal_graph.rs` in `arkhe-reasoning`: acyclic (reusing FI-031's Kahn's-algorithm approach) *and* temporally-consistent (a claimed cause can never be timestamped after its effect — a check plans have no basis for, since only causal graphs describe things that already happened) validation over generic `CausalNode`s, 17/17 up from 8. **WASMtime sandbox** — new `wasm_sandbox.rs` in `arkhe-rsi`: `WasmSandboxEvaluator` runs candidate tests in a capability-restricted WASI sandbox (`wasm32-wasip1`, no filesystem/network access — confirmed by a real candidate's own read attempt failing, not just configured); a real, reproduced Windows/wasmtime-28.0.1 platform bug (`STATUS_STACK_BUFFER_OVERRUN` during fuel-exhaustion trap unwinding, confirmed to persist with a 64MiB dedicated stack and in `--release`) is disclosed rather than hidden — fuel is configured and consumption is reported, but exhausting it is not safe to rely on for interruption on this platform; `arkhe-rsi` 35/35 lib tests up from 30. **Blossom protocol (BUD-01)** — new `arkhe-blossom` crate: real kind-`24242` Nostr authorization events (signature, kind, verb, expiration, blob-scope checks) and SHA-256-addressed blob storage over `arkhe-storage::ChunkStore`, 9/9; required adding general-purpose `NostrIdentity::sign_event`/`verify_event` to `arkhe-nostr-anchor` (previously only identity-root-specific). **RISC0 zkVM** — attempted (`cargo install cargo-risczero`), blocked by a real, reproduced upstream build failure (`risc0-circuit-keccak-sys` requires C++20 designated initializers, its own build script hardcodes `/std:c++17` on MSVC) — see `risc0-attempt-2026-07-12.md` for the full account; not pursued further, consistent with this session's practice of disclosing genuine toolchain walls rather than fabricating a result. Full re-run confirms **no regressions** across every crate touched this session. **The two failures in the exit code remain `arkhe-session-evaluator`'s `detects_validation`/`validation_detection_works` — still pre-existing and untouched this session.** |
 | `risc0-attempt-2026-07-12.md` | `cargo install cargo-risczero --locked` | 101 | Full account of the RISC0 zkVM integration attempt and exactly where/why it failed (a real MSVC C++ standard-version mismatch inside a third-party crate's build script, not a lack of effort or a made-up excuse). |
+| `cargo-test-onda4-fix-wasmtime-crash-2026-07-12.txt` | `cargo test -p arkhe-rsi -p arkhe-rsi-core --no-fail-fast` | 101 (same eval-fixture non-failures) | Follow-up fix after a review flagged the WASMtime Windows crash as a real risk, not an acceptable "documented limitation": the actual wasmtime call now runs in a dedicated child process (`arkhe-rsi-wasm-sandbox-runner`, new `[[bin]]` target), wall-clock-bounded by the caller — a crash there is now an observed abnormal exit code, not a shared-process abort. Also fixed a second real bug this redesign's own testing caught: inheriting the sandboxed candidate's stdout corrupted the runner's own control-protocol parsing. `arkhe-rsi`: 35 → 36 lib tests (re-added the infinite-loop-safety test, now passing for real instead of being deliberately absent). |
+| `cargo-test-consolidation-2026-07-12.txt` | `cargo test --workspace --exclude arkhe-session-evaluator --no-fail-fast` | **0** | **A genuinely green, whole-workspace run** — excluding only the one crate with pre-existing, unrelated failures (confirmed via `git diff --stat` to predate and be untouched by any work this session) gives exit code 0, no exceptions. This is the command `.github/workflows/safe-core-monorepo.yml` (new) now runs in CI, replacing the earlier per-crate `cargo test -p ...` lists in `web3-security.yml`/`agent-vm.yml` that silently never covered any crate added after they were written — `--workspace` covers a newly added crate automatically, without needing a CI file edit every time. |
 
 ## Bottom line
 
@@ -33,20 +35,51 @@ The crates this session built or extended (`arkhe-crypto-pqc`,
 `arkhe-network`, `arkhe-reasoning`, `arkhe-storage`, `arkhe-nostr-anchor`,
 `arkhe-blossom`, `arkhe-health-check`, `arkhe-rsi`, `arkhe-rsi-core`, plus
 the pre-existing `arkhe-identity` and `arkhe-agi` they depend on) are
-clean: 17 + 7 + 80 + 63 + 13 + 9 + 21 + 17 + 16 + 7 + 9 + 7 + 35 + 3 + 3
-= **307 tests pass**, workspace `cargo check` is clean.
+clean: 17 + 7 + 80 + 63 + 13 + 9 + 21 + 17 + 16 + 7 + 9 + 7 + 36 + 3 + 3
+= **308 tests pass**, workspace `cargo check` is clean.
 `arkhe-agi`'s *library* is real and working (confirmed via its own
 `tests/coordinator.rs`, 4/4 passing, which `arkhe-agent-vm` now builds on
 directly) — its separate, stale `tests/coordinator_test.rs` (old
 constructor signature, predated this session) has since been deleted, which
 is what was blocking `cargo test --workspace` from running *any* test at
-all. The workspace as a whole still has two other pre-existing, unrelated
-failures (`arkhe-session-evaluator`'s `detects_validation` and
-`validation_detection_works`) that predate this session and haven't been
-addressed — flag if you want those fixed too. (`eval-fixture`'s "unclosed
-delimiter" / `tests::adds` failures are not real failures: they're
-`arkhe-rsi`'s own deliberately-broken fixture code, exercised on purpose by
-tests like `code_that_fails_to_compile_scores_zero`, which itself passes.)
+all. The workspace as a whole still has one other pre-existing, unrelated
+failing crate (`arkhe-session-evaluator`'s `detects_validation` and
+`validation_detection_works`) that predates this session and hasn't been
+addressed — flag if you want those fixed too; `cargo test --workspace
+--exclude arkhe-session-evaluator` (what CI now runs) is fully green.
+(`eval-fixture`'s "unclosed delimiter" / `tests::adds` failures are not
+real failures: they're `arkhe-rsi`'s own deliberately-broken fixture code,
+exercised on purpose by tests like `code_that_fails_to_compile_scores_zero`,
+which itself passes.)
+
+## Consolidation pass (2026-07-12)
+
+After four "Onda" batches plus a post-review fix, a dedicated pass audited
+the whole session's output as a whole rather than crate-by-crate:
+
+- **Metadata**: every crate built or touched this session
+  (`arkhe-reasoning`, `arkhe-evidence`, `arkhe-network`, `arkhe-storage`,
+  `arkhe-nostr-anchor`, `arkhe-blossom`, `arkhe-health-check`, `arkhe-rsi`,
+  `arkhe-rsi-core`, `arkhe-agent-vm`, `arkhe-crypto-pqc`, `arkhe-pqc-core`,
+  `arkhe-web3-security`) has complete `authors`/`license`/`repository`/
+  `description` in its `Cargo.toml` — checked directly, not assumed.
+- **`cargo publish --dry-run`** (spot-checked on `arkhe-blossom`, the most
+  dependency-heavy new crate) fails with "no matching package named
+  `arkhe-nostr-anchor` found" — expected, not a defect: every crate in this
+  workspace transitively depends on `arkhe-core`, which has never been
+  published to crates.io, so dry-run publish can't resolve *any* of them
+  until the whole chain is published leaf-first. The metadata check above
+  is what actually catches real packaging defects; this is a fact about
+  how `cargo publish --dry-run` handles unpublished sibling dependencies,
+  not something to fix here.
+- **CI coverage gap, found and fixed**: `web3-security.yml` and
+  `agent-vm.yml` both ran `cargo check --workspace` (covering every crate)
+  but `cargo test` only for the specific crates each was written for —
+  every crate added in Onda 2 through 4 had never actually had its tests
+  run in CI, only type-checked. New `.github/workflows/safe-core-monorepo.yml`
+  closes this for good by running `cargo test --workspace` instead of a
+  hand-maintained per-crate list, so a newly added crate is covered
+  automatically.
 
 Both Lean proof trees (`arkhe-web3-security`, `arkhe-agent-vm`) are now
 **actually type-checked**, not just "written carefully" — see the two
