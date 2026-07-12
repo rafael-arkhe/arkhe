@@ -1,0 +1,66 @@
+# CI for crates/arkhe-web3-security and crates/arkhe-crypto-pqc (in
+# safe-core-monorepo) plus their formal-verification artifacts.
+#
+# Not locally run/verified — this session has no `lean`/`lake`, `cargo-kani`,
+# or `forge`/`solc` installed, only `rustc`/`cargo` (see the crates'
+# READMEs/doc comments for exactly what *was* verified locally: every
+# `cargo test` in this workflow's `rust-build-test` job was actually run and
+# passed during development). Action versions below were checked against
+# their real GitHub releases/marketplace pages, not guessed.
+name: Web3 Security CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  rust-build-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: safe-core-monorepo
+    steps:
+      - uses: actions/checkout@v4
+      # Matches the toolchain-setup convention already used in
+      # .github/workflows/ci-cd.yml, rather than introducing a second one.
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cargo check --workspace
+      - run: cargo test -p arkhe-crypto-pqc -p arkhe-web3-security
+
+  lean-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: safe-core-monorepo/crates/arkhe-web3-security/proofs/lean
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+
+  kani-verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: safe-core-monorepo/crates/arkhe-web3-security
+    steps:
+      - uses: actions/checkout@v4
+      # kani_harness.rs's own doc comment has the exact nightly toolchain
+      # this needs (nightly-2025-04-03, rustc-dev + llvm-tools) — the
+      # kani-github-action installs its own Rust toolchain internally, so no
+      # separate rust-toolchain step is needed here.
+      - uses: model-checking/kani-github-action@v1.1
+        with:
+          working-directory: .
+
+  foundry-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: safe-core-monorepo/crates/arkhe-web3-security/contracts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: forge install foundry-rs/forge-std --no-commit
+      - run: forge build
+      - run: forge test -vvv

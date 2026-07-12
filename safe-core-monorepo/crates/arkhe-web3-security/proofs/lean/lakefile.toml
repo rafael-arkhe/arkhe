@@ -1,0 +1,10 @@
+# Not locally verified with `lake build` — no Lean/Lake toolchain installed
+# in this dev environment. This is the first Lake project in the repo (no
+# existing lakefile.lean/lakefile.toml anywhere to copy conventions from);
+# see ../README.md for what "not verified" means for the proofs here and
+# the exact command to check it yourself.
+name = "web3_invariants"
+defaultTargets = ["Web3Invariants"]
+
+[[lean_lib]]
+name = "Web3Invariants"

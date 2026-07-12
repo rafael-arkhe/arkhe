@@ -16,6 +16,10 @@ members = [
     "crates/arkhe-bom",
     "crates/arkhe-prompt-detector",
     "crates/arkhe-hallucination",
+    "crates/arkhe-rsi-core",
+    "crates/arkhe-rsi",
+    "crates/arkhe-web3-security",
+    "crates/arkhe-crypto-pqc",
 ]
 resolver = "2"
 

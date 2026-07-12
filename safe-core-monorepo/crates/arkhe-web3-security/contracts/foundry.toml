@@ -1,0 +1,19 @@
+# Not locally verified — no forge/solc installed in the session that wrote this.
+# There was no existing Foundry project anywhere under safe-core-monorepo to inherit
+# conventions from (confirmed by search); the orphan `config/foundry.toml` at the repo
+# root has no .sol sources next to it and isn't related to this one.
+#
+# To verify:
+#   cd crates/arkhe-web3-security/contracts
+#   forge install foundry-rs/forge-std --no-commit
+#   forge build
+#   forge test
+
+[profile.default]
+src = "src"
+test = "test"
+out = "out"
+libs = ["lib"]
+solc = "0.8.24"
+optimizer = true
+optimizer_runs = 200

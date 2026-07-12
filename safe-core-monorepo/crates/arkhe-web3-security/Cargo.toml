@@ -1,0 +1,43 @@
+[package]
+name = "arkhe-web3-security"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Web3 security invariants — OWASP Smart Contract Top 10 2026 (FI-W01..FI-W20)"
+license.workspace = true
+repository.workspace = true
+keywords = ["web3", "security", "smart-contracts", "reentrancy", "audit"]
+categories = ["cryptography", "development-tools"]
+
+[dependencies]
+arkhe-core = { path = "../arkhe-core", version = "0.1.0" }
+arkhe-crypto-pqc = { path = "../arkhe-crypto-pqc", version = "0.1.0" }
+serde = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+
+# NOTE on Kani: src/verify/kani_harness.rs is gated behind `#[cfg(kani)]`
+# and deliberately has NO `kani` crate entry here. `cargo publish` refuses
+# to publish any crate with a git dependency (even optional/feature-gated) —
+# confirmed by trying it — and the real `kani` crate isn't on crates.io
+# under real semver, only as a git checkout. The real `cargo kani` tool
+# injects the `kani` crate implicitly via its own compiler driver, so it
+# doesn't need to be declared here at all for actual verification to work.
+# For *local ad-hoc type-checking* during development (without the
+# `cargo-kani` CLI installed), temporarily add:
+#   [dependencies.kani]
+#   git = "https://github.com/model-checking/kani"
+#   tag = "kani-0.61.0"
+#   optional = true
+# then: cargo rustc -p arkhe-web3-security --lib --features kani -- --cfg kani
+# (scope --cfg via `cargo rustc`, not RUSTFLAGS — RUSTFLAGS also sets
+# --cfg kani on transitive deps like `zerocopy`, which has its own
+# incompatible kani-gated code and fails to build). See
+# src/verify/kani_harness.rs for the exact nightly toolchain pin required.
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kani)"] }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
