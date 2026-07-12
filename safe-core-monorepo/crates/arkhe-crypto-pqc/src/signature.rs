@@ -105,6 +105,18 @@ impl HybridSigningKey {
             ml_dsa: self.ml_dsa.get_public_key(),
         }
     }
+
+    /// Narrow escape hatch: the raw Ed25519 sub-key, for interop with
+    /// external APIs that specifically require an `ed25519_dalek::SigningKey`
+    /// (e.g. `arkhe_identity::GdidCertificate::issue`, which hardcodes
+    /// Ed25519 verification and can't be changed to accept a hybrid
+    /// signature without breaking its own wire format). Prefer
+    /// [`Self::sign`] for anything that can use the hybrid scheme instead —
+    /// this bypasses the "both halves must be broken to forge" guarantee
+    /// that's the entire point of this crate.
+    pub fn ed25519_signing_key(&self) -> &SigningKey {
+        &self.ed25519
+    }
 }
 
 impl HybridVerifyingKey {

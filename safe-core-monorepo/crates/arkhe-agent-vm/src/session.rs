@@ -55,7 +55,10 @@ impl PolicyVerifier {
     async fn record(&self, verdict: InvariantVerdict) -> SafetyVerdict {
         let safety_verdict = match &verdict {
             InvariantVerdict::Holds => SafetyVerdict::Allowed,
-            InvariantVerdict::Violated { reason } => SafetyVerdict::Rejected(reason.clone()),
+            InvariantVerdict::Violated { reason } => {
+                tracing::warn!(aavm_id = %self.aavm_id, reason, "AAVM action rejected");
+                SafetyVerdict::Rejected(reason.clone())
+            }
         };
         self.evidence_bus.store(AuditEvidence { invariant_id: FI_A04, verdict }).await;
         safety_verdict

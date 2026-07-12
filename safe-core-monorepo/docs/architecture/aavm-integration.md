@@ -35,9 +35,10 @@ flowchart TB
 
     MGR -->|generates| PQC
     MGR -->|derives Gdid from pubkey hash| GDID
+    MGR -->|issues GdidCertificate| GDID
     MGR -->|owns, Arc-shared| LC
     MGR -->|owns, Arc-shared| POL
-    MGR -->|records FI-A01..FI-A03| EB
+    MGR -->|records FI-A01,FI-A02,FI-A03,FI-A07,FI-A08| EB
     MGR -->|spawn_agent_session builds| PV
     PV -->|reads live| LC
     PV -->|reads| POL
@@ -113,6 +114,8 @@ snapshot.
 | FI-A03 | `destroy_vm` | Lifecycle transitioned `Running -> Terminating -> Destroyed` without error | Overlaps with the general transition-graph approach in `arkhe-web3-security/proofs/lean/Web3Invariants/Reentrancy.lean`, not separately proven for this crate's specific graph |
 | FI-A04 | `PolicyVerifier::verify` (every `process()` call) | Action allowed only if `policy.allows(action)` **and** `lifecycle == Running` | Yes — `crates/arkhe-agent-vm/proofs/lean/AgentVm/PolicyGate.lean`, **type-checked** (`lake build`, 5/5 jobs, see `docs/verification/lake-build-agent-vm-2026-07-11.txt`) |
 | FI-A05 | `AAVMManager::snapshot` | A captured snapshot passes its own integrity check; a tampered one fails it (given hash injectivity) | Yes — `crates/arkhe-agent-vm/proofs/lean/AgentVm/SnapshotIntegrity.lean`, **type-checked**. Does not prove anything about BLAKE3 itself — see that file's doc comment |
+| FI-A07 | `create_vm`, `destroy_vm` (every `Lifecycle` transition) | Every individual state transition (not just the FI-A01–FI-A03 summaries) generates evidence | Not yet — Rust-only |
+| FI-A08 | `create_vm` | The issued `GdidCertificate` (via `arkhe-identity`'s `CapabilityBitmap`, a separate vocabulary from `AgentPolicy`) self-verifies | Not yet — Rust-only |
 
 FI-A06 is not listed: no definition of "RVM"/coherence domains was
 available in this codebase or session context to formalize against.

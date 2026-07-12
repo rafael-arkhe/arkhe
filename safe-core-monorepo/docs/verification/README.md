@@ -18,13 +18,14 @@ Raw command output backing the claims in `web3-security-architecture.md`'s
 | `cargo-test-workspace-2026-07-11-post-stale-test-removal.txt` | `cargo test --workspace` | 101 | After deleting `arkhe-agi/tests/coordinator_test.rs` (dead, broken, fully superseded by `tests/coordinator.rs` — old 2-arg `AgiCoordinator::new()` signature, and a `coordinator.session_id()` method that doesn't exist on the real type): the workspace build no longer aborts before running tests. **29 passing test-result blocks** now actually run. Exit code is still 101 — but only because of the same two pre-existing, unrelated failures noted above (`eval-fixture`, `arkhe-session-evaluator`), not because of anything this session touched. |
 | `lake-build-web3-security-2026-07-11.txt` | `lake build` (in `crates/arkhe-web3-security/proofs/lean`) | 0 | **Real Lean type-checking**, not CI-only anymore — `elan` was installed in-session (`leanprover/lean4:v4.31.0`). Clean rebuild from an empty `.lake`: "Build completed successfully (6 jobs)". Every theorem in `Web3Invariants.{Reentrancy,NonceMonotonic,DomainSeparation}` is accepted by the real Lean kernel, no `sorry`. |
 | `lake-build-agent-vm-2026-07-11.txt` | `lake build` (in `crates/arkhe-agent-vm/proofs/lean`) | 0 | Same toolchain. **First attempt failed** — `AgentVm/PolicyGate.lean`'s four `LifecycleState` theorems used `simp [policyGate]`, which left `unsolved goals` (didn't fully evaluate a concrete derived-`BEq` comparison). Fixed by switching to `rfl` (the state argument is always a concrete constructor at the call site, so both the `BEq` comparison and the subsequent `Bool.and` reduce by computation alone). Also hit and fixed a real proof-direction bug while adding `AgentVm/SnapshotIntegrity.lean` (FI-A05): an equality was used backwards (`hIntegrity` vs `hIntegrity.symm`) — real `Type mismatch` error from the kernel, not a style nit. Clean rebuild from empty `.lake`: "Build completed successfully (5 jobs)". |
+| `cargo-test-agent-vm-fi-a07-a08-2026-07-11.txt` | `cargo test -p arkhe-agent-vm -p arkhe-identity` | 0 | FI-A07 (per-`Lifecycle`-transition evidence) and FI-A08 (GDID `CapabilityBitmap` certificate, self-issued and self-verified at `create_vm`): 39/39 (`arkhe-agent-vm`, up from 34) and 13/13 (`arkhe-identity`, up from 12 — added `GdidCertificate::issue` as a real `pub fn`, promoted from a private test-only helper that external code couldn't reach). |
 
 ## Bottom line
 
 The crates this session built or extended (`arkhe-crypto-pqc`,
 `arkhe-pqc-core`, `arkhe-web3-security`, `arkhe-agent-vm`, plus the
 pre-existing `arkhe-identity` and `arkhe-agi` they depend on) are clean:
-10 + 7 + 80 + 34 + 12 = 143 tests pass, workspace `cargo check` is clean.
+10 + 7 + 80 + 39 + 13 = 149 tests pass, workspace `cargo check` is clean.
 `arkhe-agi`'s *library* is real and working (confirmed via its own
 `tests/coordinator.rs`, 4/4 passing, which `arkhe-agent-vm` now builds on
 directly) — its separate, stale `tests/coordinator_test.rs` (old

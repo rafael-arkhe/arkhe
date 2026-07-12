@@ -1,6 +1,6 @@
 //! Certificado de atestacao do GDID e verificacao criptografica.
 
-use ed25519_dalek::{Signature, Verifier, VerifyingKey};
+use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use serde::{Deserialize, Serialize};
 use serde_big_array::BigArray;
 use subtle::ConstantTimeEq;
@@ -96,6 +96,35 @@ impl GdidCertificate {
         }
     }
 
+    /// Emite um certificado autoassinado (ou assinado por um issuer
+    /// separado — `signing_key` e apenas a chave que produz `issuer_sig`,
+    /// nao precisa pertencer ao dono do `gdid`).
+    ///
+    /// Promovido de um helper somente-de-teste para uma API publica real —
+    /// antes desta mudanca nao havia forma externa de construir um
+    /// certificado que passasse em `verify()`, ja que `payload()` e
+    /// `GdidCertPayload` sao privados ao modulo.
+    pub fn issue(
+        gdid: Gdid,
+        signing_key: &SigningKey,
+        capabilities: CapabilityBitmap,
+        issued_at: u64,
+        expires_at: u64,
+    ) -> Self {
+        let mut cert = Self {
+            gdid,
+            pubkey: signing_key.verifying_key().to_bytes(),
+            issued_at,
+            expires_at,
+            namespace: gdid.namespace(),
+            capabilities,
+            issuer_sig: [0u8; 64],
+        };
+        let payload = postcard::to_allocvec(&cert.payload()).expect("GdidCertPayload always serializes");
+        cert.issuer_sig = signing_key.sign(&payload).to_bytes();
+        cert
+    }
+
     /// Verifica a assinatura do issuer e a integridade do certificado.
     ///
     /// `now` e o timestamp Unix corrente, fornecido pelo chamador para manter
@@ -136,22 +165,10 @@ impl GdidCertificate {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ed25519_dalek::{Signer, SigningKey};
+    use ed25519_dalek::SigningKey;
 
     fn issue(gdid: Gdid, signing_key: &SigningKey, expires_at: u64) -> GdidCertificate {
-        let mut cert = GdidCertificate {
-            gdid,
-            pubkey: signing_key.verifying_key().to_bytes(),
-            issued_at: 0,
-            expires_at,
-            namespace: gdid.namespace(),
-            capabilities: CapabilityBitmap(CapabilityBitmap::INFERENCE),
-            issuer_sig: [0u8; 64],
-        };
-        let payload = postcard::to_allocvec(&cert.payload()).unwrap();
-        let sig = signing_key.sign(&payload);
-        cert.issuer_sig = sig.to_bytes();
-        cert
+        GdidCertificate::issue(gdid, signing_key, CapabilityBitmap(CapabilityBitmap::INFERENCE), 0, expires_at)
     }
 
     #[test]
@@ -185,6 +202,21 @@ mod tests {
 
         let err = cert.verify(&signing_key.verifying_key(), 500_000).unwrap_err();
         assert!(matches!(err, GdidError::InvalidSignature));
+    }
+
+    #[test]
+    fn issue_produces_a_certificate_with_the_requested_capabilities() {
+        let signing_key = SigningKey::from_bytes(&[3u8; 32]);
+        let hw = [5u8; 20];
+        let gdid = Gdid::from_parts(Gdid::VERSION_ED25519, Gdid::NS_ARKHE, &hw, 1);
+        let caps = CapabilityBitmap(CapabilityBitmap::CONSENSUS | CapabilityBitmap::HUBBLE_RELAY);
+        let cert = GdidCertificate::issue(gdid, &signing_key, caps, 42, 1_000_000);
+
+        assert_eq!(cert.issued_at, 42);
+        assert!(cert.capabilities.has(CapabilityBitmap::CONSENSUS));
+        assert!(cert.capabilities.has(CapabilityBitmap::HUBBLE_RELAY));
+        assert!(!cert.capabilities.has(CapabilityBitmap::GOVERNANCE_VOTE));
+        assert!(cert.verify(&signing_key.verifying_key(), 500_000).is_ok());
     }
 
     #[test]

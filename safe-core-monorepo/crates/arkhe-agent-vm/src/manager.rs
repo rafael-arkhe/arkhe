@@ -19,7 +19,7 @@
 use std::sync::Arc;
 
 use arkhe_crypto_pqc::{generate_hybrid_keypair, HybridVerifyingKey};
-use arkhe_identity::Gdid;
+use arkhe_identity::{CapabilityBitmap, Gdid, GdidCertificate};
 use arkhe_web3_security::agents::{AuditEvidence, EvidenceBus};
 use arkhe_web3_security::InvariantVerdict;
 use tokio::sync::{Mutex, RwLock};
@@ -38,6 +38,29 @@ pub enum AavmError {
     IdentityAttestationFailed(String),
     #[error("policy is invalid: {0}")]
     InvalidPolicy(String),
+    #[error("capability certificate is invalid: {0}")]
+    CapabilityCertificateInvalid(String),
+}
+
+/// Maps `AgentPolicy::allowed_capabilities` (free-form action strings, this
+/// crate's own vocabulary) onto `arkhe_identity::CapabilityBitmap`'s four
+/// fixed hardware/network-level flags — a genuinely different vocabulary.
+/// Only the capability strings below have a corresponding bit; anything
+/// else in the policy is a real, enforced capability at the `PolicyVerifier`
+/// level (FI-A04) but simply has no GDID-level bit to set, which is
+/// expected, not a bug — the two systems cover different scopes.
+fn capability_bitmap_from_policy(policy: &AgentPolicy) -> CapabilityBitmap {
+    let mut bits = 0u16;
+    for cap in &policy.allowed_capabilities {
+        bits |= match cap.as_str() {
+            "consensus" => CapabilityBitmap::CONSENSUS,
+            "llm_inference" => CapabilityBitmap::INFERENCE,
+            "governance_vote" => CapabilityBitmap::GOVERNANCE_VOTE,
+            "hubble_relay" => CapabilityBitmap::HUBBLE_RELAY,
+            _ => 0,
+        };
+    }
+    CapabilityBitmap(bits)
 }
 
 /// Fixed challenge every AAVM signs at creation time to prove it holds the
@@ -58,6 +81,9 @@ struct AavmHandle {
     /// only ever reflect the state at the moment a session was spawned.
     lifecycle: Arc<RwLock<Lifecycle>>,
     policy: Arc<AgentPolicy>,
+    /// GDID-level capability certificate (FI-A08) — a separate vocabulary
+    /// from `policy.allowed_capabilities`, see [`capability_bitmap_from_policy`].
+    capability_cert: GdidCertificate,
 }
 
 impl AavmHandle {
@@ -96,7 +122,9 @@ impl AAVMManager {
     ///    and rejects creation if it fails (it shouldn't, for a freshly
     ///    generated keypair, but the check is real, not decorative).
     /// 4. Checks `policy.max_lifetime_secs > 0` (FI-A02) — same treatment.
-    /// 5. Starts the lifecycle (`Creating -> Running`).
+    /// 5. Issues a GDID `CapabilityBitmap` certificate, self-signed with the
+    ///    VM's Ed25519 sub-key, and self-verifies it (FI-A08).
+    /// 6. Starts the lifecycle (`Creating -> Running`, FI-A07).
     pub async fn create_vm(&self, policy: AgentPolicy) -> Result<AavmSummary, AavmError> {
         let keypair = generate_hybrid_keypair().expect("hybrid PQC keypair generation does not fail");
 
@@ -122,14 +150,40 @@ impl AAVMManager {
         self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A02", verdict: policy_verdict.clone() }).await;
 
         if let InvariantVerdict::Violated { reason } = &identity_verdict {
+            tracing::warn!(id = %gdid.to_base58(), reason, "AAVM creation rejected: identity self-attestation failed");
             return Err(AavmError::IdentityAttestationFailed(reason.clone()));
         }
         if let InvariantVerdict::Violated { reason } = &policy_verdict {
+            tracing::warn!(id = %gdid.to_base58(), reason, "AAVM creation rejected: invalid policy");
             return Err(AavmError::InvalidPolicy(reason.clone()));
         }
 
+        let issued_at = now_secs();
+        let expires_at = issued_at.saturating_add(policy.max_lifetime_secs);
+        let capability_cert = GdidCertificate::issue(
+            gdid,
+            keypair.signing_key.ed25519_signing_key(),
+            capability_bitmap_from_policy(&policy),
+            issued_at,
+            expires_at,
+        );
+        let cert_verdict = match capability_cert.verify(&keypair.signing_key.ed25519_signing_key().verifying_key(), issued_at) {
+            Ok(()) => InvariantVerdict::Holds,
+            Err(e) => InvariantVerdict::violated(e.to_string()),
+        };
+        self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A08", verdict: cert_verdict.clone() }).await;
+        if let InvariantVerdict::Violated { reason } = &cert_verdict {
+            tracing::warn!(id = %gdid.to_base58(), reason, "AAVM creation rejected: capability certificate invalid");
+            return Err(AavmError::CapabilityCertificateInvalid(reason.clone()));
+        }
+
         let mut lifecycle = Lifecycle::new();
-        lifecycle.start()?;
+        let start_result = lifecycle.start();
+        self.record_transition("Creating->Running", &start_result).await;
+        if let Err(e) = start_result {
+            tracing::warn!(id = %gdid.to_base58(), error = %e, "AAVM creation rejected: lifecycle start failed");
+            return Err(e.into());
+        }
 
         let handle = AavmHandle {
             id: gdid.to_base58(),
@@ -137,11 +191,25 @@ impl AAVMManager {
             verifying_key: keypair.verifying_key,
             lifecycle: Arc::new(RwLock::new(lifecycle)),
             policy: Arc::new(policy),
+            capability_cert,
         };
         let summary = handle.summary().await;
 
         self.vms.lock().await.push(handle);
+        tracing::info!(id = %summary.id, state = ?summary.state, "AAVM created");
         Ok(summary)
+    }
+
+    /// Records FI-A07 (per-transition evidence) for a single `Lifecycle`
+    /// transition attempt — the general "every state transition generates
+    /// evidence" principle, at the granularity of individual transitions
+    /// rather than only the higher-level FI-A01..FI-A03 summaries.
+    async fn record_transition(&self, label: &str, result: &Result<(), InvalidTransition>) {
+        let verdict = match result {
+            Ok(()) => InvariantVerdict::Holds,
+            Err(e) => InvariantVerdict::violated(format!("{label}: {e}")),
+        };
+        self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A07", verdict }).await;
     }
 
     /// Destroys the AAVM identified by `id`: `Running -> Terminating ->
@@ -153,13 +221,21 @@ impl AAVMManager {
         let mut vms = self.vms.lock().await;
         let pos = vms.iter().position(|h| h.id == id).ok_or_else(|| AavmError::NotFound(id.to_string()))?;
 
-        let result: Result<(), InvalidTransition> = {
+        let begin_result = {
             let mut lifecycle = vms[pos].lifecycle.write().await;
-            (|| {
-                lifecycle.begin_terminate()?;
-                lifecycle.destroy()?;
-                Ok(())
-            })()
+            lifecycle.begin_terminate()
+        };
+        self.record_transition("Running->Terminating", &begin_result).await;
+
+        let result: Result<(), InvalidTransition> = if begin_result.is_ok() {
+            let destroy_result = {
+                let mut lifecycle = vms[pos].lifecycle.write().await;
+                lifecycle.destroy()
+            };
+            self.record_transition("Terminating->Destroyed", &destroy_result).await;
+            destroy_result
+        } else {
+            begin_result
         };
 
         let verdict = match &result {
@@ -168,8 +244,12 @@ impl AAVMManager {
         };
         self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A03", verdict }).await;
 
-        result?;
+        if let Err(e) = &result {
+            tracing::warn!(id, error = %e, "AAVM destroy failed");
+            result?;
+        }
         vms.remove(pos);
+        tracing::info!(id, "AAVM destroyed");
         Ok(())
     }
 
@@ -239,9 +319,17 @@ impl AAVMManager {
         } else {
             InvariantVerdict::violated("snapshot failed its own integrity check immediately after capture")
         };
-        self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A05", verdict }).await;
+        self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A05", verdict: verdict.clone() }).await;
+        tracing::info!(id, holds = verdict.holds(), "AAVM snapshot captured");
 
         Ok(snapshot)
+    }
+
+    /// The GDID capability certificate issued at `create_vm` time, if `id`
+    /// is a live AAVM. No secret material — safe to hand to callers outside
+    /// the manager, same custody boundary as [`AavmSummary`].
+    pub async fn capability_certificate(&self, id: &str) -> Option<GdidCertificate> {
+        self.vms.lock().await.iter().find(|h| h.id == id).map(|h| h.capability_cert.clone())
     }
 
     /// Returns the shared `Lifecycle` and `AgentPolicy` handles for a live
@@ -520,5 +608,66 @@ mod tests {
     async fn snapshot_fails_for_unknown_vm() {
         let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
         assert!(matches!(manager.snapshot("nonexistent").await, Err(AavmError::NotFound(_))));
+    }
+
+    #[tokio::test]
+    async fn create_vm_issues_a_self_verifying_capability_certificate() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+
+        let cert = manager.capability_certificate(&summary.id).await.unwrap();
+        assert_eq!(cert.gdid, summary.gdid);
+        let issuer_key = ed25519_dalek::VerifyingKey::from_bytes(&cert.pubkey).unwrap();
+        assert!(cert.verify(&issuer_key, cert.issued_at).is_ok());
+    }
+
+    #[tokio::test]
+    async fn capability_certificate_maps_known_policy_strings_to_bitmap_flags() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let policy = AgentPolicy {
+            max_lifetime_secs: 3600,
+            allowed_capabilities: vec!["consensus".to_string(), "llm_inference".to_string(), "fs.write".to_string()],
+        };
+        let summary = manager.create_vm(policy).await.unwrap();
+
+        let cert = manager.capability_certificate(&summary.id).await.unwrap();
+        assert!(cert.capabilities.has(arkhe_identity::CapabilityBitmap::CONSENSUS));
+        assert!(cert.capabilities.has(arkhe_identity::CapabilityBitmap::INFERENCE));
+        assert!(!cert.capabilities.has(arkhe_identity::CapabilityBitmap::GOVERNANCE_VOTE));
+        // "fs.write" has no GDID-level bit — expected, different vocabulary,
+        // not a bug (see capability_bitmap_from_policy's doc comment).
+    }
+
+    #[tokio::test]
+    async fn capability_certificate_is_absent_for_unknown_vm() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        assert!(manager.capability_certificate("nonexistent").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn create_vm_records_fi_a07_and_fi_a08_evidence() {
+        let evidence_bus = Arc::new(EvidenceBus::new());
+        let manager = AAVMManager::new(evidence_bus.clone());
+        manager.create_vm(permissive_policy()).await.unwrap();
+
+        let evidence = evidence_bus.all().await;
+        assert!(evidence.iter().any(|e| e.invariant_id == "FI-A07" && e.verdict.holds()));
+        assert!(evidence.iter().any(|e| e.invariant_id == "FI-A08" && e.verdict.holds()));
+    }
+
+    #[tokio::test]
+    async fn destroy_vm_records_two_fi_a07_transitions() {
+        let evidence_bus = Arc::new(EvidenceBus::new());
+        let manager = AAVMManager::new(evidence_bus.clone());
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+
+        let before = evidence_bus.all().await.iter().filter(|e| e.invariant_id == "FI-A07").count();
+        manager.destroy_vm(&summary.id).await.unwrap();
+        let after = evidence_bus.all().await.iter().filter(|e| e.invariant_id == "FI-A07").count();
+
+        // 1 from create_vm's Creating->Running, +2 from destroy_vm's
+        // Running->Terminating and Terminating->Destroyed.
+        assert_eq!(before, 1);
+        assert_eq!(after, 3);
     }
 }

@@ -12,7 +12,7 @@ reinventing any of them:
   zeroization matters here, since `create_vm` briefly holds live secret
   material).
 - **`arkhe-web3-security`** — creation, destruction, and per-action checks
-  are recorded to its `EvidenceBus` under invariant IDs `FI-A01`–`FI-A04`.
+  are recorded to its `EvidenceBus` under invariant IDs `FI-A01`–`FI-A08`.
 - **`arkhe-agi`** — `AAVMManager::spawn_agent_session` wraps a real
   `AgiCoordinator` (safety check → inference call → memory write → history
   update) so every `process()` call is gated by the owning AAVM's *live*
@@ -20,8 +20,28 @@ reinventing any of them:
 
 ## Status
 
-34/34 tests pass. Verified: `../docs/verification/README.md` (run from
+39/39 tests pass. Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
+
+## Capability certificates (FI-A08)
+
+Each AAVM also gets a `arkhe_identity::GdidCertificate` — a **separate**
+capability system from `AgentPolicy`, using `arkhe-identity`'s fixed,
+4-flag `CapabilityBitmap` (`CONSENSUS`/`INFERENCE`/`GOVERNANCE_VOTE`/`HUBBLE_RELAY`)
+rather than `AgentPolicy`'s free-form action strings. Issued and self-signed
+at `create_vm` time using the VM's own Ed25519 sub-key, self-verified
+immediately (FI-A08), and retrievable via `AAVMManager::capability_certificate(id)`.
+`capability_bitmap_from_policy` maps the subset of `AgentPolicy.allowed_capabilities`
+strings that have a corresponding GDID-level flag (e.g. `"llm_inference"` →
+`INFERENCE`) — anything else in the policy is still enforced at the
+`PolicyVerifier`/FI-A04 level, it just has no bit to set here. Two
+different vocabularies for two different scopes, not a bug.
+
+Adding this required a real change to `arkhe-identity` itself:
+`GdidCertificate::issue` existed only as a private, test-only helper before
+this — there was no way to construct a certificate that passed `verify()`
+from outside the crate (`payload()`/`GdidCertPayload` are private). Promoted
+to a real `pub fn`.
 
 ## Execution environment: policy-gated agent sessions
 
@@ -124,6 +144,20 @@ tamper-detection-given-hash-injectivity) in
   expiry check it enables was built but not wired in. `sweep_expired`
   closes that gap: it terminates any AAVM whose own policy says it's
   outlived `max_lifetime_secs`, regardless of what else asked it to stop.
+  **FI-A07** records evidence for every individual `Lifecycle` transition
+  (not just the higher-level FI-A01–FI-A03 summaries) — `create_vm`'s
+  `Creating -> Running` step previously produced no evidence at all;
+  `destroy_vm` now records two FI-A07 entries (`Running -> Terminating`,
+  `Terminating -> Destroyed`) alongside its existing combined FI-A03
+  verdict, rather than replacing it.
+
+## Logging
+
+`create_vm`/`destroy_vm`/`snapshot` and `PolicyVerifier::verify` emit
+`tracing` events (`info` for normal lifecycle events, `warn` for rejections
+and failures) — structured execution logs at AAVM task boundaries, wired
+into the same `tracing` facade the rest of the workspace already uses (no
+new logging framework introduced).
 
 ## Secret custody
 
