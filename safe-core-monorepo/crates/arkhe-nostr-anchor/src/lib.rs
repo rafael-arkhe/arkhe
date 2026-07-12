@@ -73,6 +73,17 @@ impl NostrIdentity {
     pub fn pubkey_hex(&self) -> String {
         hex::encode(self.signing_key.verifying_key().to_bytes())
     }
+
+    /// Builds and signs a real NIP-01 event of any `kind` — the general
+    /// case [`root_identity`] is a thin wrapper around, for callers that
+    /// need Nostr events this crate doesn't have a dedicated constructor
+    /// for (e.g. Blossom/BUD-01 authorization events, kind `24242`).
+    pub fn sign_event(&self, created_at: u64, kind: u16, tags: Vec<Vec<String>>, content: String) -> NostrEvent {
+        let pubkey = self.pubkey_hex();
+        let id = compute_event_id(&pubkey, created_at, kind, &tags, &content);
+        let signature: Signature = self.signing_key.sign(&id);
+        NostrEvent { id, pubkey, created_at, kind, tags, content, sig: signature.to_bytes() }
+    }
 }
 
 /// A Nostr NIP-01 event. `id` is
@@ -117,17 +128,18 @@ pub fn compute_event_id(pubkey: &str, created_at: u64, kind: u16, tags: &Vec<Vec
 /// `identity`. `content` is the hex-encoded `Gdid` bytes — a real,
 /// data-model commitment, not a description of one.
 pub fn root_identity(identity: &NostrIdentity, gdid: &Gdid, created_at: u64) -> NostrEvent {
-    let pubkey = identity.pubkey_hex();
     let content = hex::encode(gdid.as_bytes());
     let tags = vec![vec!["d".to_string(), "arkhe-gdid-root".to_string()]];
-    let id = compute_event_id(&pubkey, created_at, KIND_ARKHE_IDENTITY_ROOT, &tags, &content);
-    let signature: Signature = identity.signing_key.sign(&id);
-    NostrEvent { id, pubkey, created_at, kind: KIND_ARKHE_IDENTITY_ROOT, tags, content, sig: signature.to_bytes() }
+    identity.sign_event(created_at, KIND_ARKHE_IDENTITY_ROOT, tags, content)
 }
 
 /// Verifies a [`NostrEvent`]: recomputes `id` from its other fields (catches
 /// tampering with any field, `id` included) and checks `sig` against `id`
-/// under `pubkey`.
+/// under `pubkey`. Despite the name, this check is fully generic — nothing
+/// here assumes an identity-root event's shape specifically — so
+/// [`verify_event`] is the same function under a name that reads better at
+/// call sites verifying some other kind of event (e.g. a Blossom/BUD-01
+/// authorization).
 pub fn verify_root_event(event: &NostrEvent) -> Result<(), NostrAnchorError> {
     let recomputed = compute_event_id(&event.pubkey, event.created_at, event.kind, &event.tags, &event.content);
     if recomputed != event.id {
@@ -140,6 +152,12 @@ pub fn verify_root_event(event: &NostrEvent) -> Result<(), NostrAnchorError> {
     let signature = Signature::try_from(event.sig.as_slice()).map_err(|_| NostrAnchorError::InvalidSignature)?;
 
     verifying_key.verify(&event.id, &signature).map_err(|_| NostrAnchorError::SignatureInvalid)
+}
+
+/// Alias for [`verify_root_event`] — see its doc comment for why this is
+/// the same, fully generic function under a more general name.
+pub fn verify_event(event: &NostrEvent) -> Result<(), NostrAnchorError> {
+    verify_root_event(event)
 }
 
 #[cfg(test)]

@@ -28,6 +28,7 @@ members = [
     "crates/arkhe-health-check",
     "crates/arkhe-storage",
     "crates/arkhe-nostr-anchor",
+    "crates/arkhe-blossom",
 ]
 resolver = "2"
 

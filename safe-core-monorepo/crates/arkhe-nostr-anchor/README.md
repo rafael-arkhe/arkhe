@@ -9,6 +9,11 @@ computation and real BIP-340 Schnorr signing (`k256`), anchoring an
 7/7 tests pass. Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
 
+`NostrIdentity::sign_event`/`verify_event` (general-purpose, any `kind` —
+`root_identity`/`verify_root_event` are thin wrappers around them) were
+added to support `arkhe-blossom`'s BUD-01 authorization events (kind
+`24242`), which need real Nostr signing but aren't identity-root events.
+
 ## What's actually here
 
 - **`NostrIdentity`** — a real secp256k1/BIP-340 keypair (`k256::schnorr`).

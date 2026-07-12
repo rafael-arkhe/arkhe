@@ -1,0 +1,16 @@
+[package]
+name = "arkhe-rsi"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FI-050 — self-limited RSI: quorum approval, hash-chain/score-drop verification, and automatic rollback gate a recursive self-improvement loop"
+
+[dependencies]
+arkhe-rsi-core = { path = "../arkhe-rsi-core" }
+sled = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+wasmtime = { workspace = true }
+wasmtime-wasi = "28"

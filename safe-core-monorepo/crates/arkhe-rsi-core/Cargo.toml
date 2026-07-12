@@ -1,0 +1,13 @@
+[package]
+name = "arkhe-rsi-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FI-050 — core types for the RSI iteration loop: artifacts, evaluations, checkpoints, hash-chained iteration records"
+
+[dependencies]
+arkhe-core = { path = "../arkhe-core" }
+serde = { workspace = true }
+thiserror = { workspace = true }

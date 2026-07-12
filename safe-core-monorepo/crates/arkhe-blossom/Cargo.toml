@@ -1,0 +1,16 @@
+[package]
+name = "arkhe-blossom"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Blossom protocol (BUD-01) support: SHA-256-addressed blob storage and Nostr-event authorization, layered on arkhe-storage and arkhe-nostr-anchor. Protocol/data-model layer only — no HTTP server or client."
+
+[dependencies]
+arkhe-storage = { path = "../arkhe-storage", version = "0.1.0" }
+arkhe-nostr-anchor = { path = "../arkhe-nostr-anchor", version = "0.1.0" }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]

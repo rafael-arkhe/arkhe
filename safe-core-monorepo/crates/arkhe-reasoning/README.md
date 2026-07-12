@@ -3,11 +3,12 @@
 FI-031 — acyclic execution plans: a plan whose action dependency graph
 contains a cycle is rejected before execution, detected via Kahn's algorithm
 (topological sort). FI-032 — `PlanKind` distinguishes bounded plans from
-persistent ones; see below.
+persistent ones. FI-037 — causal graphs: acyclic *and* temporally
+consistent claims of the form "node N was caused by node C"; see below.
 
 ## Status
 
-8/8 tests pass. Verified: `../docs/verification/README.md` (run from
+17/17 tests pass. Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
 
 ## What's actually here
@@ -28,6 +29,24 @@ persistent ones; see below.
   `Execution`, health-check-based for `Service`) lives in
   `arkhe-agent-vm::plan`, which depends on this crate — not the other way
   around.
+
+- **`causal_graph.rs`** (FI-037, new — no prior definition of this
+  invariant existed anywhere in this codebase; this is a proposed, disclosed
+  interpretation, not a recovered spec) — `CausalNode { id, timestamp_secs,
+  caused_by }`, `CausalGraph { nodes }`,
+  `CausalGraphValidator::validate(&self, graph: &CausalGraph) ->
+  Result<Vec<NodeId>, CausalError>`. Reuses `validator.rs`'s Kahn's-algorithm
+  acyclicity check (a causal graph must be acyclic — nothing can be its own
+  cause, even transitively) but adds a check FI-031's plans have no basis
+  for: every node carries a real timestamp, so `CausalGraphValidator`
+  additionally rejects any claimed cause timestamped *after* the effect it
+  supposedly produced (`CausalError::EffectPrecedesCause`) — a check that
+  only makes sense because causal nodes describe things that already
+  happened, unlike a plan's not-yet-executed actions. Deliberately generic
+  over `NodeId`/timestamps rather than coupled to any specific record type
+  (`arkhe-rsi-core::IterationRecord`, `arkhe-evidence::EvidenceRecord`,
+  ...) — a caller maps its own already-hash-chained records into
+  `CausalNode`s.
 
 ## A real bug fixed relative to an earlier draft
 
