@@ -1,11 +1,12 @@
 # CI for crates/arkhe-web3-security and crates/arkhe-crypto-pqc (in
 # safe-core-monorepo) plus their formal-verification artifacts.
 #
-# Not locally run/verified — this session has no `lean`/`lake`, `cargo-kani`,
-# or `forge`/`solc` installed, only `rustc`/`cargo` (see the crates'
-# READMEs/doc comments for exactly what *was* verified locally: every
-# `cargo test` in this workflow's `rust-build-test` job was actually run and
-# passed during development). Action versions below were checked against
+# `rust-build-test` and `lean-check` mirror commands actually run locally
+# during development (see crates/arkhe-web3-security/docs and
+# docs/verification/lake-build-web3-security-2026-07-11.txt for the Lean
+# proof — 6/6 jobs, exit 0, elan-installed leanprover/lean4:v4.31.0).
+# `kani-verify`/`foundry-tests` are still CI-only — no `cargo-kani` or
+# `forge`/`solc` installed locally. Action versions were checked against
 # their real GitHub releases/marketplace pages, not guessed.
 name: Web3 Security CI
 

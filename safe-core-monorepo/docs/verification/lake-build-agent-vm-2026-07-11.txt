@@ -1,0 +1,4 @@
+✔ [2/5] Built AgentVm.PolicyGate (2.7s)
+✔ [3/5] Built AgentVm.SnapshotIntegrity (2.4s)
+✔ [4/5] Built AgentVm (2.1s)
+Build completed successfully (5 jobs).

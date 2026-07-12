@@ -36,8 +36,7 @@ def policyGate (state : LifecycleState) (policy : AgentPolicy) (action : String)
 /-- When the state is `running`, the gate reduces exactly to the policy
     check — no hidden extra condition. -/
 theorem gate_when_running (policy : AgentPolicy) (action : String) :
-    policyGate LifecycleState.running policy action = policy.allows action := by
-  simp [policyGate]
+    policyGate LifecycleState.running policy action = policy.allows action := rfl
 
 /-- The actual content of the "AND Lifecycle is Running" clause: for each of
     the three non-running states, the gate is `false` regardless of what
@@ -47,16 +46,13 @@ theorem gate_when_running (policy : AgentPolicy) (action : String) :
     `gate_when_running` above — that combination is what pins down that
     lifecycle is actually load-bearing here, not decorative. -/
 theorem gate_false_when_creating (policy : AgentPolicy) (action : String) :
-    policyGate LifecycleState.creating policy action = false := by
-  simp [policyGate]
+    policyGate LifecycleState.creating policy action = false := rfl
 
 theorem gate_false_when_terminating (policy : AgentPolicy) (action : String) :
-    policyGate LifecycleState.terminating policy action = false := by
-  simp [policyGate]
+    policyGate LifecycleState.terminating policy action = false := rfl
 
 theorem gate_false_when_destroyed (policy : AgentPolicy) (action : String) :
-    policyGate LifecycleState.destroyed policy action = false := by
-  simp [policyGate]
+    policyGate LifecycleState.destroyed policy action = false := rfl
 
 /-- Mirrors the Rust test `restrictive_policy_grants_no_capabilities`: a
     policy with no allowed capabilities allows nothing, even while running. -/

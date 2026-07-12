@@ -20,7 +20,7 @@ reinventing any of them:
 
 ## Status
 
-25/25 tests pass. Verified: `../docs/verification/README.md` (run from
+34/34 tests pass. Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
 
 ## Execution environment: policy-gated agent sessions
@@ -85,8 +85,25 @@ resource limiting, or syscall filtering yet (`arkhe-tool-sandbox` and
 does not constrain what an allowed call can do once inference actually
 runs.
 
-FI-A04 is formalized in `proofs/lean/AgentVm/PolicyGate.lean` (not
-type-checked in this session — see that directory's `README.md`).
+FI-A04 is formalized in `proofs/lean/AgentVm/PolicyGate.lean` and **is
+type-checked** — `lake build`, 5/5 jobs, exit 0 (`../docs/verification/lake-build-agent-vm-2026-07-11.txt`).
+The first version failed to build (`simp` didn't fully evaluate a concrete
+`BEq` comparison); see that directory's `README.md` for the fix.
+
+## Snapshots (FI-A05)
+
+`AAVMManager::snapshot(id)` captures a hash-verifiable record of a VM's
+current public state (`gdid`, `LifecycleState`, `AgentPolicy`, timestamp),
+records the integrity verdict to `EvidenceBus`, and returns an
+`AavmSnapshot`. Scoped deliberately narrow — see `src/snapshot.rs`'s doc
+comment: this is a state hash, not a resumable process checkpoint, since
+nothing in this crate (or the `AgiCoordinator` it spawns) persists an
+agent's conversation history anywhere the manager can reach.
+`Snapshot::verify_integrity()` is the "restoration" check in this scoped
+version: it confirms a snapshot hasn't been tampered with since capture,
+not that it can revive a live agent. Formalized (determinism +
+tamper-detection-given-hash-injectivity) in
+`proofs/lean/AgentVm/SnapshotIntegrity.lean`, type-checked.
 
 ## What each module actually does
 

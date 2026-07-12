@@ -26,8 +26,10 @@ pub mod lifecycle;
 pub mod manager;
 pub mod policy;
 pub mod session;
+pub mod snapshot;
 
 pub use lifecycle::{InvalidTransition, Lifecycle, LifecycleState};
 pub use manager::{AAVMManager, AavmError, AavmSummary};
 pub use policy::AgentPolicy;
 pub use session::PolicyVerifier;
+pub use snapshot::AavmSnapshot;

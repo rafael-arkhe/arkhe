@@ -869,16 +869,30 @@ dentro de `fips204::PrivateKey`/`fips203::DecapsKey`/`ed25519_dalek::SigningKey`
 temporária (`.clone()`) em vez do segredo real; foi removida por ser um
 controle de segurança falso, não por estar "incompleta".
 
-### O que foi escrito mas não pôde ser verificado nesta sessão
+### Atualização — 2026-07-11 (mesmo dia, sessão seguinte): Lean 4 verificado de verdade
+
+O `elan` (toolchain manager oficial do Lean) foi instalado nesta sessão e
+`lake build` foi executado de verdade contra `leanprover/lean4:v4.31.0`,
+tanto para `arkhe-web3-security/proofs/lean/` (6/6 jobs, exit 0) quanto para
+`arkhe-agent-vm/proofs/lean/` (4/4 jobs, exit 0, após corrigir um bug real:
+`simp` sozinho não fechava 4 dos teoremas — trocado por `rfl`, que reduz por
+computação pura já que o estado é sempre um construtor concreto no ponto de
+chamada). Logs em `safe-core-monorepo/docs/verification/lake-build-*.txt`.
+A tabela abaixo foi escrita antes dessa verificação — mantida como registro
+histórico do que era verdade na sessão anterior, mas a linha do Lean 4 já
+não reflete o estado atual.
+
+### O que foi escrito mas não pôde ser verificado na sessão original
 
 Esta sessão só tinha `rustc`/`cargo` instalados — sem `lean`/`lake`,
 `cargo-kani`, ou `forge`/`solc`. Cada item abaixo foi escrito com cuidado
-contra sintaxe/API real (não inventada), mas **não foi compilado/executado**:
+contra sintaxe/API real (não inventada), mas **não foi compilado/executado**
+*na época* (ver atualização acima para o que mudou desde então):
 
 | Item | Localização | O que falta para verificar |
 |---|---|---|
-| Prova Lean 4 do SC08 (reentrância) + 2 invariantes adicionais | `.../arkhe-web3-security/proofs/lean/` (ver `README.md` lá) | `lake build` — corrige a versão anterior, que era uma tautologia (guarda definida como "ativa" quando `lock = false`, invertido) |
-| Harness Kani do `ReentrancyGuard` | `.../arkhe-web3-security/src/verify/kani_harness.rs` | `cargo kani` com toolchain `nightly-2025-04-03` (pin exato documentado no arquivo) |
+| ~~Prova Lean 4 do SC08 (reentrância) + 2 invariantes adicionais~~ **verificado, ver acima** | `.../arkhe-web3-security/proofs/lean/` (ver `README.md` lá) | ~~`lake build`~~ feito — corrigiu a versão anterior, que era uma tautologia (guarda definida como "ativa" quando `lock = false`, invertido) |
+| Harness Kani do `ReentrancyGuard` | `.../arkhe-web3-security/src/verify/kani_harness.rs` | `cargo kani` com toolchain `nightly-2025-04-03` (pin exato documentado no arquivo) — ainda não instalado/executado |
 | `PQCVerifier.sol` + `ERC20Vulnerable.sol`/`.t.sol` (Foundry) | `.../arkhe-web3-security/contracts/` | `forge test` — o verificador não pretende validar ML-DSA on-chain (não existe precompile para isso em nenhuma EVM; a versão auditada referenciava um `MLDSA_PRECOMPILE` inexistente) — verifica ECDSA on-chain e trata o lado PQC como atestação de oráculo off-chain |
 | `web3-security.yml` (CI: rust-build-test / lean-check / kani-verify / foundry-tests) | `.github/workflows/web3-security.yml` | rodar no GitHub Actions — versões das actions (`leanprover/lean-action@v1`, `model-checking/kani-github-action@v1.1`, `foundry-rs/foundry-toolchain@v1`) checadas contra suas releases reais, não adivinhadas |
 

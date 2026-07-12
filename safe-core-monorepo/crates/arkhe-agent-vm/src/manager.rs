@@ -24,8 +24,9 @@ use arkhe_web3_security::agents::{AuditEvidence, EvidenceBus};
 use arkhe_web3_security::InvariantVerdict;
 use tokio::sync::{Mutex, RwLock};
 
-use crate::lifecycle::{InvalidTransition, Lifecycle, LifecycleState};
+use crate::lifecycle::{now_secs, InvalidTransition, Lifecycle, LifecycleState};
 use crate::policy::AgentPolicy;
+use crate::snapshot::AavmSnapshot;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AavmError {
@@ -212,6 +213,35 @@ impl AAVMManager {
     /// the module doc comment).
     pub async fn verifying_key(&self, id: &str) -> Option<HybridVerifyingKey> {
         self.vms.lock().await.iter().find(|h| h.id == id).map(|h| h.verifying_key.clone())
+    }
+
+    /// FI-A05: captures an [`AavmSnapshot`] of `id`'s current public state
+    /// and records its integrity verdict to the evidence bus. See
+    /// `snapshot.rs`'s module doc comment for the deliberately narrow scope
+    /// (a state hash, not a resumable checkpoint).
+    pub async fn snapshot(&self, id: &str) -> Result<AavmSnapshot, AavmError> {
+        let vms = self.vms.lock().await;
+        let handle = vms.iter().find(|h| h.id == id).ok_or_else(|| AavmError::NotFound(id.to_string()))?;
+        let lifecycle = handle.lifecycle.read().await;
+        let snapshot = AavmSnapshot::capture(
+            handle.id.clone(),
+            handle.gdid,
+            lifecycle.state(),
+            lifecycle.age_secs(),
+            &handle.policy,
+            now_secs(),
+        );
+        drop(lifecycle);
+        drop(vms);
+
+        let verdict = if snapshot.verify_integrity() {
+            InvariantVerdict::Holds
+        } else {
+            InvariantVerdict::violated("snapshot failed its own integrity check immediately after capture")
+        };
+        self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A05", verdict }).await;
+
+        Ok(snapshot)
     }
 
     /// Returns the shared `Lifecycle` and `AgentPolicy` handles for a live
@@ -449,5 +479,46 @@ mod tests {
         let destroyed = manager.sweep_expired().await;
         assert_eq!(destroyed, vec![summary.id]);
         assert!(manager.list_vms().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn snapshot_captures_live_vm_state() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+
+        let snap = manager.snapshot(&summary.id).await.unwrap();
+        assert_eq!(snap.id, summary.id);
+        assert_eq!(snap.gdid, summary.gdid);
+        assert_eq!(snap.state, LifecycleState::Running);
+        assert!(snap.verify_integrity());
+    }
+
+    #[tokio::test]
+    async fn snapshot_records_fi_a05_evidence() {
+        let evidence_bus = Arc::new(EvidenceBus::new());
+        let manager = AAVMManager::new(evidence_bus.clone());
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+
+        manager.snapshot(&summary.id).await.unwrap();
+
+        let evidence = evidence_bus.all().await;
+        assert!(evidence.iter().any(|e| e.invariant_id == "FI-A05" && e.verdict.holds()));
+    }
+
+    #[tokio::test]
+    async fn snapshot_reflects_state_after_destroy() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+
+        // Snapshot after destroy_vm removes the handle from the manager —
+        // there's nothing left to snapshot, matching NotFound elsewhere.
+        manager.destroy_vm(&summary.id).await.unwrap();
+        assert!(matches!(manager.snapshot(&summary.id).await, Err(AavmError::NotFound(_))));
+    }
+
+    #[tokio::test]
+    async fn snapshot_fails_for_unknown_vm() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        assert!(matches!(manager.snapshot("nonexistent").await, Err(AavmError::NotFound(_))));
     }
 }

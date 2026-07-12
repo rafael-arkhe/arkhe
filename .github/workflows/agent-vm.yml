@@ -3,10 +3,12 @@
 # is a different crate with its own dependency set (arkhe-agi,
 # arkhe-inference, arkhe-crypto-pqc, arkhe-identity, arkhe-web3-security).
 #
-# Not locally run/verified in CI — this session has no `lean`/`lake`
-# installed, only `rustc`/`cargo`. `rust-build-test` mirrors exactly what
-# was actually run locally: cargo test -p arkhe-agent-vm, 25/25 passing
-# (see safe-core-monorepo/docs/verification/).
+# Both jobs mirror commands actually run locally, not just written and
+# hoped to work: rust-build-test = cargo test -p arkhe-agent-vm (34/34
+# passing); lean-check = lake build against elan-installed
+# leanprover/lean4:v4.31.0 (5/5 jobs, exit 0 — after fixing two real bugs
+# the builds caught, see proofs/lean/README.md). Logs in
+# safe-core-monorepo/docs/verification/.
 name: Agent VM CI
 
 on:

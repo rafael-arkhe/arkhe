@@ -111,7 +111,11 @@ snapshot.
 | FI-A01 | `create_vm` | The VM's secret key can sign a message its own public key verifies (self-attestation) | Not yet — Rust-only |
 | FI-A02 | `create_vm` | `policy.max_lifetime_secs > 0` | Not yet — Rust-only |
 | FI-A03 | `destroy_vm` | Lifecycle transitioned `Running -> Terminating -> Destroyed` without error | Overlaps with the general transition-graph approach in `arkhe-web3-security/proofs/lean/Web3Invariants/Reentrancy.lean`, not separately proven for this crate's specific graph |
-| FI-A04 | `PolicyVerifier::verify` (every `process()` call) | Action allowed only if `policy.allows(action)` **and** `lifecycle == Running` | Yes — `crates/arkhe-agent-vm/proofs/lean/AgentVm/PolicyGate.lean` (not type-checked in this session, no local Lean toolchain — see that directory's README) |
+| FI-A04 | `PolicyVerifier::verify` (every `process()` call) | Action allowed only if `policy.allows(action)` **and** `lifecycle == Running` | Yes — `crates/arkhe-agent-vm/proofs/lean/AgentVm/PolicyGate.lean`, **type-checked** (`lake build`, 5/5 jobs, see `docs/verification/lake-build-agent-vm-2026-07-11.txt`) |
+| FI-A05 | `AAVMManager::snapshot` | A captured snapshot passes its own integrity check; a tampered one fails it (given hash injectivity) | Yes — `crates/arkhe-agent-vm/proofs/lean/AgentVm/SnapshotIntegrity.lean`, **type-checked**. Does not prove anything about BLAKE3 itself — see that file's doc comment |
+
+FI-A06 is not listed: no definition of "RVM"/coherence domains was
+available in this codebase or session context to formalize against.
 
 ## Explicitly out of scope (and why)
 

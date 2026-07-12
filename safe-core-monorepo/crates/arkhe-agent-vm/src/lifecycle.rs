@@ -31,7 +31,7 @@ pub struct Lifecycle {
     terminated_at: Option<u64>,
 }
 
-fn now_secs() -> u64 {
+pub(crate) fn now_secs() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).expect("system clock is after 1970").as_secs()
 }
 
