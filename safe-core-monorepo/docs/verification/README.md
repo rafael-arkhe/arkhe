@@ -20,22 +20,28 @@ Raw command output backing the claims in `web3-security-architecture.md`'s
 | `lake-build-agent-vm-2026-07-11.txt` | `lake build` (in `crates/arkhe-agent-vm/proofs/lean`) | 0 | Same toolchain. **First attempt failed** — `AgentVm/PolicyGate.lean`'s four `LifecycleState` theorems used `simp [policyGate]`, which left `unsolved goals` (didn't fully evaluate a concrete derived-`BEq` comparison). Fixed by switching to `rfl` (the state argument is always a concrete constructor at the call site, so both the `BEq` comparison and the subsequent `Bool.and` reduce by computation alone). Also hit and fixed a real proof-direction bug while adding `AgentVm/SnapshotIntegrity.lean` (FI-A05): an equality was used backwards (`hIntegrity` vs `hIntegrity.symm`) — real `Type mismatch` error from the kernel, not a style nit. Clean rebuild from empty `.lake`: "Build completed successfully (5 jobs)". |
 | `cargo-test-agent-vm-fi-a07-a08-2026-07-11.txt` | `cargo test -p arkhe-agent-vm -p arkhe-identity` | 0 | FI-A07 (per-`Lifecycle`-transition evidence) and FI-A08 (GDID `CapabilityBitmap` certificate, self-issued and self-verified at `create_vm`): 39/39 (`arkhe-agent-vm`, up from 34) and 13/13 (`arkhe-identity`, up from 12 — added `GdidCertificate::issue` as a real `pub fn`, promoted from a private test-only helper that external code couldn't reach). |
 | `cargo-test-onda1-batch-2026-07-11.txt` | `cargo test -p arkhe-crypto-pqc -p arkhe-pqc-core -p arkhe-web3-security -p arkhe-identity -p arkhe-agent-vm -p arkhe-evidence -p arkhe-network` | 0 | The "Onda 1" invariant batch: FI-004 (context-bound signing, `arkhe-crypto-pqc`, 16/16 up from 10), FI-023 (fail-closed `SafeClosed` state + `fault_vm`, `arkhe-agent-vm`, 48/48 up from 39), new `arkhe-evidence` crate (FI-011/FI-017 hash-chained tamper-evident log, 9/9), new `arkhe-network` crate (FI-071/075/077/078 — authenticated messages, nonces, panic-free parsing, TLS 1.3-only client config via real `rustls` 0.23, 11/11). **184 tests total, all passing.** FI-001/FI-003 declined (need real TEE/TPM hardware); FI-028/FI-053/FI-057 declined (point to a nonexistent `arkhe-vibe-sandbox` — the same OS-level sandboxing already deferred earlier in this session); FI-025/FI-052 confirmed already covered by existing `PolicyVerifier`/`Lifecycle` — no new code. |
+| `cargo-check-workspace-onda2-2026-07-12.txt` | `cargo check --workspace` | 0 | Re-run after adding `arkhe-reasoning` as a 23rd workspace member — still clean (only pre-existing, unrelated `arkhe-bom` missing-docs warnings). |
+| `cargo-test-onda2-batch-2026-07-11.txt` | `cargo test --workspace --no-fail-fast` | 101 (2 pre-existing failures unrelated to this session — see below) | The "Onda 2 — Loop Safety" batch: FI-055 (execution deadlines, additive on the existing `Lifecycle` state machine — no redesign, no `LifecycleState` changes, `arkhe-agent-vm` 57/57 up from 48, +9 tests: `set_deadline`, `is_past_deadline`, `sweep_timed_out`, live enforcement via `faulted`/`timed_out_vm_rejects_further_agent_actions`), FI-077 dispatch-level (panic-free `MessageHandler` dispatch via `catch_unwind`, new `handler.rs` in `arkhe-network`, 14/14 up from 11), FI-031 (acyclic execution plans via Kahn's algorithm, new `arkhe-reasoning` crate, 7/7). Full re-run of every crate touched or depended on this session confirms **no regressions**: `arkhe-crypto-pqc` 16/16, `arkhe-pqc-core` 7/7, `arkhe-web3-security` 80/80, `arkhe-identity` 13/13, `arkhe-evidence` 9/9. Declined from the pasted Onda 2 plan (caught before writing any code): a `LifecycleState` redesign that would have broken the existing 5-variant enum and its Lean proofs (built additively instead — a nullable `deadline` field alongside the existing states); `AAVMManager::tick(&mut self)` (conflicts with the real, tested `&self`-only interior-mutability design — built `sweep_timed_out(&self)` instead, matching `sweep_expired`); `evidence_bus.append(Evidence::TaskTimeout{..})` (doesn't match either real `EvidenceBus` API — recorded via the existing `AuditEvidence{invariant_id, verdict}` pattern as FI-A10 instead); a Kahn's-algorithm stub with `plan.dependencies.get(&id).unwrap_or(&vec![])`, a genuine `E0716` temporary-borrow compile error, fixed by building an owned `dependents: HashMap` once. **The two failures in the exit code are `arkhe-session-evaluator`'s `detects_validation`/`validation_detection_works` — pre-existing, confirmed via `git status`/`git diff --stat` showing zero changes to that crate this session, not caused by Onda 2.** |
 
 ## Bottom line
 
 The crates this session built or extended (`arkhe-crypto-pqc`,
 `arkhe-pqc-core`, `arkhe-web3-security`, `arkhe-agent-vm`, `arkhe-evidence`,
-`arkhe-network`, plus the pre-existing `arkhe-identity` and `arkhe-agi`
-they depend on) are clean: 16 + 7 + 80 + 48 + 13 + 9 + 11 = **184 tests
-pass**, workspace `cargo check` is clean.
+`arkhe-network`, `arkhe-reasoning`, plus the pre-existing `arkhe-identity`
+and `arkhe-agi` they depend on) are clean: 16 + 7 + 80 + 57 + 13 + 9 + 14 + 7
+= **203 tests pass**, workspace `cargo check` is clean.
 `arkhe-agi`'s *library* is real and working (confirmed via its own
 `tests/coordinator.rs`, 4/4 passing, which `arkhe-agent-vm` now builds on
 directly) — its separate, stale `tests/coordinator_test.rs` (old
 constructor signature, predated this session) has since been deleted, which
 is what was blocking `cargo test --workspace` from running *any* test at
 all. The workspace as a whole still has two other pre-existing, unrelated
-failures (`eval-fixture`, `arkhe-session-evaluator`) that predate this
-session and haven't been addressed — flag if you want those fixed too.
+failures (`arkhe-session-evaluator`'s `detects_validation` and
+`validation_detection_works`) that predate this session and haven't been
+addressed — flag if you want those fixed too. (`eval-fixture`'s "unclosed
+delimiter" / `tests::adds` failures are not real failures: they're
+`arkhe-rsi`'s own deliberately-broken fixture code, exercised on purpose by
+tests like `code_that_fails_to_compile_scores_zero`, which itself passes.)
 
 Both Lean proof trees (`arkhe-web3-security`, `arkhe-agent-vm`) are now
 **actually type-checked**, not just "written carefully" — see the two

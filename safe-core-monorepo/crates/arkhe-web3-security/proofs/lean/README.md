@@ -25,32 +25,21 @@ instead of silently omitted — the audit that reviewed the previous version
 of this work flagged exactly that omission-without-disclosure pattern, not
 incompleteness itself.
 
-## Verification status — read before trusting this
+## Verification status
 
-**None of these `.lean` files have been type-checked.** The session that
-wrote them has `rustc`/`cargo` installed but no `lean`/`lake` toolchain, and
-had no way to run `lake build`. The code was written carefully against
-Lean 4 core syntax only (no Mathlib import — kept deliberately minimal to
-reduce the chance of a version mismatch), reusing tactics (`simp`, `decide`,
-`omega`) that are standard and stable across recent Lean 4 releases, but
-**"written carefully" is not the same as "verified."** To actually check it:
+**Type-checked for real.** `lean-toolchain` pins `leanprover/lean4:v4.31.0`.
+Elan + that toolchain were installed in-session and `lake build` was run
+from a clean `.lake` directory: exit code 0, "Build completed successfully
+(6 jobs)" — every file listed above plus the root `Web3Invariants.lean`
+compiles, and every `theorem` in them is accepted by the real Lean kernel,
+no `sorry`. Log: `../../../docs/verification/lake-build-web3-security-2026-07-11.txt`
+(run from `safe-core-monorepo/`). To reproduce:
 
 ```sh
-# lean-toolchain pins leanprover/lean4:v4.31.0 (verified as the current
-# stable release at https://github.com/leanprover/lean4/releases as of
-# 2026-07-11 — this specific version string has not been independently
-# re-confirmed since)
+curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh
 cd proofs/lean
 lake build
 ```
-
-If `lake build` fails, that's a real bug in this proof, not a false claim —
-please fix the specific tactic/lemma that doesn't resolve rather than
-discarding the model. The executable definitions (`GuardState`, `Op`,
-`ceiHoldsAux`, `consumeNonce`, `Domain`/`StructuredSig`,
-`verifyDomainAndNonce`) are the parts most likely to be exactly right (plain
-function/type definitions); the proof tactics are the parts most likely to
-need adjustment for the exact Lean 4 release in use.
 
 ## What was fixed relative to the audited prior version
 

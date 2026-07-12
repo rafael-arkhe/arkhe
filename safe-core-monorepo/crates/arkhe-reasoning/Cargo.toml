@@ -1,0 +1,13 @@
+[package]
+name = "arkhe-reasoning"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "FI-031 — acyclic execution plans, detected via Kahn's algorithm (topological sort)"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+
+[dev-dependencies]

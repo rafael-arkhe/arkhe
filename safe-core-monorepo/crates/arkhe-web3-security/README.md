@@ -22,7 +22,7 @@ Implementação" section.
 | `agents::*` | Async Recon→Hunting→Validation→GapFilling audit pipeline + evidence bus | `cargo test` |
 | `web3_adapter` | `before_transaction`/`after_execution` hooks producing `Web3Evidence` (`Blake3Hash`) | `cargo test` |
 | `verify::kani_harness` (feature-gated, `#[cfg(kani)]`) | Kani proofs for `ReentrancyGuard` | **Not run** — no `cargo-kani`/matching nightly toolchain here; see the file's own doc comment for the exact verification trail (real `kani` API confirmed via git dependency, blocked on Kani's pinned `nightly-2025-04-03`) |
-| `proofs/lean/` | Lean 4 formalization of SC08 + 2 more invariants | **Not type-checked** — no `lean`/`lake` here; see `proofs/lean/README.md` for exactly what's formalized, what isn't, and how to verify it yourself |
+| `proofs/lean/` | Lean 4 formalization of SC08 + 2 more invariants | **Type-checked** — `lake build`, 6/6 jobs, exit 0 (`../docs/verification/lake-build-web3-security-2026-07-11.txt`); see `proofs/lean/README.md` for exactly what's formalized and what isn't |
 | `contracts/` (Solidity) | `PQCVerifier.sol` (ECDSA + off-chain oracle attestation, no fabricated on-chain ML-DSA precompile) + `ERC20Vulnerable` reentrancy exploit test | **Not compiled/run** — no `forge`/`solc` here |
 
 ## Two coexisting PQC backends

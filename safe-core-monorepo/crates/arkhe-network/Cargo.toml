@@ -10,6 +10,7 @@ repository.workspace = true
 [dependencies]
 arkhe-crypto-pqc = { path = "../arkhe-crypto-pqc", version = "0.1.0" }
 thiserror = { workspace = true }
+tracing = { workspace = true }
 rustls = { version = "0.23" }
 
 [dev-dependencies]

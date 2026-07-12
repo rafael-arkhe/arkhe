@@ -332,6 +332,55 @@ impl AAVMManager {
         destroyed
     }
 
+    /// FI-055: sets (or clears, via `None`) an absolute-unix-timestamp
+    /// deadline for AAVM `id`'s current unit of work. Distinct from
+    /// `AgentPolicy::max_lifetime_secs`/`sweep_expired`: that's a
+    /// VM-level "don't outlive your whole policy" bound, this is a
+    /// per-task "this specific piece of work should finish by T" bound —
+    /// a caller (e.g. whatever drives `spawn_agent_session`) sets it before
+    /// starting a bounded task and clears it (`None`) when done, so a
+    /// service/monitoring task that never sets a deadline never times out.
+    pub async fn set_deadline(&self, id: &str, deadline: Option<u64>) -> Result<(), AavmError> {
+        let vms = self.vms.lock().await;
+        let handle = vms.iter().find(|h| h.id == id).ok_or_else(|| AavmError::NotFound(id.to_string()))?;
+        handle.lifecycle.write().await.set_deadline(deadline);
+        Ok(())
+    }
+
+    /// FI-055: faults (FI-023's fail-closed path — see
+    /// `LifecycleState::SafeClosed`) every `Running` AAVM whose deadline
+    /// has passed, records FI-A10 in addition to `fault_vm`'s own FI-A09,
+    /// and returns the ids faulted. A VM with no deadline set is never
+    /// touched. Mirrors `sweep_expired`'s shape.
+    pub async fn sweep_timed_out(&self) -> Vec<String> {
+        let timed_out_ids: Vec<String> = {
+            let vms = self.vms.lock().await;
+            let mut ids = Vec::new();
+            for h in vms.iter() {
+                let lifecycle = h.lifecycle.read().await;
+                if lifecycle.state() == LifecycleState::Running && lifecycle.is_past_deadline() {
+                    ids.push(h.id.clone());
+                }
+            }
+            ids
+        };
+
+        let mut faulted = Vec::new();
+        for id in timed_out_ids {
+            let result = self.fault_vm(&id).await;
+            let verdict = match &result {
+                Ok(()) => InvariantVerdict::Holds,
+                Err(e) => InvariantVerdict::violated(e.to_string()),
+            };
+            self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A10", verdict }).await;
+            if result.is_ok() {
+                tracing::warn!(id, "AAVM timed out (FI-055) — faulted via FI-023");
+                faulted.push(id);
+            }
+        }
+        faulted
+    }
+
     /// Public verifying key for a live AAVM, if it exists — for callers
     /// that need to verify signatures the VM itself produces later (this
     /// manager doesn't retain the secret key to sign on its behalf; see
@@ -768,5 +817,69 @@ mod tests {
     async fn fault_vm_fails_for_unknown_vm() {
         let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
         assert!(matches!(manager.fault_vm("nonexistent").await, Err(AavmError::NotFound(_))));
+    }
+
+    #[tokio::test]
+    async fn sweep_timed_out_leaves_vms_without_a_deadline_alone() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        manager.create_vm(permissive_policy()).await.unwrap();
+        assert!(manager.sweep_timed_out().await.is_empty());
+        assert_eq!(manager.list_vms().await[0].state, LifecycleState::Running);
+    }
+
+    #[tokio::test]
+    async fn sweep_timed_out_leaves_vms_with_a_future_deadline_alone() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+        manager.set_deadline(&summary.id, Some(now_secs() + 3600)).await.unwrap();
+        assert!(manager.sweep_timed_out().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn sweep_timed_out_faults_vms_past_their_deadline_and_records_evidence() {
+        let evidence_bus = Arc::new(EvidenceBus::new());
+        let manager = AAVMManager::new(evidence_bus.clone());
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+        // No sleep needed — set a deadline that's already in the past,
+        // same deterministic pattern as the age_secs()-truncation lesson
+        // learned earlier this session.
+        manager.set_deadline(&summary.id, Some(now_secs().saturating_sub(10))).await.unwrap();
+
+        let faulted = manager.sweep_timed_out().await;
+        assert_eq!(faulted, vec![summary.id.clone()]);
+        assert_eq!(manager.list_vms().await[0].state, LifecycleState::SafeClosed);
+
+        let evidence = evidence_bus.all().await;
+        assert!(evidence.iter().any(|e| e.invariant_id == "FI-A10" && e.verdict.holds()));
+        assert!(evidence.iter().any(|e| e.invariant_id == "FI-A09" && e.verdict.holds()));
+    }
+
+    #[tokio::test]
+    async fn timed_out_vm_rejects_further_agent_actions() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let policy = AgentPolicy { max_lifetime_secs: 3600, allowed_capabilities: vec!["llm_inference".to_string()] };
+        let summary = manager.create_vm(policy).await.unwrap();
+
+        let coordinator = manager
+            .spawn_agent_session(
+                &summary.id,
+                Arc::new(arkhe_core::InMemoryAgentMemory::new()),
+                null_inference(),
+                "test-session",
+                "You are helpful.",
+            )
+            .await
+            .unwrap();
+
+        assert!(coordinator.process("before timeout").await.is_ok());
+        manager.set_deadline(&summary.id, Some(now_secs().saturating_sub(10))).await.unwrap();
+        manager.sweep_timed_out().await;
+        assert!(coordinator.process("after timeout").await.is_err());
+    }
+
+    #[tokio::test]
+    async fn set_deadline_fails_for_unknown_vm() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        assert!(matches!(manager.set_deadline("nonexistent", Some(0)).await, Err(AavmError::NotFound(_))));
     }
 }

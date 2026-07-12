@@ -37,6 +37,15 @@ pub struct Lifecycle {
     state: LifecycleState,
     created_at: u64,
     terminated_at: Option<u64>,
+    /// FI-055 — an optional absolute-unix-timestamp deadline. Deliberately
+    /// additive: no new `LifecycleState` variant, no change to the existing
+    /// transition graph. Enforcement is external (see
+    /// `AAVMManager::sweep_timed_out`), which reuses the already-built
+    /// FI-023 `fault()`/`SafeClosed` path rather than inventing a separate
+    /// `TimedOut` terminal state — a timeout genuinely is a form of "this
+    /// VM cannot be trusted to keep running," the same category of event
+    /// `fault()` already models.
+    deadline: Option<u64>,
 }
 
 pub(crate) fn now_secs() -> u64 {
@@ -45,7 +54,7 @@ pub(crate) fn now_secs() -> u64 {
 
 impl Lifecycle {
     pub fn new() -> Self {
-        Self { state: LifecycleState::Creating, created_at: now_secs(), terminated_at: None }
+        Self { state: LifecycleState::Creating, created_at: now_secs(), terminated_at: None, deadline: None }
     }
 
     pub fn state(&self) -> LifecycleState {
@@ -58,6 +67,26 @@ impl Lifecycle {
 
     pub fn terminated_at(&self) -> Option<u64> {
         self.terminated_at
+    }
+
+    pub fn deadline(&self) -> Option<u64> {
+        self.deadline
+    }
+
+    /// FI-055: sets (or clears, via `None`) an absolute-unix-timestamp
+    /// deadline. Setting it does not itself change `state` — enforcement
+    /// happens externally via [`Self::is_past_deadline`] /
+    /// `AAVMManager::sweep_timed_out`.
+    pub fn set_deadline(&mut self, deadline: Option<u64>) {
+        self.deadline = deadline;
+    }
+
+    /// `true` iff a deadline is set and has passed. A VM with no deadline
+    /// set never times out (`false`, not a panic or an error) — matching
+    /// the catalog's distinction between execution tasks (bounded) and
+    /// service/monitoring tasks (persistent, no deadline).
+    pub fn is_past_deadline(&self) -> bool {
+        self.deadline.is_some_and(|d| now_secs() > d)
     }
 
     /// `Creating -> Running`. Errors on any other starting state.
@@ -206,5 +235,35 @@ mod tests {
         lc.begin_terminate().unwrap();
         lc.destroy().unwrap();
         assert_eq!(lc.fault(), Err(InvalidTransition { from: LifecycleState::Destroyed, to: LifecycleState::SafeClosed }));
+    }
+
+    #[test]
+    fn no_deadline_set_never_times_out() {
+        let lc = Lifecycle::new();
+        assert_eq!(lc.deadline(), None);
+        assert!(!lc.is_past_deadline());
+    }
+
+    #[test]
+    fn deadline_in_the_future_is_not_past_deadline() {
+        let mut lc = Lifecycle::new();
+        lc.set_deadline(Some(now_secs() + 3600));
+        assert!(!lc.is_past_deadline());
+    }
+
+    #[test]
+    fn deadline_in_the_past_is_past_deadline() {
+        let mut lc = Lifecycle::new();
+        lc.set_deadline(Some(now_secs().saturating_sub(10)));
+        assert!(lc.is_past_deadline());
+    }
+
+    #[test]
+    fn clearing_a_deadline_stops_it_from_timing_out() {
+        let mut lc = Lifecycle::new();
+        lc.set_deadline(Some(now_secs().saturating_sub(10)));
+        assert!(lc.is_past_deadline());
+        lc.set_deadline(None);
+        assert!(!lc.is_past_deadline());
     }
 }

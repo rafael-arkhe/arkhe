@@ -28,7 +28,7 @@ flowchart TB
 
     subgraph aavm["arkhe-agent-vm (this session)"]
         MGR["AAVMManager"]
-        LC["Lifecycle<br/>Creating -> Running -> Terminating -> Destroyed"]
+        LC["Lifecycle<br/>Creating -> Running -> Terminating -> Destroyed<br/>(any non-terminal -> SafeClosed -> Destroyed, FI-023)<br/>optional deadline: u64, FI-055"]
         POL["AgentPolicy<br/>max_lifetime_secs, allowed_capabilities"]
         PV["PolicyVerifier<br/>implements arkhe_core::SafetyVerifier"]
     end
@@ -116,6 +116,8 @@ snapshot.
 | FI-A05 | `AAVMManager::snapshot` | A captured snapshot passes its own integrity check; a tampered one fails it (given hash injectivity) | Yes — `crates/arkhe-agent-vm/proofs/lean/AgentVm/SnapshotIntegrity.lean`, **type-checked**. Does not prove anything about BLAKE3 itself — see that file's doc comment |
 | FI-A07 | `create_vm`, `destroy_vm` (every `Lifecycle` transition) | Every individual state transition (not just the FI-A01–FI-A03 summaries) generates evidence | Not yet — Rust-only |
 | FI-A08 | `create_vm` | The issued `GdidCertificate` (via `arkhe-identity`'s `CapabilityBitmap`, a separate vocabulary from `AgentPolicy`) self-verifies | Not yet — Rust-only |
+| FI-A09 | `fault_vm` | A VM forced out of `Running`/`Creating`/`Terminating` into `SafeClosed` (fail-closed, skipping `Terminating` on purpose) generates evidence, and a faulted VM's `PolicyVerifier` rejects further `process()` calls | Not yet — Rust-only |
+| FI-A10 | `sweep_timed_out` (FI-055) | Every `Running` VM whose `Lifecycle.deadline` is in the past gets `fault_vm`'d and generates its own summary evidence record in addition to FI-A09 | Not yet — Rust-only |
 
 FI-A06 is not listed: no definition of "RVM"/coherence domains was
 available in this codebase or session context to formalize against.

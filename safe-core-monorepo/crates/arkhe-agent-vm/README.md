@@ -20,7 +20,7 @@ reinventing any of them:
 
 ## Status
 
-39/39 tests pass. Verified: `../docs/verification/README.md` (run from
+57/57 tests pass. Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
 
 ## Capability certificates (FI-A08)
@@ -124,6 +124,36 @@ version: it confirms a snapshot hasn't been tampered with since capture,
 not that it can revive a live agent. Formalized (determinism +
 tamper-detection-given-hash-injectivity) in
 `proofs/lean/AgentVm/SnapshotIntegrity.lean`, type-checked.
+
+## Fail-closed faulting (FI-023) and execution deadlines (FI-055)
+
+`Lifecycle` gained a fifth state, `SafeClosed`, and an optional `deadline:
+Option<u64>` — both **additive**: no existing variant, transition, or field
+was removed or renamed, so every pre-existing test and both Lean proofs
+(`PolicyGate.lean`, `SnapshotIntegrity.lean`) kept passing unmodified.
+
+- **`Lifecycle::fault()`** (FI-023) forces a transition to `SafeClosed` from
+  *any* non-terminal state (`Creating`, `Running`, or `Terminating`),
+  deliberately skipping the normal `Terminating` step — a fault is an
+  emergency stop, not a graceful shutdown. `SafeClosed` can only go on to
+  `Destroyed`; it can never return to `Running`. `AAVMManager::fault_vm(id)`
+  wraps this and records **FI-A09**; a faulted VM's `PolicyVerifier` rejects
+  every subsequent `process()` call, same live-enforcement guarantee as
+  `destroy_vm` (`faulted_vm_rejects_further_agent_actions`).
+- **`Lifecycle::set_deadline`/`is_past_deadline`** (FI-055) add an optional
+  absolute-timestamp deadline. `AAVMManager::set_deadline(id, Some(t))` sets
+  it; `AAVMManager::sweep_timed_out()` finds every `Running` VM whose
+  deadline is in the past, calls `fault_vm` on each (recording FI-A09), and
+  additionally records a summary **FI-A10** verdict. A VM with no deadline
+  set never times out (`no_deadline_set_never_times_out`).
+
+This is deliberately **not** the redesign a since-superseded planning
+document proposed: that version replaced the state machine outright and
+added `AAVMManager::tick(&mut self)`, which conflicts with the real
+`AAVMManager`'s `&self`-only, `Arc<RwLock<..>>`-based interior-mutability
+design (every other method — `create_vm`, `destroy_vm`, `sweep_expired` —
+takes `&self`). `sweep_timed_out(&self)` matches that existing pattern
+instead of introducing a `&mut self` outlier.
 
 ## What each module actually does
 

@@ -24,6 +24,7 @@ members = [
     "crates/arkhe-agent-vm",
     "crates/arkhe-evidence",
     "crates/arkhe-network",
+    "crates/arkhe-reasoning",
 ]
 resolver = "2"
 

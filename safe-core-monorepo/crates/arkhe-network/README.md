@@ -6,17 +6,28 @@ slice, not a full P2P/transport stack.
 
 ## Status
 
-11/11 tests pass. Verified: `../docs/verification/README.md` (run from
+14/14 tests pass (up from 11 — `handler.rs`/FI-077 dispatch-level added this
+pass). Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
 
 ## What's actually here
 
-- **`message.rs`** (FI-071 + FI-077) — `Message`/`SignedMessage`, signed via
-  `arkhe-crypto-pqc`'s hybrid signatures. `Message::decode` never panics on
-  malformed input — every slicing operation is preceded by an explicit
-  bounds check, confirmed (not just claimed) by
+- **`message.rs`** (FI-071 + FI-077, parsing level) — `Message`/`SignedMessage`,
+  signed via `arkhe-crypto-pqc`'s hybrid signatures. `Message::decode` never
+  panics on malformed input — every slicing operation is preceded by an
+  explicit bounds check, confirmed (not just claimed) by
   `decode_never_panics_on_arbitrary_bytes`, which runs 8 malformed byte
   sequences through `std::panic::catch_unwind`.
+- **`handler.rs`** (FI-077, dispatch level) — `MessageHandler` trait +
+  `dispatch()`, which runs a handler inside `catch_unwind` and converts a
+  panic into `Err(DispatchError::Panic)` instead of letting it propagate.
+  `message.rs` already covers panic-safety in *parsing*; this covers
+  whatever a handler actually *does* with an already-decoded message —
+  arbitrary caller code, which can panic for reasons parsing-level
+  hardening can't prevent (an internal `unwrap()`, an index out of bounds
+  in handler-specific logic, ...). `panicking_handler_does_not_abort_dispatch`
+  confirms this directly: it wraps the whole `dispatch()` call in its own
+  `catch_unwind` and asserts *that* doesn't panic either.
 - **`nonce.rs`** (FI-075) — `MessageNonceTracker`, the same
   strictly-monotonic-per-sender pattern as FI-007
   (`arkhe-web3-security::wallets::signature::NonceTracker`, formally proven
