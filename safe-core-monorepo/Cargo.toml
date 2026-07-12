@@ -22,6 +22,8 @@ members = [
     "crates/arkhe-crypto-pqc",
     "crates/arkhe-pqc-core",
     "crates/arkhe-agent-vm",
+    "crates/arkhe-evidence",
+    "crates/arkhe-network",
 ]
 resolver = "2"
 

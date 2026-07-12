@@ -15,6 +15,14 @@ pub enum LifecycleState {
     Running,
     Terminating,
     Destroyed,
+    /// FI-023 — fail-closed: reached via [`Lifecycle::fault`] from any
+    /// non-terminal state when a critical component failure is detected.
+    /// Unlike the normal `Running -> Terminating -> Destroyed` path, this
+    /// skips `Terminating` on purpose: fail-closed means not trusting
+    /// further code (including a graceful-shutdown path) to run correctly
+    /// after the failure. The only way out is `Destroyed` (cleanup) — never
+    /// back to `Running`.
+    SafeClosed,
 }
 
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
@@ -64,9 +72,20 @@ impl Lifecycle {
         Ok(())
     }
 
-    /// `Terminating -> Destroyed`. Errors on any other starting state.
+    /// `Terminating -> Destroyed`, or `SafeClosed -> Destroyed` (cleanup
+    /// after a fault). Errors on any other starting state.
     pub fn destroy(&mut self) -> Result<(), InvalidTransition> {
         self.transition(LifecycleState::Destroyed)
+    }
+
+    /// FI-023 — fail-closed: forces an immediate transition to
+    /// [`LifecycleState::SafeClosed`] from `Creating`, `Running`, or
+    /// `Terminating`. Errors if already `Destroyed` or `SafeClosed` (both
+    /// terminal-ish; nothing to fault out of). See
+    /// [`LifecycleState::SafeClosed`]'s doc comment for why this skips
+    /// `Terminating` rather than going through the normal shutdown path.
+    pub fn fault(&mut self) -> Result<(), InvalidTransition> {
+        self.transition(LifecycleState::SafeClosed)
     }
 
     fn transition(&mut self, to: LifecycleState) -> Result<(), InvalidTransition> {
@@ -75,6 +94,10 @@ impl Lifecycle {
             (LifecycleState::Creating, LifecycleState::Running)
                 | (LifecycleState::Running, LifecycleState::Terminating)
                 | (LifecycleState::Terminating, LifecycleState::Destroyed)
+                | (LifecycleState::Creating, LifecycleState::SafeClosed)
+                | (LifecycleState::Running, LifecycleState::SafeClosed)
+                | (LifecycleState::Terminating, LifecycleState::SafeClosed)
+                | (LifecycleState::SafeClosed, LifecycleState::Destroyed)
         );
         if !valid {
             return Err(InvalidTransition { from: self.state, to });
@@ -132,5 +155,56 @@ mod tests {
         lc.begin_terminate().unwrap();
         lc.destroy().unwrap();
         assert_eq!(lc.start(), Err(InvalidTransition { from: LifecycleState::Destroyed, to: LifecycleState::Running }));
+    }
+
+    #[test]
+    fn fault_reaches_safe_closed_from_running() {
+        let mut lc = Lifecycle::new();
+        lc.start().unwrap();
+        assert!(lc.fault().is_ok());
+        assert_eq!(lc.state(), LifecycleState::SafeClosed);
+    }
+
+    #[test]
+    fn fault_reaches_safe_closed_from_creating_and_terminating_too() {
+        let mut lc = Lifecycle::new();
+        assert!(lc.fault().is_ok());
+        assert_eq!(lc.state(), LifecycleState::SafeClosed);
+
+        let mut lc2 = Lifecycle::new();
+        lc2.start().unwrap();
+        lc2.begin_terminate().unwrap();
+        assert!(lc2.fault().is_ok());
+        assert_eq!(lc2.state(), LifecycleState::SafeClosed);
+    }
+
+    #[test]
+    fn safe_closed_cannot_return_to_running() {
+        let mut lc = Lifecycle::new();
+        lc.start().unwrap();
+        lc.fault().unwrap();
+        assert_eq!(lc.start(), Err(InvalidTransition { from: LifecycleState::SafeClosed, to: LifecycleState::Running }));
+    }
+
+    #[test]
+    fn safe_closed_can_only_be_destroyed_not_faulted_again() {
+        let mut lc = Lifecycle::new();
+        lc.start().unwrap();
+        lc.fault().unwrap();
+        assert_eq!(
+            lc.fault(),
+            Err(InvalidTransition { from: LifecycleState::SafeClosed, to: LifecycleState::SafeClosed })
+        );
+        assert!(lc.destroy().is_ok());
+        assert_eq!(lc.state(), LifecycleState::Destroyed);
+    }
+
+    #[test]
+    fn faulting_an_already_destroyed_lifecycle_is_rejected() {
+        let mut lc = Lifecycle::new();
+        lc.start().unwrap();
+        lc.begin_terminate().unwrap();
+        lc.destroy().unwrap();
+        assert_eq!(lc.fault(), Err(InvalidTransition { from: LifecycleState::Destroyed, to: LifecycleState::SafeClosed }));
     }
 }

@@ -61,7 +61,7 @@ pub struct HybridKeyPair {
 /// A hybrid signature: fixed-size Ed25519 signature (64 bytes) plus a
 /// fixed-size ML-DSA-65 signature (`ml_dsa_65::SIG_LEN` bytes, sized by the
 /// algorithm's own constant rather than an unsized `Vec<u8>`).
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct HybridSignature {
     pub ed_sig: [u8; 64],
     pub ml_sig: [u8; ml_dsa_65::SIG_LEN],

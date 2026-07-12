@@ -1,0 +1,15 @@
+[package]
+name = "arkhe-network"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "FI-071/075/077/078 — authenticated messages, per-sender nonces, panic-free parsing, TLS 1.3 config. Not a full P2P/transport stack — see README."
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+arkhe-crypto-pqc = { path = "../arkhe-crypto-pqc", version = "0.1.0" }
+thiserror = { workspace = true }
+rustls = { version = "0.23" }
+
+[dev-dependencies]

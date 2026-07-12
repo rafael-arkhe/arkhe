@@ -1,0 +1,16 @@
+[package]
+name = "arkhe-evidence"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "FI-011/FI-017 — hash-chained, tamper-evident evidence log (prev_hash-linked BLAKE3 records), distinct from arkhe-web3-security's flat EvidenceBus"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+arkhe-core = { path = "../arkhe-core", version = "0.1.0" }
+tokio = { workspace = true, features = ["sync"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }

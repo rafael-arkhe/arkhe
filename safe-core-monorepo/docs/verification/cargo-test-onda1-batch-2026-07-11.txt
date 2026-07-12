@@ -1,0 +1,1870 @@
+warning: missing documentation for a module
+  --> crates\arkhe-core\src\lib.rs:12:1
+   |
+12 | pub mod error;
+   | ^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> crates\arkhe-core\src\lib.rs:9:9
+   |
+ 9 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a module
+  --> crates\arkhe-core\src\lib.rs:13:1
+   |
+13 | pub mod hash;
+   | ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:13:5
+   |
+13 |     Internal(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:16:5
+   |
+16 |     NotFound(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:19:5
+   |
+19 |     InvalidInput(String),
+   |     ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:22:5
+   |
+22 |     PermissionDenied(String),
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:25:5
+   |
+25 |     Timeout(std::time::Duration),
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:28:5
+   |
+28 |     Serialization(String),
+   |     ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:31:5
+   |
+31 |     Other(#[from] Box<dyn std::error::Error + Send + Sync>),
+   |     ^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\safety.rs:38:5
+   |
+38 |     pub reason: String,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:12:5
+   |
+12 |     pub key: String,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:13:5
+   |
+13 |     pub value: String,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:14:5
+   |
+14 |     pub score: f32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:15:5
+   |
+15 |     pub layer: MemoryLayer,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:16:5
+   |
+16 |     pub timestamp: DateTime<Utc>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:22:5
+   |
+22 |     Working,
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:23:5
+   |
+23 |     Episodic,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:24:5
+   |
+24 |     Semantic,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:25:5
+   |
+25 |     Procedural,
+   |     ^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-core\src\memory_traits.rs:51:5
+   |
+51 |     pub fn new() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: `arkhe-core` (lib) generated 20 warnings
+   Compiling arkhe-crypto-pqc v0.1.0 (C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine\safe-core-monorepo\crates\arkhe-crypto-pqc)
+   Compiling rustls-pki-types v1.15.0
+   Compiling aws-lc-rs v1.17.1
+warning: unused variable: `call_id`
+  --> crates\arkhe-inference\src\types.rs:61:44
+   |
+61 |     pub fn tool(name: &str, content: &str, call_id: &str) -> Self {
+   |                                            ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_call_id`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: missing documentation for the crate
+  --> crates\arkhe-inference\src\lib.rs:1:1
+   |
+ 1 | / #![warn(missing_docs)]
+ 2 | | #![deny(unsafe_code)]
+ 3 | |
+ 4 | | pub mod error;
+...  |
+29 | | pub type InferenceResult<T> = Result<T, InferenceError>;
+   | |________________________________________________________^
+   |
+note: the lint level is defined here
+  --> crates\arkhe-inference\src\lib.rs:1:9
+   |
+ 1 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-inference\src\lib.rs:4:1
+  |
+4 | pub mod error;
+  | ^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-inference\src\lib.rs:5:1
+  |
+5 | pub mod types;
+  | ^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-inference\src\lib.rs:6:1
+  |
+6 | pub mod registry;
+  | ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-inference\src\lib.rs:7:1
+  |
+7 | pub mod engine;
+  | ^^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-inference\src\lib.rs:8:1
+  |
+8 | pub mod null;
+  | ^^^^^^^^^^^^
+
+warning: missing documentation for a type alias
+  --> crates\arkhe-inference\src\lib.rs:29:1
+   |
+29 | pub type InferenceResult<T> = Result<T, InferenceError>;
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+ --> crates\arkhe-inference\src\error.rs:5:1
+  |
+5 | pub enum InferenceError {
+  | ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+ --> crates\arkhe-inference\src\error.rs:7:5
+  |
+7 |     ModelNotFound(String),
+  |     ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:10:5
+   |
+10 |     LoadFailed(String),
+   |     ^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:13:5
+   |
+13 |     InferenceFailed(String),
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:16:5
+   |
+16 |     ContextOverflow { requested: usize, max: usize },
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\error.rs:16:23
+   |
+16 |     ContextOverflow { requested: usize, max: usize },
+   |                       ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\error.rs:16:41
+   |
+16 |     ContextOverflow { requested: usize, max: usize },
+   |                                         ^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:19:5
+   |
+19 |     UnsupportedCapability(String),
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:22:5
+   |
+22 |     BackendNotAvailable(String, String),
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:25:5
+   |
+25 |     Timeout(std::time::Duration),
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:28:5
+   |
+28 |     NotReady { model_id: ModelId },
+   |     ^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\error.rs:28:16
+   |
+28 |     NotReady { model_id: ModelId },
+   |                ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:31:5
+   |
+31 |     InvalidRequest(String),
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\error.rs:34:5
+   |
+34 |     Internal(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a struct
+ --> crates\arkhe-inference\src\types.rs:8:1
+  |
+8 | pub struct InferenceRequest {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> crates\arkhe-inference\src\types.rs:9:5
+  |
+9 |     pub messages: Vec<ChatMessage>,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:10:5
+   |
+10 |     pub params: SamplingParams,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:12:5
+   |
+12 |     pub tools: Vec<ToolDefinition>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:14:5
+   |
+14 |     pub session_id: Option<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-inference\src\types.rs:42:1
+   |
+42 | pub struct ChatMessage {
+   | ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:43:5
+   |
+43 |     pub role: ChatRole,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:44:5
+   |
+44 |     pub content: String,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:46:5
+   |
+46 |     pub name: Option<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:48:5
+   |
+48 |     pub tool_calls: Vec<ToolCall>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-inference\src\types.rs:52:5
+   |
+52 |     pub fn system(content: &str) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-inference\src\types.rs:55:5
+   |
+55 |     pub fn user(content: &str) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-inference\src\types.rs:58:5
+   |
+58 |     pub fn assistant(content: &str) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-inference\src\types.rs:61:5
+   |
+61 |     pub fn tool(name: &str, content: &str, call_id: &str) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+  --> crates\arkhe-inference\src\types.rs:67:1
+   |
+67 | pub enum ChatRole {
+   | ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\types.rs:68:5
+   |
+68 |     System,
+   |     ^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\types.rs:69:5
+   |
+69 |     User,
+   |     ^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\types.rs:70:5
+   |
+70 |     Assistant,
+   |     ^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\types.rs:71:5
+   |
+71 |     Tool,
+   |     ^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-inference\src\types.rs:77:1
+   |
+77 | pub struct SamplingParams {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:79:5
+   |
+79 |     pub temperature: f32,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:81:5
+   |
+81 |     pub top_p: f32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:83:5
+   |
+83 |     pub top_k: u32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:85:5
+   |
+85 |     pub max_tokens: u32,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:87:5
+   |
+87 |     pub stop_sequences: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\types.rs:89:5
+   |
+89 |     pub stream: bool,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+   --> crates\arkhe-inference\src\types.rs:113:1
+    |
+113 | pub struct ToolDefinition {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:114:5
+    |
+114 |     pub name: String,
+    |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:115:5
+    |
+115 |     pub description: String,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:116:5
+    |
+116 |     pub parameters: serde_json::Value,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+   --> crates\arkhe-inference\src\types.rs:120:1
+    |
+120 | pub struct ToolCall {
+    | ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:121:5
+    |
+121 |     pub id: String,
+    |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:122:5
+    |
+122 |     pub name: String,
+    |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:123:5
+    |
+123 |     pub arguments: serde_json::Value,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+   --> crates\arkhe-inference\src\types.rs:129:1
+    |
+129 | pub struct InferenceResponse {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:130:5
+    |
+130 |     pub content: String,
+    |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:132:5
+    |
+132 |     pub tool_calls: Vec<ToolCall>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:133:5
+    |
+133 |     pub usage: TokenUsage,
+    |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:134:5
+    |
+134 |     pub finish_reason: FinishReason,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:135:5
+    |
+135 |     pub timestamp: DateTime<Utc>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:137:5
+    |
+137 |     pub metadata: HashMap<String, String>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:145:5
+    |
+145 |     pub token: String,
+    |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:146:5
+    |
+146 |     pub finish_reason: Option<FinishReason>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:147:5
+    |
+147 |     pub timestamp: DateTime<Utc>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+   --> crates\arkhe-inference\src\types.rs:164:1
+    |
+164 | pub struct TokenUsage {
+    | ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:165:5
+    |
+165 |     pub prompt_tokens: u32,
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:166:5
+    |
+166 |     pub completion_tokens: u32,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> crates\arkhe-inference\src\types.rs:167:5
+    |
+167 |     pub total_tokens: u32,
+    |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+   --> crates\arkhe-inference\src\types.rs:171:5
+    |
+171 |     pub fn new(prompt_tokens: u32, completion_tokens: u32) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> crates\arkhe-inference\src\types.rs:179:5
+    |
+179 |     pub fn is_zero(&self) -> bool {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> crates\arkhe-inference\src\types.rs:183:5
+    |
+183 |     pub fn add(&self, other: &Self) -> Self {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+   --> crates\arkhe-inference\src\types.rs:206:1
+    |
+206 | pub enum FinishReason {
+    | ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+   --> crates\arkhe-inference\src\types.rs:207:5
+    |
+207 |     Stop,
+    |     ^^^^
+
+warning: missing documentation for a variant
+   --> crates\arkhe-inference\src\types.rs:208:5
+    |
+208 |     Length,
+    |     ^^^^^^
+
+warning: missing documentation for a variant
+   --> crates\arkhe-inference\src\types.rs:209:5
+    |
+209 |     ToolCall,
+    |     ^^^^^^^^
+
+warning: missing documentation for a variant
+   --> crates\arkhe-inference\src\types.rs:210:5
+    |
+210 |     Error,
+    |     ^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-inference\src\registry.rs:12:5
+   |
+12 |     pub fn new(family: &str, name: &str) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-inference\src\registry.rs:15:5
+   |
+15 |     pub fn family(&self) -> &str { &self.family }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-inference\src\registry.rs:16:5
+   |
+16 |     pub fn name(&self) -> &str { &self.name }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-inference\src\registry.rs:17:5
+   |
+17 |     pub fn as_str(&self) -> String { format!("{}/{}", self.family, self.name) }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+  --> crates\arkhe-inference\src\registry.rs:27:1
+   |
+27 | pub enum BackendType {
+   | ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\registry.rs:28:5
+   |
+28 |     Null,
+   |     ^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\registry.rs:29:5
+   |
+29 |     MistralRs,
+   |     ^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\registry.rs:30:5
+   |
+30 |     Candle,
+   |     ^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\registry.rs:31:5
+   |
+31 |     LlamaCpp,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-inference\src\registry.rs:32:5
+   |
+32 |     Remote,
+   |     ^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-inference\src\registry.rs:36:1
+   |
+36 | pub struct ModelCapabilities {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:37:5
+   |
+37 |     pub chat: bool,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:38:5
+   |
+38 |     pub completion: bool,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:39:5
+   |
+39 |     pub tools: bool,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:40:5
+   |
+40 |     pub vision: bool,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:41:5
+   |
+41 |     pub streaming: bool,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:42:5
+   |
+42 |     pub max_context_tokens: u32,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-inference\src\registry.rs:52:1
+   |
+52 | pub struct ModelLicense {
+   | ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:53:5
+   |
+53 |     pub name: String,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:54:5
+   |
+54 |     pub commercial_use: bool,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-inference\src\registry.rs:58:1
+   |
+58 | pub struct ModelEntry {
+   | ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:59:5
+   |
+59 |     pub id: ModelId,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:60:5
+   |
+60 |     pub backend: BackendType,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:61:5
+   |
+61 |     pub capabilities: ModelCapabilities,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:62:5
+   |
+62 |     pub license: ModelLicense,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-inference\src\registry.rs:63:5
+   |
+63 |     pub path: Option<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-inference\src\registry.rs:72:5
+   |
+72 |     pub fn new() -> Self { Self { models: Vec::new() } }
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-inference\src\registry.rs:74:5
+   |
+74 |     pub fn register(&mut self, entry: ModelEntry) {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-inference\src\registry.rs:78:5
+   |
+78 |     pub fn get(&self, id: &ModelId) -> Option<&ModelEntry> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-inference\src\registry.rs:82:5
+   |
+82 |     pub fn list(&self) -> &[ModelEntry] { &self.models }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-inference\src\registry.rs:84:5
+   |
+84 |     pub fn find_by_backend(&self, backend: BackendType) -> Vec<&ModelEntry> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-inference\src\null.rs:17:5
+   |
+17 |     pub fn new(model_id: ModelId) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for the crate
+  --> crates\arkhe-session-evaluator\src\lib.rs:1:1
+   |
+ 1 | / #![warn(missing_docs)]
+ 2 | | #![deny(unsafe_code)]
+ 3 | |
+ 4 | | pub mod types;
+...  |
+11 | | pub use types::*;
+12 | | pub use evaluator::SessionEvaluator;
+   | |____________________________________^
+   |
+note: the lint level is defined here
+  --> crates\arkhe-session-evaluator\src\lib.rs:1:9
+   |
+ 1 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-session-evaluator\src\lib.rs:4:1
+  |
+4 | pub mod types;
+  | ^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-session-evaluator\src\lib.rs:5:1
+  |
+5 | pub mod causal_consistency;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-session-evaluator\src\lib.rs:6:1
+  |
+6 | pub mod contradiction;
+  | ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-session-evaluator\src\lib.rs:7:1
+  |
+7 | pub mod validation_detector;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-session-evaluator\src\lib.rs:8:1
+  |
+8 | pub mod artifact_analyzer;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-session-evaluator\src\lib.rs:9:1
+  |
+9 | pub mod evaluator;
+  | ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+ --> crates\arkhe-session-evaluator\src\types.rs:6:1
+  |
+6 | pub struct SessionTrajectory {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> crates\arkhe-session-evaluator\src\types.rs:7:5
+  |
+7 |     pub id: String,
+  |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> crates\arkhe-session-evaluator\src\types.rs:8:5
+  |
+8 |     pub agent_did: String,
+  |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> crates\arkhe-session-evaluator\src\types.rs:9:5
+  |
+9 |     pub turns: Vec<Turn>,
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:10:5
+   |
+10 |     pub artifacts: Vec<Artifact>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:11:5
+   |
+11 |     pub start_time: DateTime<Utc>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:12:5
+   |
+12 |     pub end_time: Option<DateTime<Utc>>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:13:5
+   |
+13 |     pub metadata: HashMap<String, serde_json::Value>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-session-evaluator\src\types.rs:17:1
+   |
+17 | pub struct Turn {
+   | ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:18:5
+   |
+18 |     pub id: String,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:19:5
+   |
+19 |     pub role: TurnRole,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:20:5
+   |
+20 |     pub content: String,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:21:5
+   |
+21 |     pub timestamp: DateTime<Utc>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:22:5
+   |
+22 |     pub reasoning: Option<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:23:5
+   |
+23 |     pub validation: Option<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:24:5
+   |
+24 |     pub artifacts: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:25:5
+   |
+25 |     pub confidence: Option<f32>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:26:5
+   |
+26 |     pub causal_links: Vec<CausalLink>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+  --> crates\arkhe-session-evaluator\src\types.rs:30:1
+   |
+30 | pub enum TurnRole { User, Assistant, System, Tool }
+   | ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:30:21
+   |
+30 | pub enum TurnRole { User, Assistant, System, Tool }
+   |                     ^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:30:27
+   |
+30 | pub enum TurnRole { User, Assistant, System, Tool }
+   |                           ^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:30:38
+   |
+30 | pub enum TurnRole { User, Assistant, System, Tool }
+   |                                      ^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:30:46
+   |
+30 | pub enum TurnRole { User, Assistant, System, Tool }
+   |                                              ^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-session-evaluator\src\types.rs:44:1
+   |
+44 | pub struct CausalLink {
+   | ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:45:5
+   |
+45 |     pub from_turn: String,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:46:5
+   |
+46 |     pub to_turn: String,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:47:5
+   |
+47 |     pub relation: CausalRelation,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:48:5
+   |
+48 |     pub strength: f32,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+  --> crates\arkhe-session-evaluator\src\types.rs:52:1
+   |
+52 | pub enum CausalRelation { Premise, Correction, Refinement, Validation }
+   | ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:52:27
+   |
+52 | pub enum CausalRelation { Premise, Correction, Refinement, Validation }
+   |                           ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:52:36
+   |
+52 | pub enum CausalRelation { Premise, Correction, Refinement, Validation }
+   |                                    ^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:52:48
+   |
+52 | pub enum CausalRelation { Premise, Correction, Refinement, Validation }
+   |                                                ^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:52:60
+   |
+52 | pub enum CausalRelation { Premise, Correction, Refinement, Validation }
+   |                                                            ^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-session-evaluator\src\types.rs:55:1
+   |
+55 | pub struct Artifact {
+   | ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:56:5
+   |
+56 |     pub id: String,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:57:5
+   |
+57 |     pub artifact_type: ArtifactType,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:58:5
+   |
+58 |     pub content: String,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:59:5
+   |
+59 |     pub metadata: HashMap<String, serde_json::Value>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:60:5
+   |
+60 |     pub compilable: Option<bool>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:61:5
+   |
+61 |     pub tests_passed: Option<bool>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:62:5
+   |
+62 |     pub errors: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+  --> crates\arkhe-session-evaluator\src\types.rs:66:1
+   |
+66 | pub enum ArtifactType { Code, Test, Configuration, Architecture, Documentation, Other }
+   | ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:66:25
+   |
+66 | pub enum ArtifactType { Code, Test, Configuration, Architecture, Documentation, Other }
+   |                         ^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:66:31
+   |
+66 | pub enum ArtifactType { Code, Test, Configuration, Architecture, Documentation, Other }
+   |                               ^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:66:37
+   |
+66 | pub enum ArtifactType { Code, Test, Configuration, Architecture, Documentation, Other }
+   |                                     ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:66:52
+   |
+66 | pub enum ArtifactType { Code, Test, Configuration, Architecture, Documentation, Other }
+   |                                                    ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:66:66
+   |
+66 | pub enum ArtifactType { Code, Test, Configuration, Architecture, Documentation, Other }
+   |                                                                  ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-session-evaluator\src\types.rs:66:81
+   |
+66 | pub enum ArtifactType { Code, Test, Configuration, Architecture, Documentation, Other }
+   |                                                                                 ^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-session-evaluator\src\types.rs:69:1
+   |
+69 | pub struct DimensionScore {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:70:5
+   |
+70 |     pub score: f32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:71:5
+   |
+71 |     pub details: String,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:72:5
+   |
+72 |     pub evidence: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-session-evaluator\src\types.rs:76:5
+   |
+76 |     pub fn new(score: f32, details: impl Into<String>) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-session-evaluator\src\types.rs:79:5
+   |
+79 |     pub fn with_evidence(mut self, evidence: Vec<String>) -> Self { self.evidence = evidence; self }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-session-evaluator\src\types.rs:83:1
+   |
+83 | pub struct EvaluationResult {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:84:5
+   |
+84 |     pub session_id: String,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:85:5
+   |
+85 |     pub overall_score: f32,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:86:5
+   |
+86 |     pub dimensions: Vec<EvaluationDimension>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:87:5
+   |
+87 |     pub summary: String,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:88:5
+   |
+88 |     pub highlights: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:89:5
+   |
+89 |     pub concerns: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:90:5
+   |
+90 |     pub suggestions: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-session-evaluator\src\types.rs:94:1
+   |
+94 | pub struct EvaluationDimension {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:95:5
+   |
+95 |     pub name: String,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:96:5
+   |
+96 |     pub score: f32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:97:5
+   |
+97 |     pub weight: f32,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:98:5
+   |
+98 |     pub details: String,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-session-evaluator\src\types.rs:99:5
+   |
+99 |     pub evidence: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+ --> crates\arkhe-session-evaluator\src\causal_consistency.rs:5:1
+  |
+5 | pub struct CausalConsistencyScorer;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-session-evaluator\src\causal_consistency.rs:24:5
+   |
+24 |     pub async fn score(&self, trajectory: &SessionTrajectory) -> DimensionScore {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+ --> crates\arkhe-session-evaluator\src\contradiction.rs:3:1
+  |
+3 | pub struct ContradictionDetector;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-session-evaluator\src\contradiction.rs:15:5
+   |
+15 |     pub async fn score(&self, trajectory: &SessionTrajectory) -> DimensionScore {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+ --> crates\arkhe-session-evaluator\src\validation_detector.rs:4:1
+  |
+4 | pub struct ValidationDetector { patterns: Vec<Regex> }
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-session-evaluator\src\validation_detector.rs:11:5
+   |
+11 |     pub fn new() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-session-evaluator\src\validation_detector.rs:18:5
+   |
+18 |     pub async fn score(&self, trajectory: &SessionTrajectory) -> DimensionScore {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+ --> crates\arkhe-session-evaluator\src\artifact_analyzer.rs:3:1
+  |
+3 | pub struct ArtifactAnalyzer;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-session-evaluator\src\artifact_analyzer.rs:10:5
+   |
+10 |     pub async fn score(&self, trajectory: &SessionTrajectory) -> DimensionScore {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-session-evaluator\src\evaluator.rs:13:1
+   |
+13 | pub struct SessionEvaluator {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-session-evaluator\src\evaluator.rs:21:5
+   |
+21 |     pub fn new() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-session-evaluator\src\evaluator.rs:30:5
+   |
+30 |     pub async fn evaluate(&self, trajectory: &SessionTrajectory) -> EvaluationResult {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   Compiling arkhe-evidence v0.1.0 (C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine\safe-core-monorepo\crates\arkhe-evidence)
+warning: `arkhe-inference` (lib) generated 110 warnings (run `cargo fix --lib -p arkhe-inference` to apply 1 suggestion)
+warning: `arkhe-session-evaluator` (lib) generated 87 warnings
+warning: missing documentation for the crate
+ --> crates\arkhe-reflector-agent\src\lib.rs:1:1
+  |
+1 | / #![warn(missing_docs)]
+2 | | #![deny(unsafe_code)]
+3 | |
+4 | | pub mod types;
+... |
+7 | | pub use types::*;
+8 | | pub use reflector::ReflectorAgent;
+  | |__________________________________^
+  |
+note: the lint level is defined here
+ --> crates\arkhe-reflector-agent\src\lib.rs:1:9
+  |
+1 | #![warn(missing_docs)]
+  |         ^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-reflector-agent\src\lib.rs:4:1
+  |
+4 | pub mod types;
+  | ^^^^^^^^^^^^^
+
+warning: missing documentation for a module
+ --> crates\arkhe-reflector-agent\src\lib.rs:5:1
+  |
+5 | pub mod reflector;
+  | ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+ --> crates\arkhe-reflector-agent\src\types.rs:5:1
+  |
+5 | pub struct ReflectionReport {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> crates\arkhe-reflector-agent\src\types.rs:6:5
+  |
+6 |     pub session_id: String,
+  |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> crates\arkhe-reflector-agent\src\types.rs:7:5
+  |
+7 |     pub timestamp: DateTime<Utc>,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> crates\arkhe-reflector-agent\src\types.rs:8:5
+  |
+8 |     pub causal_patterns: Vec<ExtractedPattern>,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> crates\arkhe-reflector-agent\src\types.rs:9:5
+  |
+9 |     pub procedural_skills: Vec<ExtractedPattern>,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:10:5
+   |
+10 |     pub self_corrections: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:11:5
+   |
+11 |     pub recommendations: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:12:5
+   |
+12 |     pub quality_score: f32,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-reflector-agent\src\types.rs:16:1
+   |
+16 | pub struct ExtractedPattern {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:17:5
+   |
+17 |     pub id: String,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:18:5
+   |
+18 |     pub pattern_type: PatternType,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:19:5
+   |
+19 |     pub description: String,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:20:5
+   |
+20 |     pub trigger: String,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:21:5
+   |
+21 |     pub confidence: f32,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:22:5
+   |
+22 |     pub source_turns: Vec<String>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+  --> crates\arkhe-reflector-agent\src\types.rs:26:1
+   |
+26 | pub enum PatternType { CausalRule, ProceduralSkill, NegativeConstraint, SelfCorrection }
+   | ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-reflector-agent\src\types.rs:26:24
+   |
+26 | pub enum PatternType { CausalRule, ProceduralSkill, NegativeConstraint, SelfCorrection }
+   |                        ^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-reflector-agent\src\types.rs:26:36
+   |
+26 | pub enum PatternType { CausalRule, ProceduralSkill, NegativeConstraint, SelfCorrection }
+   |                                    ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-reflector-agent\src\types.rs:26:53
+   |
+26 | pub enum PatternType { CausalRule, ProceduralSkill, NegativeConstraint, SelfCorrection }
+   |                                                     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-reflector-agent\src\types.rs:26:73
+   |
+26 | pub enum PatternType { CausalRule, ProceduralSkill, NegativeConstraint, SelfCorrection }
+   |                                                                         ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct
+  --> crates\arkhe-reflector-agent\src\types.rs:29:1
+   |
+29 | pub struct ReflectorConfig {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:30:5
+   |
+30 |     pub min_confidence: f32,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-reflector-agent\src\types.rs:31:5
+   |
+31 |     pub max_patterns_per_session: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-reflector-agent\src\reflector.rs:16:5
+   |
+16 |     pub fn new(inference: std::sync::Arc<I>) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-reflector-agent\src\reflector.rs:20:5
+   |
+20 |     pub fn with_config(inference: std::sync::Arc<I>, config: ReflectorConfig) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `arkhe-reflector-agent` (lib) generated 28 warnings
+warning: unused import: `InferenceResponse`
+  --> crates\arkhe-agi\src\coordinator.rs:13:40
+   |
+13 |     InferenceEngine, InferenceRequest, InferenceResponse, ChatMessage, ChatRole, FinishReason,
+   |                                        ^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `arkhe_reflector_agent::ReflectorAgent`
+  --> crates\arkhe-agi\src\coordinator.rs:16:5
+   |
+16 | use arkhe_reflector_agent::ReflectorAgent;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `error`
+  --> crates\arkhe-agi\src\coordinator.rs:19:27
+   |
+19 | use tracing::{info, warn, error};
+   |                           ^^^^^
+
+warning: unused import: `ChatRole`
+ --> crates\arkhe-agi\src\session.rs:3:36
+  |
+3 | use arkhe_inference::{ChatMessage, ChatRole, TokenUsage};
+  |                                    ^^^^^^^^
+
+warning: missing documentation for the crate
+ --> crates\arkhe-agi\src\lib.rs:1:1
+  |
+1 | / #![warn(missing_docs)]
+2 | | #![deny(unsafe_code)]
+3 | |
+4 | | pub mod coordinator;
+... |
+7 | | pub use coordinator::AgiCoordinator;
+8 | | pub use session::SessionHistory;
+  | |________________________________^
+  |
+note: the lint level is defined here
+ --> crates\arkhe-agi\src\lib.rs:1:9
+  |
+1 | #![warn(missing_docs)]
+  |         ^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-agi\src\session.rs:18:5
+   |
+18 |     pub fn new(session_id: &str) -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-agi\src\session.rs:27:5
+   |
+27 |     pub fn session_id(&self) -> &str { &self.session_id }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-agi\src\session.rs:28:5
+   |
+28 |     pub fn turn_count(&self) -> u64 { self.turn_count }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-agi\src\session.rs:29:5
+   |
+29 |     pub fn total_usage(&self) -> &TokenUsage { &self.total_usage }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> crates\arkhe-agi\src\session.rs:30:5
+   |
+30 |     pub fn messages(&self) -> &VecDeque<ChatMessage> { &self.messages }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `arkhe-agi` (lib) generated 10 warnings (run `cargo fix --lib -p arkhe-agi` to apply 4 suggestions)
+   Compiling arkhe-web3-security v0.1.0 (C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine\safe-core-monorepo\crates\arkhe-web3-security)
+   Compiling arkhe-agent-vm v0.1.0 (C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine\safe-core-monorepo\crates\arkhe-agent-vm)
+   Compiling rustls-webpki v0.103.13
+   Compiling rustls v0.23.41
+   Compiling arkhe-network v0.1.0 (C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine\safe-core-monorepo\crates\arkhe-network)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.14s
+     Running unittests src\lib.rs (target\debug\deps\arkhe_agent_vm-b0e0940cfa1a2572.exe)
+
+running 48 tests
+test lifecycle::tests::faulting_an_already_destroyed_lifecycle_is_rejected ... ok
+test lifecycle::tests::destroying_twice_is_rejected ... ok
+test lifecycle::tests::fault_reaches_safe_closed_from_running ... ok
+test lifecycle::tests::skipping_running_is_rejected ... ok
+test lifecycle::tests::happy_path_transitions_in_order ... ok
+test lifecycle::tests::safe_closed_can_only_be_destroyed_not_faulted_again ... ok
+test lifecycle::tests::safe_closed_cannot_return_to_running ... ok
+test lifecycle::tests::fault_reaches_safe_closed_from_creating_and_terminating_too ... ok
+test lifecycle::tests::starting_after_destroy_is_rejected ... ok
+test manager::tests::capability_certificate_is_absent_for_unknown_vm ... ok
+test manager::tests::destroy_vm_unknown_id_is_not_found ... ok
+test manager::tests::fault_vm_fails_for_unknown_vm ... ok
+test manager::tests::create_vm_records_fi_a07_and_fi_a08_evidence ... ok
+test manager::tests::destroy_vm_removes_it_and_records_evidence ... ok
+test manager::tests::create_vm_starts_running_and_is_listed ... ok
+test manager::tests::fault_vm_forces_safe_closed_and_records_fi_a09 ... ok
+test manager::tests::create_vm_rejects_zero_lifetime_policy ... ok
+test manager::tests::destroy_vm_records_two_fi_a07_transitions ... ok
+test manager::tests::snapshot_fails_for_unknown_vm ... ok
+test manager::tests::faulted_vm_can_still_be_destroyed ... ok
+test manager::tests::spawn_agent_session_fails_for_unknown_vm ... ok
+test manager::tests::create_vm_issues_a_self_verifying_capability_certificate ... ok
+test manager::tests::evidence_bus_records_identity_and_policy_checks_on_create ... ok
+test manager::tests::capability_certificate_maps_known_policy_strings_to_bitmap_flags ... ok
+test policy::tests::allows_checks_the_exact_capability_string ... ok
+test policy::tests::effectively_unlimited_policy_is_never_expired ... ok
+test manager::tests::destroying_the_vm_blocks_further_process_calls_on_an_already_spawned_session ... ok
+test manager::tests::snapshot_records_fi_a05_evidence ... ok
+test manager::tests::faulted_vm_rejects_further_agent_actions ... ok
+test policy::tests::fresh_lifecycle_is_not_expired_under_a_generous_policy ... ok
+test policy::tests::restrictive_policy_grants_no_capabilities ... ok
+test session::tests::allowed_action_on_running_vm_is_allowed ... ok
+test session::tests::every_verify_call_is_recorded_as_fi_a04_evidence ... ok
+test session::tests::action_is_rejected_once_lifecycle_leaves_running ... ok
+test session::tests::action_not_in_policy_is_rejected ... ok
+test snapshot::tests::tampered_age_fails_integrity_check ... ok
+test snapshot::tests::tampered_capabilities_fails_integrity_check ... ok
+test snapshot::tests::tampered_state_fails_integrity_check ... ok
+test manager::tests::snapshot_reflects_state_after_destroy ... ok
+test snapshot::tests::fresh_snapshot_passes_integrity_check ... ok
+test snapshot::tests::capturing_the_same_state_twice_is_deterministic ... ok
+test manager::tests::sweep_expired_leaves_fresh_vms_alone ... ok
+test manager::tests::spawned_agent_session_processes_when_llm_inference_is_allowed ... ok
+test manager::tests::destroy_vm_twice_fails_the_second_time ... ok
+test manager::tests::spawned_agent_session_rejects_when_llm_inference_not_in_policy ... ok
+test manager::tests::verifying_key_is_available_for_a_live_vm ... ok
+test manager::tests::snapshot_captures_live_vm_state ... ok
+test manager::tests::sweep_expired_destroys_vms_past_their_policy_lifetime ... ok
+
+test result: ok. 48 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.85s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_crypto_pqc-7a2c784b60773ae7.exe)
+
+running 16 tests
+test context::tests::no_field_concatenation_ambiguity ... ok
+test context::tests::digest_is_deterministic_for_the_same_fields ... ok
+test kem::tests::tampered_ciphertext_yields_different_key ... ok
+test kem::tests::different_keypairs_derive_different_keys ... ok
+test kem::tests::encaps_decaps_shared_secret_matches ... ok
+test signature::tests::signature_derived_from_signing_key_matches_verifying_key ... ok
+test context::tests::signature_is_rejected_under_a_different_policy_version ... ok
+test signature::tests::tampered_ed25519_half_fails_verify ... ok
+test context::tests::signature_is_rejected_under_a_different_domain ... ok
+test signature::tests::sign_and_verify_roundtrip ... ok
+test signature::tests::tampered_ml_dsa_half_fails_verify ... ok
+test signature::tests::tampered_message_fails_verify ... ok
+test context::tests::sign_and_verify_roundtrip_under_same_context ... ok
+test signature::tests::verify_ml_dsa_only_rejects_tampered_ml_dsa_half ... ok
+test context::tests::signature_is_rejected_under_a_different_nonce ... ok
+test signature::tests::verify_ml_dsa_only_ignores_tampered_ed25519_half ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_evidence-159ba62e12610c91.exe)
+
+running 9 tests
+test chain::tests::latest_hash_is_genesis_for_empty_chain ... ok
+test chain::tests::empty_chain_verifies ... ok
+test chain::tests::swapping_two_records_breaks_the_link ... ok
+test chain::tests::append_links_records_via_prev_hash ... ok
+test chain::tests::verify_at_checks_only_the_requested_prefix ... ok
+test chain::tests::fresh_multi_record_chain_verifies ... ok
+test chain::tests::tampering_a_records_payload_is_detected ... ok
+test chain::tests::record_at_returns_the_correct_record ... ok
+test chain::tests::verify_at_detects_tampering_within_the_prefix ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_identity-902a9962eca9be19.exe)
+
+running 13 tests
+test gdid::crl::tests::tampered_root_fails_verification ... ok
+test gdid::crl::tests::valid_inclusion_proof_verifies ... ok
+test gdid::cert::tests::expired_certificate_is_rejected ... ok
+test gdid::hubble::tests::short_projection_preserves_prefix_version_and_hash ... ok
+test gdid::tests::different_namespace_yields_different_gdid ... ok
+test gdid::tests::base58_encoding_is_stable_and_decodable ... ok
+test gdid::tests::derivation_is_deterministic ... ok
+test gdid::tests::accessors_roundtrip_through_from_parts ... ok
+test gdid::tests::different_nonce_yields_different_gdid ... ok
+test gdid::cert::tests::wrong_issuer_key_is_rejected ... ok
+test gdid::cert::tests::valid_certificate_verifies ... ok
+test gdid::cert::tests::issue_produces_a_certificate_with_the_requested_capabilities ... ok
+test gdid::cert::tests::tampered_payload_fails_signature_check ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_network-ffe843b68eaea16e.exe)
+
+running 11 tests
+test message::tests::encode_decode_roundtrip ... ok
+test message::tests::truncated_length_prefix_is_rejected_not_panicked ... ok
+test nonce::tests::out_of_order_nonce_is_rejected ... ok
+test nonce::tests::replayed_nonce_is_rejected ... ok
+test message::tests::decode_never_panics_on_arbitrary_bytes ... ok
+test nonce::tests::senders_are_tracked_independently ... ok
+test tls::tests::requesting_only_tls13_does_not_silently_include_tls12 ... ok
+test nonce::tests::strictly_increasing_nonces_are_accepted ... ok
+test tls::tests::client_config_builds_successfully_with_tls13_only ... ok
+test message::tests::tampered_message_fails_verification ... ok
+test message::tests::sign_and_verify_roundtrip ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_pqc_core-f50983767fa8064a.exe)
+
+running 7 tests
+test kem::tests::ciphertext_has_expected_length ... ok
+test kem::tests::different_keypairs_yield_different_shared_secrets ... ok
+test kem::tests::encaps_decaps_shared_secret_matches ... ok
+test hybrid::tests::ml_dsa_signature_is_dilithium3_length ... ok
+test hybrid::tests::tampered_message_fails_verify ... ok
+test hybrid::tests::sign_and_verify_roundtrip ... ok
+test hybrid::tests::tampered_ed25519_half_fails_verify ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_web3_security-ea8cf0d23d11b0a4.exe)
+
+running 80 tests
+test analyzers::gas::tests::bounded_iteration_holds ... ok
+test agents::recon::tests::deduplicates_by_name ... ok
+test agents::gap_filling::tests::reports_every_id_as_a_gap_when_nothing_was_checked ... ok
+test analyzers::delegatecall::tests::delegatecall_to_attacker_contract_is_rejected ... ok
+test agents::evidence_bus::tests::stores_and_returns_evidence_in_order ... ok
+test agents::pipeline::tests::empty_input_is_rejected ... ok
+test analyzers::delegatecall::tests::delegatecall_to_current_implementation_holds ... ok
+test analyzers::flash_loan::tests::drained_trace_is_flagged ... ok
+test agents::pipeline::tests::reentrant_trace_is_flagged_in_the_report ... ok
+test analyzers::flash_loan::tests::fully_repaid_trace_holds ... ok
+test agents::pipeline::tests::clean_input_produces_holding_verdicts_and_records_evidence ... ok
+test agents::gap_filling::tests::excludes_checked_ids_from_the_gap_list ... ok
+test analyzers::gas::tests::gas_exceeding_reserve_is_rejected ... ok
+test analyzers::gas::tests::gas_within_limit_holds ... ok
+test analyzers::mev::tests::independent_swaps_hold ... ok
+test analyzers::gas::tests::unbounded_growth_is_rejected ... ok
+test analyzers::mev::tests::same_sender_different_token_is_not_sandwich ... ok
+test analyzers::mev::tests::sandwich_pattern_is_detected ... ok
+test analyzers::price_oracle::tests::manipulated_spot_price_is_rejected ... ok
+test analyzers::reentrancy::tests::reentrant_call_back_into_vault_is_flagged ... ok
+test blockchain::consensus::tests::below_two_thirds_violates ... ok
+test analyzers::price_oracle::tests::small_deviation_holds ... ok
+test blockchain::consensus::tests::distinct_identities_hold ... ok
+test analyzers::reentrancy::tests::linear_call_chain_holds ... ok
+test blockchain::consensus::tests::duplicate_identity_is_sybil ... ok
+test blockchain::evm::tests::safe_add_overflow_is_rejected ... ok
+test blockchain::evm::tests::normal_arithmetic_succeeds ... ok
+test blockchain::consensus::tests::two_thirds_honest_holds ... ok
+test blockchain::evm::tests::safe_mul_overflow_is_rejected ... ok
+test blockchain::evm::tests::call_depth_limit_enforced ... ok
+test blockchain::evm::tests::safe_sub_underflow_is_rejected ... ok
+test blockchain::p2p::tests::authenticated_known_peer_holds ... ok
+test blockchain::p2p::tests::three_distinct_clients_hold ... ok
+test blockchain::p2p::tests::single_client_violates ... ok
+test blockchain::p2p::tests::unauthenticated_message_violates ... ok
+test blockchain::p2p::tests::unknown_peer_violates ... ok
+test contracts::access_control::tests::granted_capability_allows_execution ... ok
+test contracts::access_control::tests::revoked_capability_is_rejected ... ok
+test contracts::access_control::tests::unauthorized_caller_is_rejected ... ok
+test contracts::flash_loan::tests::fully_repaid_loan_keeps_pool_solvent ... ok
+test contracts::flash_loan::tests::under_repaid_loan_is_rejected ... ok
+test contracts::proxy::tests::admin_can_upgrade ... ok
+test contracts::proxy::tests::double_initialization_is_rejected ... ok
+test contracts::reentrancy::tests::effect_after_external_call_violates_cei ... ok
+test contracts::reentrancy::tests::effects_before_interactions_hold ... ok
+test contracts::reentrancy::tests::execute_guarded_prevents_nested_reentry ... ok
+test contracts::reentrancy::tests::reentrant_call_is_rejected ... ok
+test contracts::proxy::tests::uninitialized_proxy_is_unsafe ... ok
+test contracts::proxy::tests::non_admin_upgrade_is_rejected ... ok
+test dapps::api::tests::unauthenticated_request_is_rejected ... ok
+test dapps::api::tests::authenticated_request_within_limit_holds ... ok
+test dapps::api::tests::request_over_limit_is_rejected ... ok
+test dapps::frontend::tests::allowed_https_origin_holds ... ok
+test dapps::frontend::tests::phishing_lookalike_domain_is_rejected ... ok
+test dapps::approvals::tests::exact_needed_amount_holds ... ok
+test dapps::approvals::tests::minimal_approval_holds ... ok
+test reports::owasp::tests::compliance_rate_is_computed_correctly ... ok
+test dapps::approvals::tests::unlimited_allowance_is_rejected ... ok
+test dapps::frontend::tests::non_https_origin_is_rejected ... ok
+test reports::owasp::tests::report_filters_only_violations ... ok
+test reports::swc::tests::covered_entries_are_non_empty_and_unique ... ok
+test wallets::eip712::tests::wrong_nonce_is_rejected ... ok
+test wallets::eip712::tests::cross_chain_replay_is_rejected ... ok
+test wallets::eip712::tests::matching_domain_and_nonce_is_valid ... ok
+test wallets::recovery::tests::fresh_backed_up_key_holds ... ok
+test wallets::recovery::tests::quorum_met_holds ... ok
+test wallets::recovery::tests::quorum_not_met_is_rejected ... ok
+test wallets::recovery::tests::key_without_backup_is_rejected ... ok
+test wallets::recovery::tests::stale_key_is_rejected ... ok
+test wallets::signature::tests::accounts_are_tracked_independently ... ok
+test wallets::signature::tests::strictly_increasing_nonces_hold ... ok
+test web3_adapter::tests::clean_transaction_produces_clean_evidence ... ok
+test web3_adapter::tests::different_transaction_ids_produce_different_content_hashes ... ok
+test web3_adapter::tests::failed_domain_check_marks_evidence_unclean ... ok
+test wallets::signature::tests::out_of_order_nonce_is_rejected ... ok
+test wallets::signature::tests::replayed_nonce_is_rejected ... ok
+test web3_adapter::tests::same_input_produces_the_same_content_hash ... ok
+test wallets::hybrid_wallet::tests::hybrid_only_requires_both_halves_valid ... ok
+test wallets::hybrid_wallet::tests::strict_pqc_behaves_like_pqc_only_until_classical_key_is_exported ... ok
+test wallets::hybrid_wallet::tests::pqc_only_ignores_broken_classical_half ... ok
+
+test result: ok. 80 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+   Doc-tests arkhe_agent_vm
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_crypto_pqc
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_evidence
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_identity
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_network
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_pqc_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_web3_security
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

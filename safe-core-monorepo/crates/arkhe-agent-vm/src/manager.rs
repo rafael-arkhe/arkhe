@@ -212,44 +212,89 @@ impl AAVMManager {
         self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A07", verdict }).await;
     }
 
-    /// Destroys the AAVM identified by `id`: `Running -> Terminating ->
-    /// Destroyed`, then removes it from the manager. Records FI-A03
-    /// (graceful termination) as evidence. Takes effect immediately for any
-    /// agent session already spawned from this VM via
-    /// [`Self::spawn_agent_session`] — see [`AavmHandle::lifecycle`].
+    /// Destroys the AAVM identified by `id`, then removes it from the
+    /// manager. Records FI-A03 (graceful termination) as evidence. Takes
+    /// effect immediately for any agent session already spawned from this
+    /// VM via [`Self::spawn_agent_session`] — see [`AavmHandle::lifecycle`].
+    ///
+    /// From `Running`, this goes through the full `Running -> Terminating
+    /// -> Destroyed` path (two FI-A07 entries). From [`LifecycleState::SafeClosed`]
+    /// (a prior [`Self::fault_vm`] call) it goes directly to `Destroyed` —
+    /// there is no `Terminating` step to skip, by design (see
+    /// `LifecycleState::SafeClosed`'s doc comment).
     pub async fn destroy_vm(&self, id: &str) -> Result<(), AavmError> {
         let mut vms = self.vms.lock().await;
         let pos = vms.iter().position(|h| h.id == id).ok_or_else(|| AavmError::NotFound(id.to_string()))?;
 
-        let begin_result = {
-            let mut lifecycle = vms[pos].lifecycle.write().await;
-            lifecycle.begin_terminate()
-        };
-        self.record_transition("Running->Terminating", &begin_result).await;
+        let current_state = vms[pos].lifecycle.read().await.state();
 
-        let result: Result<(), InvalidTransition> = if begin_result.is_ok() {
-            let destroy_result = {
+        if current_state == LifecycleState::Running {
+            let begin_result = {
                 let mut lifecycle = vms[pos].lifecycle.write().await;
-                lifecycle.destroy()
+                lifecycle.begin_terminate()
             };
-            self.record_transition("Terminating->Destroyed", &destroy_result).await;
-            destroy_result
-        } else {
-            begin_result
+            self.record_transition("Running->Terminating", &begin_result).await;
+            if let Err(e) = begin_result {
+                self.evidence_bus
+                    .store(AuditEvidence { invariant_id: "FI-A03", verdict: InvariantVerdict::violated(e.to_string()) })
+                    .await;
+                tracing::warn!(id, error = %e, "AAVM destroy failed");
+                return Err(e.into());
+            }
+        }
+
+        let destroy_result = {
+            let mut lifecycle = vms[pos].lifecycle.write().await;
+            lifecycle.destroy()
+        };
+        self.record_transition(&format!("{current_state:?}->Destroyed"), &destroy_result).await;
+
+        let verdict = match &destroy_result {
+            Ok(()) => InvariantVerdict::Holds,
+            Err(e) => InvariantVerdict::violated(e.to_string()),
+        };
+        self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A03", verdict }).await;
+
+        if let Err(e) = &destroy_result {
+            tracing::warn!(id, error = %e, "AAVM destroy failed");
+            destroy_result?;
+        }
+        vms.remove(pos);
+        tracing::info!(id, "AAVM destroyed");
+        Ok(())
+    }
+
+    /// FI-023 — fail-closed: forces AAVM `id` immediately into
+    /// [`LifecycleState::SafeClosed`], skipping any graceful-shutdown path,
+    /// and records the verdict as FI-A09. This is a manual/explicit
+    /// trigger — a caller (supervisory code that itself detects a critical
+    /// failure) invokes it; this crate does not attempt automatic failure
+    /// detection, since defining "critical component failure" system-wide
+    /// is a distinct, much larger design question this method doesn't
+    /// answer. Once faulted, [`Self::spawn_agent_session`]'s
+    /// `PolicyVerifier` rejects every action immediately (any non-`Running`
+    /// state does), and [`Self::destroy_vm`] is the only way out.
+    pub async fn fault_vm(&self, id: &str) -> Result<(), AavmError> {
+        let vms = self.vms.lock().await;
+        let handle = vms.iter().find(|h| h.id == id).ok_or_else(|| AavmError::NotFound(id.to_string()))?;
+
+        let result = {
+            let mut lifecycle = handle.lifecycle.write().await;
+            lifecycle.fault()
         };
 
         let verdict = match &result {
             Ok(()) => InvariantVerdict::Holds,
             Err(e) => InvariantVerdict::violated(e.to_string()),
         };
-        self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A03", verdict }).await;
+        self.evidence_bus.store(AuditEvidence { invariant_id: "FI-A09", verdict }).await;
 
         if let Err(e) = &result {
-            tracing::warn!(id, error = %e, "AAVM destroy failed");
-            result?;
+            tracing::warn!(id, error = %e, "AAVM fault_vm failed");
+        } else {
+            tracing::warn!(id, "AAVM forced to SafeClosed (fail-closed)");
         }
-        vms.remove(pos);
-        tracing::info!(id, "AAVM destroyed");
+        result?;
         Ok(())
     }
 
@@ -669,5 +714,59 @@ mod tests {
         // Running->Terminating and Terminating->Destroyed.
         assert_eq!(before, 1);
         assert_eq!(after, 3);
+    }
+
+    #[tokio::test]
+    async fn fault_vm_forces_safe_closed_and_records_fi_a09() {
+        let evidence_bus = Arc::new(EvidenceBus::new());
+        let manager = AAVMManager::new(evidence_bus.clone());
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+
+        manager.fault_vm(&summary.id).await.unwrap();
+
+        let listed = manager.list_vms().await;
+        assert_eq!(listed[0].state, LifecycleState::SafeClosed);
+
+        let evidence = evidence_bus.all().await;
+        assert!(evidence.iter().any(|e| e.invariant_id == "FI-A09" && e.verdict.holds()));
+    }
+
+    #[tokio::test]
+    async fn faulted_vm_can_still_be_destroyed() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let summary = manager.create_vm(permissive_policy()).await.unwrap();
+
+        manager.fault_vm(&summary.id).await.unwrap();
+        manager.destroy_vm(&summary.id).await.unwrap();
+
+        assert!(manager.list_vms().await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn faulted_vm_rejects_further_agent_actions() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        let policy = AgentPolicy { max_lifetime_secs: 3600, allowed_capabilities: vec!["llm_inference".to_string()] };
+        let summary = manager.create_vm(policy).await.unwrap();
+
+        let coordinator = manager
+            .spawn_agent_session(
+                &summary.id,
+                Arc::new(arkhe_core::InMemoryAgentMemory::new()),
+                null_inference(),
+                "test-session",
+                "You are helpful.",
+            )
+            .await
+            .unwrap();
+
+        assert!(coordinator.process("before fault").await.is_ok());
+        manager.fault_vm(&summary.id).await.unwrap();
+        assert!(coordinator.process("after fault").await.is_err());
+    }
+
+    #[tokio::test]
+    async fn fault_vm_fails_for_unknown_vm() {
+        let manager = AAVMManager::new(Arc::new(EvidenceBus::new()));
+        assert!(matches!(manager.fault_vm("nonexistent").await, Err(AavmError::NotFound(_))));
     }
 }
