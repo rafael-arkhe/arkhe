@@ -1,0 +1,18 @@
+[package]
+name = "arkhe-pqc-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Hybrid PQC (Ed25519 + ML-DSA-65 via pqcrypto-dilithium, ML-KEM-1024 via pqcrypto-mlkem) — parallel implementation to arkhe-crypto-pqc, kept as a separate crate by explicit choice rather than a replacement"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+pqcrypto-dilithium = "0.5.0"
+pqcrypto-mlkem = "0.1.0"
+pqcrypto-traits = "0.3.4"
+ed25519-dalek = { workspace = true, features = ["rand_core"] }
+rand = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
