@@ -3,15 +3,12 @@
 //! Roda antes do `Evaluator`: se o candidato nem compila, não faz sentido
 //! gastar tempo rodando testes/benchmarks em sandbox por trás dele.
 
+use crate::process_timeout::run_with_timeout;
 use crate::workspace::isolate;
 use arkhe_rsi_core::{Artifact, RsiError, ValidationReport};
 use serde_json::Value;
-use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::process::{Child, Command, Stdio};
-use std::sync::mpsc;
-use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 pub trait StaticValidator: Send + Sync {
     fn validate(&self, artifact: &Artifact) -> Result<ValidationReport, RsiError>;
@@ -56,7 +53,7 @@ impl RustClippyValidator {
     ) -> Result<(bool, Vec<String>, Vec<String>), RsiError> {
         let mut full_args = args.to_vec();
         full_args.push("--message-format=json");
-        let (success, stdout, _stderr) = run_with_timeout(workspace, &full_args, self.timeout)?;
+        let (success, stdout, _stderr) = run_with_timeout("cargo", &full_args, Some(workspace), self.timeout)?;
 
         let mut errors = Vec::new();
         let mut warnings = Vec::new();
@@ -114,72 +111,6 @@ impl StaticValidator for RustClippyValidator {
 
         Ok(report)
     }
-}
-
-/// Roda `cargo <args>` com um limite de tempo. Dois threads drenam
-/// stdout/stderr concorrentemente enquanto a thread principal faz polling de
-/// `try_wait` — sem isso, um comando que enche o buffer do pipe do SO trava
-/// para sempre esperando alguém ler, mesmo com timeout.
-fn run_with_timeout(workspace: &Path, args: &[&str], timeout: Duration) -> Result<(bool, String, String), RsiError> {
-    let mut child = Command::new("cargo")
-        .args(args)
-        .current_dir(workspace)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|e| RsiError::Backend(format!("failed to spawn `cargo {}`: {e}", args.join(" "))))?;
-
-    let (stdout, stderr) = drain_output(&mut child);
-
-    let start = Instant::now();
-    let status = loop {
-        if let Some(status) = child
-            .try_wait()
-            .map_err(|e| RsiError::Backend(format!("failed to poll `cargo {}`: {e}", args.join(" "))))?
-        {
-            break status;
-        }
-        if start.elapsed() > timeout {
-            let _ = child.kill();
-            let _ = child.wait();
-            return Err(RsiError::Backend(format!(
-                "`cargo {}` timed out after {timeout:?}",
-                args.join(" "),
-            )));
-        }
-        thread::sleep(Duration::from_millis(25));
-    };
-
-    Ok((status.success(), stdout.collect(), stderr.collect()))
-}
-
-struct PipeReader(mpsc::Receiver<String>);
-
-impl PipeReader {
-    fn collect(self) -> String {
-        self.0.recv().unwrap_or_default()
-    }
-}
-
-fn drain_output(child: &mut Child) -> (PipeReader, PipeReader) {
-    let mut stdout_pipe = child.stdout.take().expect("stdout piped");
-    let mut stderr_pipe = child.stderr.take().expect("stderr piped");
-
-    let (out_tx, out_rx) = mpsc::channel();
-    thread::spawn(move || {
-        let mut buf = String::new();
-        let _ = stdout_pipe.read_to_string(&mut buf);
-        let _ = out_tx.send(buf);
-    });
-
-    let (err_tx, err_rx) = mpsc::channel();
-    thread::spawn(move || {
-        let mut buf = String::new();
-        let _ = stderr_pipe.read_to_string(&mut buf);
-        let _ = err_tx.send(buf);
-    });
-
-    (PipeReader(out_rx), PipeReader(err_rx))
 }
 
 #[cfg(test)]

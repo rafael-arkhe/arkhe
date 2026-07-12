@@ -1,0 +1,265 @@
+warning: missing documentation for a module
+  --> crates\arkhe-core\src\lib.rs:12:1
+   |
+12 | pub mod error;
+   | ^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> crates\arkhe-core\src\lib.rs:9:9
+   |
+ 9 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a module
+  --> crates\arkhe-core\src\lib.rs:13:1
+   |
+13 | pub mod hash;
+   | ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:13:5
+   |
+13 |     Internal(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:16:5
+   |
+16 |     NotFound(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:19:5
+   |
+19 |     InvalidInput(String),
+   |     ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:22:5
+   |
+22 |     PermissionDenied(String),
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:25:5
+   |
+25 |     Timeout(std::time::Duration),
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:28:5
+   |
+28 |     Serialization(String),
+   |     ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:31:5
+   |
+31 |     Other(#[from] Box<dyn std::error::Error + Send + Sync>),
+   |     ^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\safety.rs:38:5
+   |
+38 |     pub reason: String,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:12:5
+   |
+12 |     pub key: String,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:13:5
+   |
+13 |     pub value: String,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:14:5
+   |
+14 |     pub score: f32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:15:5
+   |
+15 |     pub layer: MemoryLayer,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:16:5
+   |
+16 |     pub timestamp: DateTime<Utc>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:22:5
+   |
+22 |     Working,
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:23:5
+   |
+23 |     Episodic,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:24:5
+   |
+24 |     Semantic,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:25:5
+   |
+25 |     Procedural,
+   |     ^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-core\src\memory_traits.rs:51:5
+   |
+51 |     pub fn new() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: `arkhe-core` (lib) generated 20 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.43s
+     Running unittests src\lib.rs (target\debug\deps\arkhe_rsi-e31e2feaf5cc5636.exe)
+
+running 36 tests
+test approval::tests::quorum_of_approvals_is_required ... ok
+test approval::tests::reviewer_can_change_their_vote ... ok
+test approval::tests::single_veto_blocks_approval_even_with_quorum ... ok
+test approval::tests::unknown_candidate_is_pending_not_vetoed ... ok
+test checkpoint_store::tests::only_validated_records_with_applied_artifact_become_checkpoints ... ok
+test checkpoint_store::tests::validated_record_without_applied_artifact_is_not_a_checkpoint ... ok
+test evaluator::tests::code_that_compiles_but_fails_tests_scores_half ... 
+running 1 test
+tests::adds --- FAILED
+
+failures:
+
+---- tests::adds stdout ----
+
+thread 'tests::adds' (29440) panicked at src\lib.rs:8:17:
+assertion `left == right` failed
+  left: 4
+ right: 5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::adds
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`
+ok
+test evaluator::tests::code_that_fails_to_compile_scores_zero ... error: this file contains an unclosed delimiter
+ --> src\lib.rs:1:42
+  |
+1 | pub fn add(a: i32, b: i32) -> i32 { a + b
+  |                                   -      ^
+  |                                   |
+  |                                   unclosed delimiter
+
+error: could not compile `eval-fixture` (lib) due to 1 previous error
+ok
+test evaluator::tests::evaluate_never_mutates_the_original_manifest_dir ... 
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: this file contains an unclosed delimiter
+ --> src\lib.rs:1:42
+  |
+1 | pub fn add(a: i32, b: i32) -> i32 { a + b
+  |                                   -      ^
+  |                                   |
+  |                                   unclosed delimiter
+
+error: could not compile `eval-fixture` (lib) due to 1 previous error
+ok
+test evaluator::tests::passing_code_scores_one ... 
+running 1 test
+.
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+ok
+test registry::tests::append_persists_and_creates_checkpoint ... ok
+test registry::tests::append_rejects_invalid_record_without_persisting ... ok
+test registry::tests::restore_revalidates_existing_backend_history ... ok
+test rollback::tests::rollback_fails_when_only_checkpoint_is_the_current_tip ... ok
+test rollback::tests::rollback_reverts_to_last_stable_checkpoint_and_carries_its_score ... ok
+test rollback::tests::rollback_without_any_checkpoint_fails ... ok
+test sled_backend::tests::history_survives_reopening_the_same_path ... ok
+test sled_backend::tests::records_are_replayed_in_iteration_order ... ok
+test validator::tests::clean_code_passes ... ok
+test validator::tests::clippy_lint_is_a_warning_not_a_failure ... ok
+test validator::tests::syntactically_broken_code_fails ... ok
+test validator::tests::validate_never_mutates_the_original_manifest_dir ... ok
+test verifier::tests::accepts_good_chain ... ok
+test verifier::tests::from_history_replays_and_validates ... ok
+test verifier::tests::rejects_broken_chain ... ok
+test verifier::tests::rejects_duplicate_candidate ... ok
+test verifier::tests::rejects_excessive_score_drop ... ok
+test verifier::tests::rejects_rollback_without_id ... ok
+test verifier::tests::rejects_tampered_hash ... ok
+test verifier::tests::rollback_is_exempt_from_score_drop_check ... ok
+test wasm_sandbox::tests::an_infinite_loop_cannot_crash_or_hang_the_caller ... ok
+test wasm_sandbox::tests::candidate_code_cannot_read_the_host_filesystem ... ok
+test wasm_sandbox::tests::code_that_compiles_but_fails_tests_scores_half_in_the_sandbox ... ok
+test wasm_sandbox::tests::code_that_fails_to_compile_scores_zero_in_the_sandbox ... ok
+test wasm_sandbox::tests::evaluate_never_mutates_the_original_manifest_dir ... ok
+test wasm_sandbox::tests::passing_code_scores_one_in_the_sandbox ... ok
+
+test result: ok. 36 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 37.11s
+
+     Running unittests src\bin\wasm_sandbox_runner.rs (target\debug\deps\arkhe_rsi_wasm_sandbox_runner-a63a7c928e51900e.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\composition.rs (target\debug\deps\composition-a49d730ba015d390.exe)
+
+running 3 tests
+test approval_workflow_gates_what_registry_accepts_as_applied ... ok
+test static_validator_gates_the_evaluator ... ok
+test vetoed_candidate_never_reaches_the_registry ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+
+     Running unittests src\lib.rs (target\debug\deps\arkhe_rsi_core-a32ebfaeba5e57d9.exe)
+
+running 3 tests
+test artifact::tests::id_is_deterministic_and_content_sensitive ... ok
+test iteration_record::tests::chain_verification_detects_break ... ok
+test iteration_record::tests::was_applied_reflects_application_not_score ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_rsi
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests arkhe_rsi_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

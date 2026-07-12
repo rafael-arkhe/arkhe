@@ -13,7 +13,7 @@ first.
 
 ## Status
 
-38/38 tests pass (35 unit + 3 integration in `tests/composition.rs`).
+39/39 tests pass (36 unit + 3 integration in `tests/composition.rs`).
 Verified: `../docs/verification/README.md` (run from `safe-core-monorepo/`).
 
 ## What's actually here
@@ -80,25 +80,38 @@ inherited environment — confirmed, not just configured, by
 candidate's own attempt to read a file in its sandboxed working directory
 actually fails.
 
-**Real, reproduced limitation, disclosed rather than hidden:** wasmtime
-also supports metering execution in "fuel" specifically so a runaway
+**Real, reproduced platform bug, and the real fix — not a workaround.**
+wasmtime supports metering execution in "fuel" specifically so a runaway
 candidate (`loop {}` in a `#[test]`, which hangs `CargoTestEvaluator`
-forever) can be interrupted. This evaluator configures a fuel budget and
-reports consumption, but **actually letting that budget run out crashes
-the entire host process** on this development machine (Windows, wasmtime
-28.0.1) with `STATUS_STACK_BUFFER_OVERRUN` — inside wasmtime's own trap-
-unwind helper, before any Rust error handling in this crate ever runs.
-Confirmed by direct reproduction (not hypothesized), and confirmed to
-persist with a dedicated 64MiB-stack thread and in `--release` — ruling
-out both "not enough stack" and "debug-build-only" as the cause. See
-`wasm_sandbox.rs`'s module doc comment for the full account. Consequence:
-**do not rely on fuel exhaustion for hard interruption on Windows with
-this wasmtime version** — there is deliberately no test here that
-exercises actual exhaustion, since doing so reliably aborts the whole test
-process. A real fix would need out-of-process isolation (running the
-sandboxed `wasmtime` execution in a genuinely separate child process, so
-a crash there is an observable abnormal exit code, not a shared-process
-abort) — not attempted in this pass.
+forever — a realistic occurrence for an RSI candidate, not just an
+adversarial hypothetical) can be interrupted. An earlier version of this
+evaluator ran wasmtime directly in the calling process, and discovered
+(by actually running the fuel-exhaustion case, not just compiling it)
+that letting the fuel budget actually run out **crashes the entire host
+process** on this development machine (Windows, wasmtime 28.0.1) with
+`STATUS_STACK_BUFFER_OVERRUN` — inside wasmtime's own trap-unwind helper,
+before any Rust error handling ever runs. Confirmed to persist with a
+dedicated 64MiB-stack thread and in `--release`, ruling out "not enough
+stack" and "debug-build-only" as the cause.
+
+**The fix: the actual wasmtime call now runs in a dedicated child
+process** — a `[[bin]]` target of this crate,
+`arkhe-rsi-wasm-sandbox-runner` (`src/bin/wasm_sandbox_runner.rs`),
+spawned and wall-clock-bounded by `WasmSandboxEvaluator::with_timeout`
+(default 30s) via a shared `process_timeout::run_with_timeout` helper
+(extracted from what was previously duplicated cargo-subprocess-timeout
+logic in `validator.rs`). If wasmtime crashes the child, the *parent*
+observes an abnormal exit code and returns a normal `Err`, not a shared-
+process abort. `an_infinite_loop_cannot_crash_or_hang_the_caller` proves
+this directly: a genuinely non-terminating candidate still returns from
+`evaluate()` within the configured timeout, whether the child completed
+cleanly, was killed on timeout, or crashed. See `wasm_sandbox.rs`'s module
+doc comment for the full account, including a second real bug this
+redesign's own testing caught: inheriting the sandboxed candidate's
+stdout mixed it with the runner's own `exit_code=`/`fuel_consumed=`
+control-protocol lines on the same stream, corrupting the parse — fixed
+by not inheriting the sandboxed process's stdout/stderr at all (this
+evaluator scores by exit code, not printed text).
 
 ## What's explicitly not here
 

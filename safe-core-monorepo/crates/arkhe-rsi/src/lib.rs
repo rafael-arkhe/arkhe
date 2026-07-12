@@ -5,6 +5,7 @@
 pub mod approval;
 pub mod checkpoint_store;
 pub mod evaluator;
+mod process_timeout;
 pub mod registry;
 pub mod rollback;
 pub mod sled_backend;
