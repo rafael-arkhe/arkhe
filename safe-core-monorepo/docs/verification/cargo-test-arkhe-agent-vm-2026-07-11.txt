@@ -1,0 +1,157 @@
+warning: missing documentation for a module
+  --> crates\arkhe-core\src\lib.rs:12:1
+   |
+12 | pub mod error;
+   | ^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> crates\arkhe-core\src\lib.rs:9:9
+   |
+ 9 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a module
+  --> crates\arkhe-core\src\lib.rs:13:1
+   |
+13 | pub mod hash;
+   | ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:13:5
+   |
+13 |     Internal(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:16:5
+   |
+16 |     NotFound(String),
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:19:5
+   |
+19 |     InvalidInput(String),
+   |     ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:22:5
+   |
+22 |     PermissionDenied(String),
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:25:5
+   |
+25 |     Timeout(std::time::Duration),
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:28:5
+   |
+28 |     Serialization(String),
+   |     ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\error.rs:31:5
+   |
+31 |     Other(#[from] Box<dyn std::error::Error + Send + Sync>),
+   |     ^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\safety.rs:38:5
+   |
+38 |     pub reason: String,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:12:5
+   |
+12 |     pub key: String,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:13:5
+   |
+13 |     pub value: String,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:14:5
+   |
+14 |     pub score: f32,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:15:5
+   |
+15 |     pub layer: MemoryLayer,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates\arkhe-core\src\memory_traits.rs:16:5
+   |
+16 |     pub timestamp: DateTime<Utc>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:22:5
+   |
+22 |     Working,
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:23:5
+   |
+23 |     Episodic,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:24:5
+   |
+24 |     Semantic,
+   |     ^^^^^^^^
+
+warning: missing documentation for a variant
+  --> crates\arkhe-core\src\memory_traits.rs:25:5
+   |
+25 |     Procedural,
+   |     ^^^^^^^^^^
+
+warning: missing documentation for an associated function
+  --> crates\arkhe-core\src\memory_traits.rs:51:5
+   |
+51 |     pub fn new() -> Self {
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: `arkhe-core` (lib) generated 20 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.95s
+     Running unittests src\lib.rs (target\debug\deps\arkhe_agent_vm-032e2300b2d7dd95.exe)
+
+running 17 tests
+test lifecycle::tests::destroying_twice_is_rejected ... ok
+test lifecycle::tests::happy_path_transitions_in_order ... ok
+test lifecycle::tests::skipping_running_is_rejected ... ok
+test lifecycle::tests::starting_after_destroy_is_rejected ... ok
+test manager::tests::destroy_vm_unknown_id_is_not_found ... ok
+test policy::tests::allows_checks_the_exact_capability_string ... ok
+test policy::tests::effectively_unlimited_policy_is_never_expired ... ok
+test policy::tests::fresh_lifecycle_is_not_expired_under_a_generous_policy ... ok
+test policy::tests::restrictive_policy_grants_no_capabilities ... ok
+test manager::tests::evidence_bus_records_identity_and_policy_checks_on_create ... ok
+test manager::tests::create_vm_starts_running_and_is_listed ... ok
+test manager::tests::sweep_expired_leaves_fresh_vms_alone ... ok
+test manager::tests::create_vm_rejects_zero_lifetime_policy ... ok
+test manager::tests::destroy_vm_removes_it_and_records_evidence ... ok
+test manager::tests::verifying_key_is_available_for_a_live_vm ... ok
+test manager::tests::destroy_vm_twice_fails_the_second_time ... ok
+test manager::tests::sweep_expired_destroys_vms_past_their_policy_lifetime ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.62s
+
+   Doc-tests arkhe_agent_vm
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

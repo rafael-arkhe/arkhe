@@ -11,15 +11,18 @@ Raw command output backing the claims in `web3-security-architecture.md`'s
 | `cargo-test-session-crates-2026-07-11.txt` | `cargo test -p arkhe-crypto-pqc -p arkhe-pqc-core -p arkhe-web3-security -p arkhe-identity` | 0 | The crates this session actually touched or depends on: 10 + 12 + 7 + 80 = **109 tests, all passing.** This is the log to cite for "does the PQC/web3 work actually work." |
 | `cargo-test-workspace-2026-07-11.txt` | `cargo test --workspace` | 101 | **Does not demonstrate anything about the crates above** — it aborts at the build stage on a pre-existing compile error in `arkhe-agi/tests/coordinator_test.rs` (unrelated to this session's work; confirmed via `git status` showing zero changes to that crate) before any test binary runs. Kept as honest evidence of the current state of a full `--workspace` run, not as a pass/fail signal for the new crates. |
 | `cargo-test-workspace-excl-arkhe-agi-2026-07-11.txt` | `cargo test --workspace --exclude arkhe-agi` | 101 | Widest real picture: 26 passing test-result blocks, plus **two pre-existing, unrelated failures** — `eval-fixture` fails to compile at all ("unclosed delimiter"), and `arkhe-session-evaluator`'s `detects_validation` test fails. Neither crate was touched this session. |
+| `cargo-test-arkhe-agent-vm-2026-07-11.txt` | `cargo test -p arkhe-agent-vm` | 0 | The new AAVM crate: 17/17 tests pass, including a flaky-then-fixed `sweep_expired` timing test (see git history / the test's own comment in `manager.rs` for why 1.1s wasn't a safe margin against `age_secs()`'s whole-second truncation, and why 2.5s is). |
+| `cargo-check-workspace-2026-07-11-post-aavm.txt` | `cargo check --workspace` | 0 | Re-run after adding `arkhe-agent-vm` as a 22nd workspace member — still clean. |
 
 ## Bottom line
 
-The four crates this session built or extended (`arkhe-crypto-pqc`,
-`arkhe-pqc-core`, `arkhe-web3-security`, plus the pre-existing
-`arkhe-identity` it depends on conceptually) are clean: 109/109 tests pass,
-workspace `cargo check` is clean. The workspace as a whole has pre-existing,
-unrelated breakage (`arkhe-agi`, `eval-fixture`, `arkhe-session-evaluator`)
-that predates this session and is out of scope for it.
+The crates this session built or extended (`arkhe-crypto-pqc`,
+`arkhe-pqc-core`, `arkhe-web3-security`, `arkhe-agent-vm`, plus the
+pre-existing `arkhe-identity` they depend on) are clean: 109 + 17 = 126
+tests pass, workspace `cargo check` is clean. The workspace as a whole has
+pre-existing, unrelated breakage (`arkhe-agi`, `eval-fixture`,
+`arkhe-session-evaluator`) that predates this session and is out of scope
+for it.
 
 Regenerate any of these yourself with the exact commands in the table above,
 run from `safe-core-monorepo/`.

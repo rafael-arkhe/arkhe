@@ -21,6 +21,7 @@ members = [
     "crates/arkhe-web3-security",
     "crates/arkhe-crypto-pqc",
     "crates/arkhe-pqc-core",
+    "crates/arkhe-agent-vm",
 ]
 resolver = "2"
 

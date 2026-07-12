@@ -1,0 +1,20 @@
+[package]
+name = "arkhe-agent-vm"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Arkhe Agent VM (AAVM) — lifecycle-managed, policy-constrained agent identities backed by hybrid PQC signatures and GDID"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+arkhe-core = { path = "../arkhe-core", version = "0.1.0" }
+arkhe-identity = { path = "../arkhe-identity", version = "0.1.0" }
+arkhe-crypto-pqc = { path = "../arkhe-crypto-pqc", version = "0.1.0" }
+arkhe-web3-security = { path = "../arkhe-web3-security", version = "0.1.0" }
+blake3 = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }

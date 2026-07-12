@@ -33,6 +33,11 @@ Both crates stay in the workspace, independently maintained:
   `arkhe-crypto-pqc`, not `arkhe-pqc-core` — this is a real, load-bearing
   difference, not a style preference. `arkhe-pqc-core`'s README states this
   plainly.
+- First real consumer of this decision: `arkhe-agent-vm` (AAVM) uses
+  `arkhe-crypto-pqc` specifically for its agent identity keypairs, since
+  `AAVMManager::create_vm` briefly holds a live secret signing key in
+  memory before dropping it — exactly the scenario this ADR's zeroization
+  distinction is about.
 - The two crates will independently need to track FIPS 204/203 and any
   future NIST guidance; a change to one's public API is not expected to
   require a matching change to the other, since they're not meant to share
