@@ -4,6 +4,8 @@
 
 #![deny(unsafe_code)]
 
+pub mod plan_kind;
 pub mod validator;
 
+pub use plan_kind::PlanKind;
 pub use validator::{Action, ActionId, Plan, PlanError, PlanValidator};

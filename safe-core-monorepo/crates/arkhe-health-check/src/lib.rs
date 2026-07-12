@@ -12,7 +12,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 use thiserror::Error;
 
@@ -149,9 +148,8 @@ impl HealthChecker {
     }
 
     fn aggregate(&self, checks: Vec<CheckResult>) -> HealthReport {
-        let overall = checks.iter().map(|c| c.status).max().unwrap_or(HealthStatus::Unknown);
-        // Unknown < Degraded < Unhealthy < Healthy — mas para aggregate,
-        // qualquer Unhealthy torna tudo Unhealthy
+        // Deliberately not a simple `.max()` over some `Ord` on `HealthStatus`:
+        // aggregation is "any Unhealthy wins", not a linear worst-of-4 scale.
         let status = if checks.iter().any(|c| c.status == HealthStatus::Unhealthy) {
             HealthStatus::Unhealthy
         } else if checks.iter().any(|c| c.status == HealthStatus::Degraded) {

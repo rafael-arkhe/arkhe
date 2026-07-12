@@ -119,6 +119,13 @@ snapshot.
 | FI-A09 | `fault_vm` | A VM forced out of `Running`/`Creating`/`Terminating` into `SafeClosed` (fail-closed, skipping `Terminating` on purpose) generates evidence, and a faulted VM's `PolicyVerifier` rejects further `process()` calls | Not yet — Rust-only |
 | FI-A10 | `sweep_timed_out` (FI-055) | Every `Running` VM whose `Lifecycle.deadline` is in the past gets `fault_vm`'d and generates its own summary evidence record in addition to FI-A09 | Not yet — Rust-only |
 
+FI-032 (`arkhe-agent-vm::plan::evaluate_plan`) is deliberately **not** in
+this table — it is a pure function over a `Plan`/`PlanKind`/`&Lifecycle`,
+with no `EvidenceBus` write of its own. A caller that wants evidence for a
+plan's outcome records it the same way `arkhe-reasoning::PlanValidator`
+already expects callers to (see that crate's README): wrap the call and
+record the `PlanOutcome` itself.
+
 FI-A06 is not listed: no definition of "RVM"/coherence domains was
 available in this codebase or session context to formalize against.
 

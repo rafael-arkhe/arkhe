@@ -51,6 +51,15 @@ pub fn generate_kem_keypair() -> Result<KemKeypair, KemError> {
     Ok(KemKeypair { encaps_key, decaps_key })
 }
 
+/// Reconstructs a recipient's ML-KEM-1024 public (encapsulation) key from
+/// bytes received over the wire — the counterpart to
+/// [`KemKeypair::encaps_key_bytes`]. Needed by any sender who only has the
+/// recipient's serialized public key (not their live `KemKeypair`, which
+/// they never should — it holds the recipient's secret decapsulation key).
+pub fn encaps_key_from_bytes(bytes: [u8; ml_kem_1024::EK_LEN]) -> Result<ml_kem_1024::EncapsKey, KemError> {
+    ml_kem_1024::EncapsKey::try_from_bytes(bytes).map_err(|_| KemError::Malformed)
+}
+
 /// Encapsulates against `encaps_key` (the recipient's public key), returning
 /// a derived symmetric key and the ciphertext to send to the recipient.
 pub fn kem_encapsulate(
@@ -106,6 +115,16 @@ mod tests {
         // tampered ciphertext, it just derives a different (useless) key.
         let receiver_key = kem_decapsulate(&keypair, &ciphertext).unwrap();
         assert_ne!(sender_key, receiver_key);
+    }
+
+    #[test]
+    fn encaps_key_survives_a_bytes_roundtrip() {
+        let keypair = generate_kem_keypair().unwrap();
+        let bytes = keypair.encaps_key_bytes();
+        let reconstructed = encaps_key_from_bytes(bytes).unwrap();
+        let (sender_key, ciphertext) = kem_encapsulate(&reconstructed).unwrap();
+        let receiver_key = kem_decapsulate(&keypair, &ciphertext).unwrap();
+        assert_eq!(sender_key, receiver_key);
     }
 
     #[test]

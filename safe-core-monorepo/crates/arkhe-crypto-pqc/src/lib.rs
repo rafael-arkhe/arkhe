@@ -22,8 +22,8 @@ pub mod signature;
 
 pub use context::{sign_with_context, verify_with_context, SigningContext};
 pub use kem::{
-    generate_kem_keypair, kem_decapsulate, kem_encapsulate, KemError, KemKeypair,
-    SymmetricKey,
+    encaps_key_from_bytes, generate_kem_keypair, kem_decapsulate, kem_encapsulate, KemError,
+    KemKeypair, SymmetricKey,
 };
 pub use signature::{
     generate_hybrid_keypair, HybridKeyPair, HybridSignature, HybridSigningKey,

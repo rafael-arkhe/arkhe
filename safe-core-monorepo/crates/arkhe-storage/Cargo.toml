@@ -1,0 +1,17 @@
+[package]
+name = "arkhe-storage"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FI-032 — content-addressed storage: convergent CHK encryption, Merkle-verified chunked objects, and ML-KEM key encapsulation for cross-agent sharing"
+
+[dependencies]
+sha2 = { workspace = true }
+arkhe-crypto-pqc = { path = "../arkhe-crypto-pqc", version = "0.1.0" }
+fips203 = "0.4"
+chacha20poly1305 = "0.10"
+thiserror = { workspace = true }
+
+[dev-dependencies]

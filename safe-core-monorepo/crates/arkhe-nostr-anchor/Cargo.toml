@@ -1,0 +1,20 @@
+[package]
+name = "arkhe-nostr-anchor"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "FI-032 — real NIP-01 event IDs and BIP-340 Schnorr signing (k256), anchoring an arkhe-identity Gdid to a Nostr identity-root event. No live relay/WebSocket client."
+
+[dependencies]
+arkhe-identity = { path = "../arkhe-identity", version = "0.1.0" }
+k256 = { version = "0.13", features = ["schnorr"] }
+sha2 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+hex = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]

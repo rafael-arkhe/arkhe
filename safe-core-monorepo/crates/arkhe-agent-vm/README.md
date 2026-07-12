@@ -20,7 +20,7 @@ reinventing any of them:
 
 ## Status
 
-57/57 tests pass. Verified: `../docs/verification/README.md` (run from
+63/63 tests pass. Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
 
 ## Capability certificates (FI-A08)
@@ -154,6 +154,36 @@ added `AAVMManager::tick(&mut self)`, which conflicts with the real
 design (every other method — `create_vm`, `destroy_vm`, `sweep_expired` —
 takes `&self`). `sweep_timed_out(&self)` matches that existing pattern
 instead of introducing a `&mut self` outlier.
+
+## Plan kinds: execution vs. service (FI-032)
+
+`plan.rs` distinguishes two kinds of `arkhe_reasoning::Plan` (the
+`PlanKind` enum itself lives in `arkhe-reasoning`, which stays
+dependency-free — see that crate's docs):
+
+- **`PlanKind::Execution`** — must terminate. `evaluate_plan` first
+  validates the plan is acyclic (FI-031), then checks the owning VM's
+  `Lifecycle::is_past_deadline()` (FI-055): past deadline is
+  `PlanOutcome::Failed(PlanFailure::DeadlineExceeded)`; otherwise
+  `PlanOutcome::Done`. A `Lifecycle` with no deadline set never times out
+  (matching `Lifecycle::is_past_deadline`'s own semantics), so an
+  execution plan on such a VM is `Done` as soon as it validates — this is
+  exactly `execution_plan_past_its_deadline_is_failed` /
+  `execution_plan_with_no_deadline_is_done` in `plan.rs`'s tests.
+- **`PlanKind::Service`** — persistent, no deadline enforcement.
+  `evaluate_plan` returns `PlanOutcome::Running` once validated;
+  `evaluate_service_health` is a thin wrapper over
+  `arkhe_health_check::HealthChecker::readiness` for ongoing monitoring —
+  no new health-check machinery invented here.
+
+Building this required fixing `arkhe-health-check` itself, which had never
+been a workspace member before (added this pass): it referenced
+`serde_json::Value` without declaring `serde_json` as a dependency
+(`E0433`), and had a dead `checks.iter().map(|c| c.status).max()` call that
+doesn't compile (`HealthStatus` has no `Ord`) — its result was never even
+read; the function already recomputes `status` via an explicit `any()`
+chain below it. Fixed by adding the missing dependency and deleting the
+dead line, not by inventing an `Ord` semantics nothing actually needed.
 
 ## What each module actually does
 

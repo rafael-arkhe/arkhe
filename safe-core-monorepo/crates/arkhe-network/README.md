@@ -6,9 +6,8 @@ slice, not a full P2P/transport stack.
 
 ## Status
 
-14/14 tests pass (up from 11 — `handler.rs`/FI-077 dispatch-level added this
-pass). Verified: `../docs/verification/README.md` (run from
-`safe-core-monorepo/`).
+21/21 tests pass (up from 14 — `chunk_share.rs`/FI-032 added this pass).
+Verified: `../docs/verification/README.md` (run from `safe-core-monorepo/`).
 
 ## What's actually here
 
@@ -40,6 +39,19 @@ pass). Verified: `../docs/verification/README.md` (run from
   `ClientConfig::builder_with_protocol_versions(&[&rustls::version::TLS13])`
   — TLS 1.2 and earlier are refused at the protocol-negotiation level, not
   merely deprioritized.
+
+- **`chunk_share.rs`** (FI-032, new) — a chunk-sharing protocol between
+  agents, layered entirely on what's already in this crate rather than
+  inventing a new subsystem: `ChunkRequest`/`ChunkResponse` travel as a
+  `Message` payload (authenticated via FI-071's `sign_message`/
+  `verify_message`), and `ChunkShareHandler` (serving from an
+  `arkhe_storage::ChunkStore`) is dispatched through FI-077's `dispatch()`
+  — a panicking `ChunkStore::get` is contained exactly like any other
+  handler-side panic (`a_panicking_store_does_not_abort_dispatch` proves
+  this directly, not just by inspection). "FIPS P2P" here means: the
+  request/response messages are authenticated via this workspace's
+  FIPS-standardized hybrid signatures (ML-DSA-65 is FIPS 204, ML-KEM-1024
+  is FIPS 203) — not a new, separate meaning of the term.
 
 ## What's explicitly not here
 

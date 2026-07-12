@@ -5,11 +5,13 @@
 
 #![deny(unsafe_code)]
 
+pub mod chunk_share;
 pub mod handler;
 pub mod message;
 pub mod nonce;
 pub mod tls;
 
+pub use chunk_share::{ChunkRequest, ChunkResponse, ChunkShareError, ChunkShareHandler};
 pub use handler::{dispatch, DispatchError, MessageHandler};
 pub use message::{sign_message, verify_message, Message, MessageError, SignedMessage};
 pub use nonce::MessageNonceTracker;

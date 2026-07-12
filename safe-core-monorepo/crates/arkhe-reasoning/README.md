@@ -2,11 +2,12 @@
 
 FI-031 — acyclic execution plans: a plan whose action dependency graph
 contains a cycle is rejected before execution, detected via Kahn's algorithm
-(topological sort).
+(topological sort). FI-032 — `PlanKind` distinguishes bounded plans from
+persistent ones; see below.
 
 ## Status
 
-7/7 tests pass. Verified: `../docs/verification/README.md` (run from
+8/8 tests pass. Verified: `../docs/verification/README.md` (run from
 `safe-core-monorepo/`).
 
 ## What's actually here
@@ -20,6 +21,13 @@ contains a cycle is rejected before execution, detected via Kahn's algorithm
   that doesn't name any action actually in the plan). Pure, synchronous,
   side-effect-free — no `EvidenceBus`/async runtime dependency, so a caller
   wires evidence recording and actual execution around it.
+- **`plan_kind.rs`** (FI-032) — `PlanKind::{Execution, Service}`, a plain
+  `Copy` enum with no reference to `arkhe-agent-vm::Lifecycle` or
+  `arkhe-health-check`, keeping this crate dependency-free. The actual
+  outcome evaluation against a live `Lifecycle` (deadline-based for
+  `Execution`, health-check-based for `Service`) lives in
+  `arkhe-agent-vm::plan`, which depends on this crate — not the other way
+  around.
 
 ## A real bug fixed relative to an earlier draft
 

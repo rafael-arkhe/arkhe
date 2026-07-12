@@ -25,6 +25,9 @@ members = [
     "crates/arkhe-evidence",
     "crates/arkhe-network",
     "crates/arkhe-reasoning",
+    "crates/arkhe-health-check",
+    "crates/arkhe-storage",
+    "crates/arkhe-nostr-anchor",
 ]
 resolver = "2"
 
