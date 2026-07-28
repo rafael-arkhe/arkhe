@@ -1,0 +1,38 @@
+[workspace]
+resolver = "2"
+members = [
+    # Cicada — Cryptographic Identity & ZK (v35: C4, C11, C12, C15, C18, C19)
+    "cognitive-layer/cicada/C4_CICADA_CIPHER",
+    "cognitive-layer/cicada/C11_CICADA_ZKVM",
+    "cognitive-layer/cicada/C12_CICADA_RECURSIVE",
+    "cognitive-layer/cicada/C15_CICADA_WATCHTOWER",
+    "cognitive-layer/cicada/C18_CICADA_TORUS",
+    "cognitive-layer/cicada/C19_CICADA_DURIAN",
+    # Echo — Hypergraph Engine v8.0 (maximização de conexões)
+    "services/arkhe-echo",
+    # Flow — LLM provider abstraction, code generation, Covenant, TOON
+    "services/arkhe-flow",
+    # Identity — BIP39 → ML-DSA-65 → DID post-quantum identity
+    "packages/identity",
+]
+
+[workspace.package]
+version = "35.0.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+anyhow = "1"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Criptografia PQC verificada formalmente (libcrux)
+libcrux-ml-dsa = "0.0.4"
+
+# Derivação de chaves
+hkdf = "0.12"
+sha3 = "0.10"
+zeroize = { version = "1.7", features = ["derive"] }

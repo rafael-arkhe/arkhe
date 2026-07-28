@@ -1,0 +1,13 @@
+[package]
+name = "arkhe-saturon"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Event-driven physics-verification orchestrator: a single-consumer async loop that registers arXiv-derived hypotheses, delegates symbolic checks to an external solver over a fenced ScriptRunner bridge, and folds verdicts into an immutable-reducer state. Rust orchestrates; it never does the math."
+
+# Detach from any parent workspace so this builds standalone.
+[workspace]
+
+[dependencies]
+tokio = { version = "1.40", features = ["rt", "rt-multi-thread", "macros", "sync", "process", "time", "io-util"] }
+async-trait = "0.1"

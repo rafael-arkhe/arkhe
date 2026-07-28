@@ -1,0 +1,71 @@
+[package]
+name = "arkhe-identity"
+version = "0.1.0"
+edition = "2021"
+description = "Post-quantum identity derivation for ARKHE — BIP39 → ML-DSA-65 via HKDF-SHA3-256"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/arkhe-os/arkhe-identity"
+
+# Enable standalone compilation outside workspace for CI/testing
+[workspace]
+
+[features]
+default = ["std"]
+std = [
+    "dep:bip39",
+    "dep:hex",
+    "dep:serde",
+    "dep:serde_json",
+    "dep:bs58",
+    "serde?/derive",
+    "bip39?/std",
+    "hkdf/std",
+    "sha3/std",
+    "zeroize/std",
+    "serde?/std",
+    "serde_json?/std",
+    "hex?/std",
+    "bs58?/std",
+]
+no_std = []
+flock = ["std", "dep:serde", "dep:serde_json"]
+qdrant-resolver = [
+    "std",
+    "dep:qdrant-client",
+    "dep:tonic",
+    "dep:prost",
+    "dep:serde",
+    "dep:serde_json",
+]
+
+[dependencies]
+bip39 = { version = "2.0", default-features = false, features = ["rand"], optional = true }
+sha3 = { version = "0.10", default-features = false }
+hkdf = { version = "0.12", default-features = false }
+zeroize = { version = "1.7", default-features = false, features = ["derive"] }
+hex = { version = "0.4", default-features = false, optional = true }
+serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+serde_json = { version = "1.0", default-features = false, optional = true }
+thiserror = "1.0"
+rand = "0.8"
+bs58 = { version = "0.5", default-features = false, optional = true }
+libcrux-ml-dsa = "0.0.4"
+qdrant-client = { version = "1.9", default-features = false, features = ["reqwest"], optional = true }
+tonic = { version = "0.11", default-features = false, optional = true }
+prost = { version = "0.12", default-features = false, optional = true }
+
+[dev-dependencies]
+serde_json = "1.0"
+bip39 = { version = "2.0", features = ["rand"] }
+libcrux-ml-dsa = "0.0.4"
+bs58 = "0.5"
+hex = "0.4"
+rand = "0.8"
+
+[lints.rust]
+unsafe_code = "deny"
+
+[profile.release]
+lto = true
+opt-level = 3
+strip = "symbols"

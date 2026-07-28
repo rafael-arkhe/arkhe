@@ -1,0 +1,11 @@
+# Cargo configuration for arkhe-identity
+# Miri: auditar ZeroizeOnDrop em todos os caminhos
+
+[target.'cfg(miri)']
+# RUSTFLAGS para miri: verifica vazamento de bytes não inicializados
+# e garante que ZeroizeOnDrop zera a memória
+rustflags = ["-Zmiri-track-raw-pointers", "-Zmiri-check-number-validity"]
+
+[env]
+# Força o crate a exercitar todos os caminhos de drop
+ARKHE_MIRI_STRICT = "1"
