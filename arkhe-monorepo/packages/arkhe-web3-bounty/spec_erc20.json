@@ -1,0 +1,53 @@
+{
+  "spec_id": "ERC-20-NoInflation",
+  "name": "ERC-20 No-Inflation",
+  "version": "2.0",
+  "substrate": "web3-bug-bounty",
+  "toolchain": "lean 4.32 core + std only",
+  "verified_by": "lean bug_bounty_web3.lean",
+  "checks": [
+    {
+      "id": "mint-ownership-guard",
+      "severity": "high",
+      "invariant_lean": "Vulnerability.uncheckedCall",
+      "description": "Minting must be guarded by an ownership check; any unguarded state write before an external call is reported."
+    },
+    {
+      "id": "total-supply-consistency",
+      "severity": "high",
+      "invariant_lean": "Vulnerability.overflow",
+      "description": "totalSupply must be adjusted exactly on mint/burn; wrap-around arithmetic on ADD/SUB/MUL is flagged."
+    },
+    {
+      "id": "no-reentrancy",
+      "severity": "critical",
+      "invariant_lean": "Vulnerability.reentrancy",
+      "description": "No state write (SSTORE) may precede an external call (CALL) without a guard."
+    },
+    {
+      "id": "no-overflow-transfer",
+      "severity": "medium",
+      "invariant_lean": "Vulnerability.overflow",
+      "description": "Balance/allowance arithmetic must be checked for overflow."
+    },
+    {
+      "id": "no-unchecked-call",
+      "severity": "medium",
+      "invariant_lean": "Vulnerability.uncheckedCall",
+      "description": "Every CALL must be followed by a JUMPI success check."
+    }
+  ],
+  "boundary": {
+    "system": "BoundarySystem",
+    "instance": "canonicalBoundary",
+    "axiom_ledger": [
+      "ax01_stress_reduction",
+      "ax02_ejection_stability",
+      "ax03_inject_increments_time",
+      "ax04_inject_preserves_spatial",
+      "ax05_eject_zeros_first",
+      "ax06_amend_as_projection"
+    ],
+    "note": "The 19 constitutional invariants are compiled into the BoundarySystem axioms discharged by the canonical instance (no axioms, no sorry)."
+  }
+}

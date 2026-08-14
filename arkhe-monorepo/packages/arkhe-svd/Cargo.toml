@@ -1,0 +1,16 @@
+[package]
+name = "arkhe-svd"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE Block 20 SVD Compression Protocol — truncated singular-value compression of EVO/state matrices, with byte serialization and a coherence frame selector"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+nalgebra = "0.32"
+thiserror = "1"
+
+[dev-dependencies]
+rand = "0.8"
+
+[lints.rust]
+unsafe_code = "deny"

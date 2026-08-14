@@ -1,0 +1,13 @@
+[package]
+name = "arkhe-haselgrove"
+version = "3.2.0"
+edition = "2021"
+description = "ARKHE Haselgrove ray tracer v3.2 — Hamiltonian radio-ray tracing in spherical coordinates (Jones & Stephenson OT 75-76) with adaptive Dormand-Prince 5(4), Appleton-Hartree complex refractive index (O/X modes), Chapman/Quasi-Parabolic ionosphere, collision absorption + exponential attenuation, and group-velocity timing. no_std, C4-bounded."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+libm = "0.2"
+arrayvec = "0.7"
+
+[lints.rust]
+unsafe_code = "deny"

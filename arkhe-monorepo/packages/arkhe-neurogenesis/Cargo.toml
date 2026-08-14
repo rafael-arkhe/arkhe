@@ -1,0 +1,18 @@
+[package]
+name = "arkhe-neurogenesis"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE Neurogenesis (344-AGENT-NEUROGENESIS) — deterministic dendritic growth driven by a non-Hermitian evolution operator"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+nalgebra = "0.32"
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+anyhow = "1"
+csv = "1"
+rayon = "1"
+
+[lints.rust]
+unsafe_code = "deny"

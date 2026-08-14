@@ -1,0 +1,37 @@
+[package]
+name = "arkhe-ia-dtn"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE IA DTN — deep-space Delay/Disruption Tolerant Networking agent: BPv7 beacon discovery, CGR routing with propagation delay, LRU Q-Learning with epsilon decay, on-board light-model inference, epistemic auditing and fail-closed orchestration"
+license = "MIT OR Apache-2.0"
+
+[features]
+default = ["std"]
+std = [
+    "dep:hardy-bpv7",
+    "hardy-bpv7/std",
+    "dep:nostr",
+    "dep:raptorq",
+    "dep:qr_code",
+]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = { version = "0.8", features = ["small_rng"] }
+hashbrown = "0.14"
+lru = "0.12"
+sha2 = { version = "0.10", default-features = false }
+# Fase 1: real BPv7 bundles (RFC 9171) + BPSec (RFC 9173) via hardy-bpv7.
+# rfc9173 habilita BIB-HMAC-SHA2/BCB-AES-GCM; no_std usa new_sequential().
+hardy-bpv7 = { version = "0.6", default-features = false, features = ["rfc9173"], optional = true }
+# Fase 4: convergência óptica (RaptorQ FEC + QR Code) + auditoria via Nostr.
+# Todos os deps pesados ficam atrás da feature `std` para preservar o build no_std.
+nostr = { version = "0.34", default-features = false, features = ["std"], optional = true }
+# 1.7.0 fixado: raptorq 1.8.x tem bug no decoder (assert em octets.rs com
+# símbolo parcial). O teste `fec_roundtrip_with_loss` passa em 1.7.0.
+raptorq = { version = "=1.7.0", default-features = false, optional = true }
+qr_code = { version = "2.0", default-features = false, optional = true }
+
+[lints.rust]
+unsafe_code = "deny"

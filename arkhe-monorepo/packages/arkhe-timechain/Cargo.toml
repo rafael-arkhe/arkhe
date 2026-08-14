@@ -1,0 +1,20 @@
+[package]
+name = "arkhe-timechain"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE Timechain — the P2P overlay, retrocausal echo channel, Chern–Simons loop-closure finality, flux-tube UTXO ledger, and hardware acceleration interface that close the loop around the MHD phase-field and the Shadow."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-mhd = { path = "../arkhe-mhd" }
+arkhe-shadow = { path = "../arkhe-shadow" }
+arkhe-pqc = { path = "../arkhe-pqc" }
+nalgebra = "0.32"
+serde = { version = "1", features = ["derive"] }
+bincode = "1"
+sha2 = "0.10"
+rand = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "macros", "sync", "time"] }
+
+[lints.rust]
+unsafe_code = "deny"

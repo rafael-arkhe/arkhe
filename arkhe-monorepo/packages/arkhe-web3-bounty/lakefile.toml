@@ -1,0 +1,13 @@
+name = "arkhe_web3_bounty"
+defaultTargets = ["bug_bounty_web3"]
+
+# Mathlib is required by path to the prebuilt checkout in the sibling
+# lean-llm-agi workspace (all oleans already cached, so this builds offline).
+# Transitive deps come from Mathlib's own manifest.
+
+[[require]]
+name = "mathlib"
+path = "../../../lean-llm-agi/.lake/packages/mathlib"
+
+[[lean_lib]]
+name = "bug_bounty_web3"

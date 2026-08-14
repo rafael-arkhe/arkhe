@@ -1,0 +1,16 @@
+[package]
+name = "arkhe-shadow"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE Block 22 — the latent memory retained after SVD compression (the tail of the spectrum), its retrocausal echo, and the reintegration ('healing') step"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+nalgebra = { version = "0.32", features = ["serde-serialize"] }
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+rand = "0.8"
+
+[lints.rust]
+unsafe_code = "deny"

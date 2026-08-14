@@ -1,0 +1,10 @@
+v 4
+file . "ctc_detector_enhanced_v2_6.vhd" "17c07b1595d6a46bdeddec2e39b175c6164172de" "20260812022710.040":
+  entity ctc_detector_enhanced_v2_6 at 34( 1635) + 0 on 15;
+  architecture rtl of ctc_detector_enhanced_v2_6 at 81( 4059) + 0 on 16;
+file . "sigmoid_lut_pkg.vhd" "3ec0cbf8062038191cb9a4f506c72726daa083bb" "20260812022709.939":
+  package sigmoid_lut_pkg at 12( 383) + 0 on 11 body;
+  package body sigmoid_lut_pkg at 289( 16641) + 0 on 12;
+file . "qdiv_pipe.vhd" "cfff025d2ccc2ef9259932cd8eeb41ad14de9cde" "20260812022709.992":
+  entity qdiv_pipe at 14( 628) + 0 on 13;
+  architecture rtl of qdiv_pipe at 34( 1195) + 0 on 14;

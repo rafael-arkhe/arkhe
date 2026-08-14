@@ -1,0 +1,19 @@
+[package]
+name = "arkhe-actuators"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE RF cell modulator (US10064941B2) — biological actuators controlled by evidence, guarded by the I18 calcium-drift invariant"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-buzz-bridge = { path = "../arkhe-buzz-bridge" }
+arkhe-neurogenesis = { path = "../arkhe-neurogenesis" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+chrono = "0.4"
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "deny"

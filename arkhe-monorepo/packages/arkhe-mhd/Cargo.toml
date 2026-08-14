@@ -1,0 +1,14 @@
+[package]
+name = "arkhe-mhd"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE Block 21 Resistive MHD phase-field engine — a pseudo-magnetic induction law whose magnetic reconnection drives Ledger handovers, with a real vector-potential helicity and a dimensionally-consistent retrocausal echo channel"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+ndarray = "0.15"
+thiserror = "1"
+rand = "0.8"
+
+[lints.rust]
+unsafe_code = "deny"

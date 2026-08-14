@@ -1,0 +1,13 @@
+﻿[package]
+name = "arkhe-nostr"
+version = "0.6.0"
+edition = "2021"
+description = "Nostr-compatible event semantics with Arkhe PQC attestation layer (pure Rust, no C)."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-pqc = { path = "../arkhe-pqc" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+sha3 = "0.10"

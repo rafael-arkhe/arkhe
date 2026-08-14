@@ -26,6 +26,7 @@ dist-ssr
 
 # Secrets
 *.key
+sdk-key-*.json
 *.pem
 *.p12
 *.pfx
@@ -47,3 +48,6 @@ target/
 *.gguf
 tests/*/bin/
 tests/*/obj/
+
+# --- Lean toolchain (lake build artifacts) ---
+.lake/

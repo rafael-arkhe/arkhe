@@ -1,0 +1,19 @@
+[package]
+name = "arkhe-thz-sensor"
+version = "0.1.0"
+edition = "2021"
+description = "Graphene metamaterial THz sensor surrogate model (Amraoui et al., 2026) — dual-band Lorentzian+Drude absorption (f1=2.9215 / f2=9.0199 THz, Q=2.6/51.9), 495 GHz/RIU sensitivity, Fermi-level tuning, emitting RecurrencyTickets via arkhe-recurrency"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-recurrency = { path = "../arkhe-recurrency" }
+nalgebra = { version = "0.32", features = ["serde-serialize"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+tracing = "0.1"
+
+[dev-dependencies]
+approx = "0.5"
+
+[lints.rust]
+unsafe_code = "deny"

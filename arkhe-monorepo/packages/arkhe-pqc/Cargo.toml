@@ -1,0 +1,15 @@
+﻿[package]
+name = "arkhe-pqc"
+version = "0.1.0"
+edition = "2021"
+description = "Quantum-safe cryptography layer: FIPS 203 ML-KEM + FIPS 204 ML-DSA in pure Rust"
+license = "MIT OR Apache-2.0"
+# PQC-native: pure-Rust NIST post-quantum algorithms.
+# The audit document's `dcrypt` / `pqc-std` / `libQ` names do not exist on
+# crates.io; the canonical FIPS 203 / FIPS 204 implementations are RustCrypto's
+# `ml-kem` and `ml-dsa`.
+
+[dependencies]
+ml-kem = { version = "0.3.2", features = ["getrandom"] }
+ml-dsa = { version = "0.1.1", features = ["getrandom", "rand_core"] }
+sha2 = "0.10"

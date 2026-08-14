@@ -1,0 +1,23 @@
+[package]
+name = "arkhe-safe-core"
+version = "0.1.0"
+edition = "2021"
+description = "Safe-Core policy for the 491-AGI-CORTEX substrate — the anti-hallucination 'collar of the StateDaemon': watches the ticket stream and forces DeepSleep when the hallucination vibe exceeds threshold"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-recurrency = { path = "../../packages/arkhe-recurrency" }
+arkhe-recurrency-daemon = { path = "../../packages/arkhe-recurrency-daemon" }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net"] }
+tonic = "0.12"
+prost = "0.13"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["net"] }
+
+[lints.rust]
+unsafe_code = "deny"

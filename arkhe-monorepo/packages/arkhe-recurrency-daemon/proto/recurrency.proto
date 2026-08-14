@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package arkhe.recurrency.v1;
+
+// gRPC contract of the 491-AGI-CORTEX recurrency engine.
+//
+// lobo-frontal posts stimulus frames via ProcessStimulus; safe-core
+// modulates the arousal regime via SetRegime (the "Safe-Core holds the
+// collar of the StateDaemon").
+
+service RecurrencyService {
+  // Push one stimulus frame through the engine and receive a ticket.
+  rpc ProcessStimulus(ProcessRequest) returns (ProcessResponse);
+  // Force the arousal regime (Safe-Core override, e.g. anti-hallucination).
+  rpc SetRegime(RegimeRequest) returns (RegimeResponse);
+  // Subscribe to every ticket the engine emits (Safe-Core watchdog).
+  rpc WatchTickets(WatchRequest) returns (stream ProcessResponse);
+}
+
+message WatchRequest {
+  // Ignored by the current engine; kept for future replay semantics.
+  uint32 since_tick = 1;
+}
+
+enum ArousalRegime {
+  AROUSAL_UNSPECIFIED = 0;
+  AROUSAL_COMA = 1;
+  AROUSAL_DEEP_SLEEP = 2;
+  AROUSAL_DROWSY = 3;
+  AROUSAL_ALERT = 4;
+  AROUSAL_HYPERVIGILANT = 5;
+}
+
+message ProcessRequest {
+  string stimulus_id = 1;
+  // Embedding frame; dimension must equal the engine substrate size (n).
+  repeated double embedding = 2;
+  // Optional regime override applied before processing this frame.
+  ArousalRegime regime = 3;
+}
+
+message ProcessResponse {
+  string stimulus_id = 1;
+  // Causal-closure depth of the local recurrence (the Phi proxy).
+  double local_depth = 2;
+  // Pass-2 relative error reduction of the perception cycle.
+  double error_reduction = 3;
+  bool local_loop_closed = 4;
+  bool access_granted = 5;
+  // Effective tick of the state daemon for this frame.
+  uint64 tick = 6;
+  // Gain suggested for the next cycle so access can clear the threshold.
+  double suggested_gain = 7;
+  // Abstract fuel cost of the cycle (integrator work).
+  double burnt_fuel = 8;
+}
+
+message RegimeRequest {
+  ArousalRegime regime = 1;
+}
+
+message RegimeResponse {
+  ArousalRegime previous = 1;
+  ArousalRegime current = 2;
+}

@@ -1,0 +1,23 @@
+[package]
+name = "arkhe-recurrency-temporal"
+version = "0.1.0"
+edition = "2021"
+description = "v0.4.3 cyber-physical safety layer for 491-AGI-CORTEX — TemporalStateDaemon (EWMA history), MissionSafetyKernel (iGuard webhook), SmartAD network + CSI spatial detectors, anomaly-aware engine gating, and the 3-phase cyber-physical kill-chain God Test"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-recurrency = { path = "../arkhe-recurrency" }
+nalgebra = { version = "0.32", features = ["serde-serialize"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+tracing = "0.1"
+thiserror = "1"
+async-trait = "0.1"
+axum = "0.7"
+reqwest = { version = "0.12", features = ["json"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+[lints.rust]
+unsafe_code = "deny"

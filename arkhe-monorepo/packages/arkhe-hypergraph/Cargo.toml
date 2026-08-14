@@ -1,0 +1,32 @@
+[package]
+name = "arkhe-hypergraph"
+version = "0.6.0"
+edition = "2021"
+description = "ARKHE Hypergraph Portal Gun: S01-S15 validator agents, hyperedges, and evolution operations (pure Rust)."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-pqc = { path = "../arkhe-pqc" }
+sha2 = "0.10"
+sha3 = "0.10"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8"
+
+# WASM target: only pulled when `wasm`. Keeps native builds free of the wasm
+# stack and honors the Simplicity-2 invariant (minimal dependency surface).
+wasm-bindgen = { version = "0.2", optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+# getrandom 0.4 (via ml-kem/ml-dsa) needs `wasm_js` and getrandom 0.2 (via
+# rand) needs `js` on wasm32-unknown-unknown; enabling both here
+# feature-unifies both majors for the whole dependency tree.
+getrandom = { version = "0.4", optional = true, features = ["wasm_js"] }
+getrandom02 = { package = "getrandom", version = "0.2", optional = true, features = ["js"] }
+
+[features]
+default = []
+wasm = ["dep:wasm-bindgen", "dep:console_error_panic_hook", "dep:getrandom", "dep:getrandom02"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]

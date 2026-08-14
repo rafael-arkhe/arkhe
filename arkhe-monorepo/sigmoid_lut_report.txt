@@ -1,0 +1,27 @@
+============================================================
+RELATORIO DE ERRO DA LUT SIGMOIDE
+============================================================
+
+Parametros:
+  WL (largura total):     32 bits
+  FWL (bits fracionarios): 24 bits
+  Escala:                 16777216
+  Numero de entradas:     256
+  Dominio:                [-8.0, 8.0]
+  Passo:                  0.0625
+
+Estatisticas de erro:
+  Erro maximo:            0.0000000295 (0.0000%)
+  Erro medio:             0.0000000149 (0.0000%)
+  Erro maximo em idx:     175 (x=+2.9688)
+  Erro RMS:               0.0000000172
+
+Amostras:
+  sigma(-8.0)  = 0.0003459916  ->  x"000016AD"  (Q8.24 = 0.0003460050)
+  sigma(0.0)   = 0.5078118643  ->  x"0081FFF5"  (Q8.24 = 0.5078118443)
+  sigma(+8.0)  = 0.9996540084  ->  x"00FFE953"  (Q8.24 = 0.9996539950)
+
+Validacao de monotonicidade:
+  Monotonica crescente:   SIM
+
+============================================================

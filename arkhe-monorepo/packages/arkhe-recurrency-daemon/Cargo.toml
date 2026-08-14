@@ -1,0 +1,30 @@
+[package]
+name = "arkhe-recurrency-daemon"
+version = "0.1.0"
+edition = "2021"
+description = "gRPC transport for the ARKHE Recurrency engine (491-AGI-CORTEX) — exposes ProcessStimulus and SetRegime to lobo-frontal and safe-core"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-recurrency = { path = "../arkhe-recurrency" }
+nalgebra = { version = "0.32", features = ["serde-serialize"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net"] }
+tonic = "0.12"
+prost = "0.13"
+async-stream = "0.3"
+futures-core = "0.3"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["net"] }
+
+[build-dependencies]
+tonic-build = "0.12"
+# Self-contained protoc so the proto compiles on any host, not just this one.
+protoc-bin-vendored = "3"
+
+[lints.rust]
+unsafe_code = "deny"

@@ -6,9 +6,6 @@ description = "Post-quantum identity derivation for ARKHE — BIP39 → ML-DSA-6
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/arkhe-os/arkhe-identity"
 
-# Enable standalone compilation outside workspace for CI/testing
-[workspace]
-
 [features]
 default = ["std"]
 std = [
@@ -64,8 +61,3 @@ rand = "0.8"
 
 [lints.rust]
 unsafe_code = "deny"
-
-[profile.release]
-lto = true
-opt-level = 3
-strip = "symbols"

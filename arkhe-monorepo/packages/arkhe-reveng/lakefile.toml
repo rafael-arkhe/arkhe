@@ -1,0 +1,12 @@
+name = "arkhe_reveng"
+defaultTargets = ["RevengCore"]
+
+# Mathlib required by path to the prebuilt checkout in the sibling
+# lean-llm-agi workspace; transitive deps come from Mathlib's own manifest.
+
+[[require]]
+name = "mathlib"
+path = "../../../lean-llm-agi/.lake/packages/mathlib"
+
+[[lean_lib]]
+name = "RevengCore"
