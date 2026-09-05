@@ -1,0 +1,20 @@
+[package]
+name = "arkhe-catedral-v152"
+version = "0.1.0"
+edition = "2021"
+description = "Catedral OS v152.0 — materialização física: estrutura espectral (I157–I160), construção atômica (I161–I166), entropia construtiva (I167), undulator com Zeno Veto (I194–I198), bridge Z1T com fallback, sincronização IPFS distribuída (I201)"
+license = "MIT OR Apache-2.0"
+authors = ["Arquiteto-Chefe"]
+keywords = ["catedral", "undulator", "zeno", "invariants", "spectral"]
+categories = ["science", "no-unsafe"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tracing = "0.1"
+rayon = "1"
+ndarray = "0.15"
+
+[dev-dependencies]
+proptest = "1"

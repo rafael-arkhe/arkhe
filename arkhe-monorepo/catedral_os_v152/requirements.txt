@@ -1,0 +1,11 @@
+# Catedral OS v152.0 — Dependências
+#
+# Núcleo (obrigatório para a tríade):
+numpy>=1.24
+
+# Hardware (OPCIONAL — a bridge Z1T degrada para simulação determinística se
+# ausente; documentado, não é falso-verde):
+# pyserial>=3.5
+
+# Testes:
+pytest>=7.0

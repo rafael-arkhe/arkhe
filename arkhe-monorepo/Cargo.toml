@@ -26,6 +26,37 @@ members = [
     "packages/arkhe-ia-dtn", "packages/arkhe-buzz",
     # 491-AGI-CORTEX service stack
     "services/safe-core",
+    # Telegraph ξM-field observability bridge (Chladni Cloud / Cathedral v26.5 dashboard)
+    "packages/arkhe-observability",
+    # Phase-field XY/Kuramoto lattice models (Cathedral V8.6 NxN skyrmion mesh)
+    "packages/arkhe-xy-simulator",
+    # AVALON v2.3 — distributed AGC controller + Safe-Core evidence (Fase 2/3)
+    "packages/arkhe-avalon-agc",
+    # AVALON v2.3 — PyO3 bridge (feature-gated: needs no CPython for CI check)
+    "packages/arkhe-avalon-bridge",
+    # ARKHE-VSEPR 2026-09-09 — núcleo Rust 1 (topologia, reputação, OAM, tokenização,
+    # incentivos, DID, cristalografia)
+    "packages/arkhe-topology",
+    "packages/arkhe-reputation",
+    "packages/arkhe-oam",
+    "packages/arkhe-tokenization",
+    "packages/arkhe-incentives",
+    "packages/arkhe-did",
+    "packages/arkhe-crystallography",
+    # ARKHE-VSEPR 2026 — núcleo Rust 2 (Field 1.0: X(2370)/BESIII, VSEPR-glueball,
+    # JUNO Nature 654, matriz de mistura de camadas, amalgam G3/arXiv:2607.27256)
+    "packages/arkhe-field",
+    "packages/arkhe-ecdsa-mitm",
+    # ARKHE-VSEPR 2026 — núcleo Rust 3 (Sete Selos de agosto de 2026: gap C-Z,
+    # qhttp UHSVT, Tzinor quantum switch ICO)
+    "packages/arkhe-gap",
+    "packages/arkhe-qhttp",
+    "packages/arkhe-tzinor",
+    # ARKHE-χ SafeManifold — security state projection with constitutional invariants
+    "packages/arkhe-safe-manifold",
+    # Catedral OS v152.0 — materialização física: undulator (I194–I198), Z1T
+    # bridge, sincronização IPFS distribuída (I201), verificação Lean embarcada (I200)
+    "packages/arkhe-catedral-v152",
 ]
 
 [workspace.package]

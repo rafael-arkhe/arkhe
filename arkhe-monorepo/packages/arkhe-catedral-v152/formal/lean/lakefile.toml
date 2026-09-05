@@ -1,0 +1,10 @@
+name = "catedral_v152_formal"
+defaultTargets = ["Invariants"]
+
+# Mathlib prebuilt checkout (olean cache) in the sibling lean-llm-agi workspace.
+[[require]]
+name = "mathlib"
+path = "../../../../../lean-llm-agi/.lake/packages/mathlib"
+
+[[lean_lib]]
+name = "Invariants"
