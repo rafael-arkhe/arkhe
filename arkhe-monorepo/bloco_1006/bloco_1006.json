@@ -1,0 +1,30 @@
+{
+  "bloco": 1006,
+  "versao": "v388.0",
+  "handover_anterior": 1005,
+  "data": "2026-09-07",
+  "tipo": "AUDITORIA_PARECER_FASE8",
+  "descricao": "Auditoria honesta de fonte primaria do parecer executivo v388.0 (propoe bloco_1006 UPGRADE_FASE_7, selo CATEDRAL-OS-UPGRADE-FASE-7-2026-09-07). Verificacao contra o monorepo rastreado (git grep / arquivos reais): (a) F7-4 'Implementacao do IterativeRefiner (Fase 2)' - PREMISSA DESATUALIZADA: IterativeRefiner ja existe em src/refiner.rs desde a Fase 2 com Phi como funcao objetivo (modulo, Default, refine, refine_traced, 9+ testes incl. test_refiner_reaches_target_from_v2 e test_refiner_monotonic_increases_phi) - nao e modulo novo para Fase 8; (b) F7-2 'TensorNetwork I461-I465' - SEM SUBSTRATO: 0 ocorrencias de TensorNetwork/CollapseDetector/intrinsic_dim/contract() em crates arkhe (unico match sla.rs:384 e teste SLA nao relacionado); alem disso I461/I462 foram formalmente DEFERIDOS por falta de substrato (docs/relatorio_final_fase4.md:70, precedente honestidade blocos 991/995/996); (c) F7-3 'VisualSelfModel I531' - SEM SUBSTRATO: 0 ocorrencias de I530/I531/VisualSelfModel/out-of-distribution em arquivos rastreados; (d) F7-0/F7-1 I532/I533 - sao PROPOSTAS de novos invariantes, nao existentes; o esboco Lean apresentado e tautologico (by rfl: define o limiar como identidade) e NAO prova a correspondencia entre limiar inteiro floor(2n/3)+1 e a semantica Rust real 'approved/total > 2/3' (validators.rs:77, ratio > VALIDATOR_QUORUM com MIN_VALIDATORS>=3); usa import Mathlib.Data.Real.Basic - VIOLA a convencao canonica dos nucleos ('sem Mathlib, sem sorry', kernel v4.33.1, I511-I516); (e) '/src/lean/FieldStability.lean (v388.0)' - NAO EXISTE no monorepo; nucleos reais sao src/lean/SubstrateFieldStabilityCoherence.lean e src/lean/nuclei/nuclei/FieldStabilityTLCSpec.lean. Veredito honesto (precedente bloco_990 rec.3, Fases 5/7 deferidas): parecer NAO executavel como escrito - F7-2 e F7-3 DEFERIDOS (sem substrato, I461/I462 ja deferidos), F7-4 SATISFEITO POR PREMISSA (nada a implementar), F7-0/F7-1 condicionados a decisao executiva e a trabalho honesto de ponte f64<->inteiro sob convencao sem-Mathlib. Nenhuma implementacao da Fase 8 foi iniciada - aguarda decisao executiva.",
+  "decisao_anterior_atendida": {
+    "parecer_v388.0": "verificado contra fonte primaria; divergencias registradas neste bloco; DETER aprovacao como escrito",
+    "precedente_fases5_7": "honestidade: recomendacao/invariante sem substrato materializado no monorepo e DEFERIDA, nunca adotada por fe (bloco_990 rec.3; blocos 991/995/996)",
+    "convencao_nucleos_lean": "sem Mathlib, sem sorry, kernel v4.33.1 (I511-I516 e Fase 6) - esboco do parecer viola convencao"
+  },
+  "verificacao": {
+    "git_grep_tracker": "I530|I531|VisualSelfModel|CollapseDetector|TensorNetwork|out-of-distribution -> 0 ocorrencias em arquivos rastreados (git grep exit 1)",
+    "grep_rs": "TensorNetwork|CollapseDetector|contract()|intrinsic_dim -> unico match catedral_deps/nextgsim/nextgsim-she/src/sla.rs:384 test_sla_contract (nao relacionado)",
+    "iterative_refiner": "EXISTE: src/refiner.rs linhas 1-314, IterativeRefiner com Default/new/refine/refine_traced, Phi como funcao objetivo (doc line 1), testes test_refiner_reaches_target_from_v2, test_refiner_already_at_target, test_refiner_from_null_floor_climbs, test_refiner_converges_with_tiny_step, test_refiner_components_stay_in_domain, test_refiner_monotonic_increases_phi, test_refiner_traced_matches_result_and_is_monotone",
+    "semantica_quorum_rust": "validators.rs:24 VALIDATOR_QUORUM=2/3; :60-77 QuorumStats.is_satisfied = total>=MIN_VALIDATORS && ratio>2/3 (estrito); :99 aggregate_validity; teste two_of_three_is_not_quorum_strict; property_quorum_boundary_extended_sets",
+    "lean_real": "src/lean/SubstrateFieldStabilityCoherence.lean (I511-I516); src/lean/nuclei/nuclei/FieldStabilityTLCSpec.lean; src/lean/FieldStability.lean NAO existe (Test-Path False)",
+    "bins_experimentos": "src/bin/e1.rs rastreado; e2.rs/e3.rs/e4.rs no disco e registrados em Cargo.toml [[bin]] (nao rastreados - .gitignore_global host ignora bin/)"
+  },
+  "veredito": "PARECER_NAO_EXECUTAVEL_COMO_ESCRITO",
+  "futuro_condicionado": {
+    "f7_0_f7_1_i532_i533": "podem prosseguir SOMENTE apos decisao executiva e como novos artefatos Lean: (a) prova honesta da ponte limiar inteiro <-> ratio f64 >2/3 (sem by rfl tautologico), (b) respeito a convencao sem-Mathlib kernel v4.33.1, (c) definicoes concretas (Validator, Verdict, chain) no nucleo real",
+    "f7_2_tensornetwork": "DEFERIDO - sem substrato; I461/I462 ja deferidos (relatorio_final_fase4.md:70); revertido apenas com substrato real no monorepo",
+    "f7_3_visualselfmodel": "DEFERIDO - sem substrato; I530/I531 inexistentes no monorepo",
+    "f7_4_iterativerefiner": "NENHUM trabalho necessario - modulo ja implementado e testado desde a Fase 2; premissa do parecer desatualizada"
+  },
+  "status": "REGISTRO_DIVERGENCIAS_AGUARDA_DECISAO",
+  "selo": "CATEDRAL-OS-AUDITORIA-PARECER-V388-0-FASE-8-2026-09-07"
+}
