@@ -317,6 +317,25 @@ mod tests {
     }
 
     #[test]
+    fn verify_integrity_detects_last_entry_content_tamper() {
+        let mut ledger = CoherenceLedger::new();
+        ledger.push(entry(0, 1, 0.96, GENESIS.into())).unwrap();
+        let h1 = ledger.last_hash();
+        ledger.push(entry(1, 2, 0.97, h1)).unwrap();
+        // A1 (D1): mutação da ÚLTIMA entrada fora do `push`. Nenhuma entrada
+        // seguinte re-deriva o hash dela, então a varredura que só compara o
+        // encadeamento `previous_hash` não detecta. O hash interno (campo
+        // re-derivado) precisa ser verificado explicitamente.
+        let mut tampered = ledger.entries()[1].clone();
+        tampered.phi = 0.10;
+        ledger.entries[1] = tampered;
+        assert!(
+            !ledger.verify_integrity().is_empty(),
+            "A1: adulteracao de conteudo da ultima entrada deve ser detectada"
+        );
+    }
+
+    #[test]
     fn mean_phi_empty_and_populated() {
         let ledger = CoherenceLedger::new();
         assert_eq!(ledger.mean_phi(), 0.0);
