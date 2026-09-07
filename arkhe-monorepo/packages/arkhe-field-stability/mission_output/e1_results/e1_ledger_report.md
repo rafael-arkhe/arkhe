@@ -2,7 +2,7 @@
 
 - **Entradas:** 200
 - **Âncora gênese:** GENESIS
-- **Integridade (SHA3-256):** OK
+- **Integridade (SHA3-256):** OK (dados) — além do horizonte formal TLC/Lean (len=200 > MaxWindows=4)
 
 | window | timestamp | Φ | stability (Ω) | success_rate (Σ) | latency (Λ) | prev |
 |---|---|---|---|---|---|---|
