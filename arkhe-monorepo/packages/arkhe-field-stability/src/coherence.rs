@@ -1,6 +1,6 @@
 //! Coeficiente de coerência Φ — definição formal ancorada no Gap-1.
 //!
-//! ```
+//! ```text
 //! Φ(x ; W) = 1 − sqrt( Σ wᵢ·(1 − xᵢ)² )
 //! ```
 //!

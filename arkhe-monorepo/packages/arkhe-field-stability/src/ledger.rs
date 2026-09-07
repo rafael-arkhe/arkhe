@@ -42,6 +42,50 @@ pub const GRAVITY_1: &str = "GRAVITY-1: timestamps devem ser monotonicos crescen
 /// Hash da gênese — primeira âncora da cadeia (nenhum entry aponta para ela).
 pub const GENESIS: &str = "GENESIS";
 
+/// Horizonte formal coberto pela modelagem TLA+ (`MaxWindows = 4` em
+/// `ArkheCoherenceLedger.tla`, bloco 1000) e pelo núcleo Lean I517–I523
+/// (D3). Cadeias com `len > MAX_HORIZON_WINDOWS` retornam
+/// [`IntegrityStatus::BeyondHorizon`] — os dados ainda são verificados pela
+/// varredura integral (Loopseal-3); a garantia formal (TLC exhaustivo/Lean)
+/// cobre apenas até o horizonte.
+pub const MAX_HORIZON_WINDOWS: usize = 4;
+
+/// Resultado semântico de [`CoherenceLedger::verify_integrity`] (D3).
+///
+/// A hierarquia é estrita: `Broken` (dado realmente adulterado) prevalece
+/// sobre `BeyondHorizon` (fora do horizonte formal, mas dados íntegros) que
+/// prevalece sobre `Ok`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum IntegrityStatus {
+    /// Cadeia íntegra e dentro do horizonte formal (`len <= MAX_HORIZON_WINDOWS`).
+    Ok,
+    /// Entradas cujo hash interno não corresponde à forma canônica re-derivada,
+    /// ou cujo `previous_hash` não encadeia — conjugado com a varredura de
+    /// conteúdo da **última** entrada (A1/D1).
+    Broken {
+        /// `window_id` das entradas com quebra de integridade.
+        window_ids: Vec<u64>,
+    },
+    /// Cadeia com mais janelas que o horizonte formal (`len > MAX_HORIZON_WINDOWS`).
+    /// **Não é erro:** os dados foram verificados e estão íntegros; apenas a
+    /// garantia formal (TLC/Lean) não cobre todo o comprimento.
+    BeyondHorizon {
+        /// Comprimento real da cadeia.
+        len: usize,
+        /// Horizonte formal (`MAX_HORIZON_WINDOWS`).
+        max_windows: usize,
+    },
+}
+
+impl IntegrityStatus {
+    /// `true` quando a integridade de dados está confirmada (`Ok` ou
+    /// `BeyondHorizon` — neste último caso os dados são verificados, apenas o
+    /// horizonte formal foi ultrapassado).
+    pub fn is_ok(&self) -> bool {
+        matches!(self, Self::Ok | Self::BeyondHorizon { .. })
+    }
+}
+
 /// Entrada imutável da cadeia de dados — uma medição por janela.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CoherenceEntry {
@@ -60,9 +104,39 @@ pub struct CoherenceEntry {
     pub latency_score: f64,
     /// Hash SHA3-256 (hex) da entrada anterior — elo do encadeamento.
     pub previous_hash: String,
+    /// Hash SHA3-256 (hex) desta própria entrada — fingerprint da sua forma
+    /// canônica no momento da construção. `verify_integrity()` re-deriva e
+    /// compara (A1/D1): sem este campo, a última entrada não tem ninguém
+    /// depois dela para re-derivar o hash, e a tautologia
+    /// `compute_hash() != compute_hash()` jamais detectava adulteração.
+    pub hash: String,
 }
 
 impl CoherenceEntry {
+    /// Constrói uma entrada a partir dos campos e calcula o hash SHA3-256 da
+    /// sua forma canônica (Loopseal-2/Ghost-1).
+    pub fn from_parts(
+        window_id: u64,
+        timestamp: u64,
+        phi: f64,
+        stability: f64,
+        success_rate: f64,
+        latency_score: f64,
+        previous_hash: impl Into<String>,
+    ) -> Self {
+        let mut entry = Self {
+            window_id,
+            timestamp,
+            phi,
+            stability,
+            success_rate,
+            latency_score,
+            previous_hash: previous_hash.into(),
+            hash: String::new(),
+        };
+        entry.hash = entry.compute_hash();
+        entry
+    }
     /// Serializa a entrada em forma canônica (comprimentos fixos, sem
     /// semântica ambígua) para o cálculo de hash.
     pub fn canonical(&self) -> String {
@@ -153,6 +227,7 @@ impl CoherenceLedger {
             ));
         }
         entry.previous_hash = self.last_hash();
+        entry.hash = entry.compute_hash();
         self.entries.push(entry);
         Ok(())
     }
@@ -164,13 +239,19 @@ impl CoherenceLedger {
 
     /// Re-encadeia a cadeia desde o início e verifica cada hash — Loopseal-3.
     ///
-    /// Retorna a lista de entradas cujo hash interno **não** corresponde à sua
-    /// forma canônica, ou cujo `previous_hash` não aponta para a anterior
-    /// re-derivada. Vazio = integridade confirmada.
-    pub fn verify_integrity(&self) -> Vec<u64> {
+    /// Para cada entrada: (1) o **hash interno** `entry.hash` é re-derivado pela
+    /// forma canônica e comparado (isto detecta adulteração de conteúdo da
+    /// **última** entrada — A1/D1, que a tautologia `compute_hash != compute_hash`
+    /// ocultava); (2) o encadeamento `previous_hash` aponta para a entrada
+    /// anterior / `GENESIS`.
+    ///
+    /// Retorna um [`IntegrityStatus`] semântico (D3):
+    /// `Ok`, `Broken { window_ids }` ou `BeyondHorizon { len, max_windows }`
+    /// (dados íntegros além do horizonte formal da modelagem TLA+/Lean).
+    pub fn verify_integrity(&self) -> IntegrityStatus {
         let mut broken = Vec::new();
         for (i, entry) in self.entries.iter().enumerate() {
-            if entry.compute_hash() != entry.compute_hash() {
+            if entry.compute_hash() != entry.hash {
                 broken.push(entry.window_id);
             }
             let prev = if i == 0 {
@@ -182,7 +263,16 @@ impl CoherenceLedger {
                 broken.push(entry.window_id);
             }
         }
-        broken
+        if !broken.is_empty() {
+            IntegrityStatus::Broken { window_ids: broken }
+        } else if self.entries.len() > MAX_HORIZON_WINDOWS {
+            IntegrityStatus::BeyondHorizon {
+                len: self.entries.len(),
+                max_windows: MAX_HORIZON_WINDOWS,
+            }
+        } else {
+            IntegrityStatus::Ok
+        }
     }
 
     /// Média de um campo numérico das entradas.
@@ -202,16 +292,22 @@ impl CoherenceLedger {
     /// completa + estatística agregada (`Φ` médio).
     pub fn generate_report(&self) -> String {
         let mut out = String::new();
+        let integrity = match self.verify_integrity() {
+            IntegrityStatus::Ok => "OK".to_string(),
+            IntegrityStatus::Broken { ref window_ids } => {
+                let ids = window_ids.iter().map(u64::to_string).collect::<Vec<_>>().join(", ");
+                format!("QUEBRADA (window_ids: {ids})")
+            }
+            IntegrityStatus::BeyondHorizon { len, max_windows } => format!(
+                "OK (dados) — além do horizonte formal TLC/Lean (len={len} > MaxWindows={max_windows})"
+            ),
+        };
         out.push_str("# Relatório de coerência — cadeia de dados\n\n");
         out.push_str(&format!(
             "- **Entradas:** {}\n- **Âncora gênese:** {}\n- **Integridade (SHA3-256):** {}\n\n",
             self.entries.len(),
             GENESIS,
-            if self.verify_integrity().is_empty() {
-                "OK"
-            } else {
-                "QUEBRADA"
-            }
+            integrity
         ));
         out.push_str("| window | timestamp | Φ | stability (Ω) | success_rate (Σ) | latency (Λ) | prev |\n");
         out.push_str("|---|---|---|---|---|---|---|\n");
@@ -252,15 +348,7 @@ mod tests {
     use super::*;
 
     fn entry(window_id: u64, timestamp: u64, phi: f64, prev: String) -> CoherenceEntry {
-        CoherenceEntry {
-            window_id,
-            timestamp,
-            phi,
-            stability: 0.9,
-            success_rate: 0.95,
-            latency_score: 0.8,
-            previous_hash: prev,
-        }
+        CoherenceEntry::from_parts(window_id, timestamp, phi, 0.9, 0.95, 0.8, prev)
     }
 
     #[test]
@@ -269,7 +357,8 @@ mod tests {
         ledger.push(entry(0, 1, 0.96, GENESIS.into())).unwrap();
         assert_eq!(ledger.entries().len(), 1);
         assert_eq!(ledger.last_hash(), ledger.entries()[0].compute_hash());
-        assert!(ledger.verify_integrity().is_empty());
+        assert_eq!(ledger.verify_integrity(), IntegrityStatus::Ok);
+        assert_eq!(ledger.entries()[0].hash, ledger.entries()[0].compute_hash());
     }
 
     #[test]
@@ -280,7 +369,7 @@ mod tests {
         ledger.push(entry(1, 2, 0.97, h1)).unwrap();
         assert!(ledger.entries()[1].links_from(&ledger.entries()[0]));
         assert_eq!(ledger.entries().len(), 2);
-        assert!(ledger.verify_integrity().is_empty());
+        assert_eq!(ledger.verify_integrity(), IntegrityStatus::Ok);
     }
 
     #[test]
@@ -313,7 +402,10 @@ mod tests {
         let mut tampered = ledger.entries()[0].clone();
         tampered.phi = 0.5;
         ledger.entries[0] = tampered;
-        assert!(!ledger.verify_integrity().is_empty());
+        assert!(
+            matches!(ledger.verify_integrity(), IntegrityStatus::Broken { .. }),
+            "a adulteracao da primeira entrada deve apontar Broken"
+        );
     }
 
     #[test]
@@ -329,10 +421,47 @@ mod tests {
         let mut tampered = ledger.entries()[1].clone();
         tampered.phi = 0.10;
         ledger.entries[1] = tampered;
-        assert!(
-            !ledger.verify_integrity().is_empty(),
-            "A1: adulteracao de conteudo da ultima entrada deve ser detectada"
+        assert_eq!(
+            ledger.verify_integrity(),
+            IntegrityStatus::Broken {
+                window_ids: vec![1]
+            },
+            "A1: adulteracao de conteudo da ultima entrada deve ser detectada pelo hash interno"
         );
+    }
+
+    #[test]
+    fn beyond_horizon_reported_above_max_windows() {
+        let mut ledger = CoherenceLedger::new();
+        let mut prev = GENESIS.to_string();
+        for w in 0..MAX_HORIZON_WINDOWS as u64 + 1 {
+            ledger.push(entry(w, 1 + w, 0.95, prev)).unwrap();
+            prev = ledger.last_hash();
+        }
+        assert_eq!(ledger.entries().len(), 5);
+        assert_eq!(
+            ledger.verify_integrity(),
+            IntegrityStatus::BeyondHorizon {
+                len: 5,
+                max_windows: MAX_HORIZON_WINDOWS
+            }
+        );
+        // D3: BeyondHorizon nao e erro — integridade de dados confirmada.
+        assert!(ledger.verify_integrity().is_ok());
+    }
+
+    #[test]
+    fn within_horizon_clean_chain_is_ok() {
+        let mut ledger = CoherenceLedger::new();
+        let mut prev = GENESIS.to_string();
+        for w in 0..MAX_HORIZON_WINDOWS as u64 {
+            ledger.push(entry(w, 1 + w, 0.95, prev)).unwrap();
+            prev = ledger.last_hash();
+        }
+        assert_eq!(ledger.verify_integrity(), IntegrityStatus::Ok);
+        // Borda exata: len == MAX_HORIZON_WINDOWS ainda esta no horizonte
+        // formal (guard TLA+ Len(chain) < MaxWindows atinge no maximo MaxWindows).
+        assert_eq!(ledger.entries().len(), MAX_HORIZON_WINDOWS);
     }
 
     #[test]

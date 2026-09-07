@@ -37,7 +37,10 @@ pub mod refiner;
 pub use coherence::{phi, phi_default, phi_from_field_stability, WEIGHTS_DEFAULT};
 pub use constants::*;
 pub use field_stability::FieldStability;
-pub use ledger::{CoherenceEntry, CoherenceLedger, GENESIS, GRAVITY_1};
+pub use ledger::{
+    CoherenceEntry, CoherenceLedger, IntegrityStatus, GENESIS, GRAVITY_1,
+    MAX_HORIZON_WINDOWS,
+};
 pub use mcp_stub::{HandoverPayload, McpClient, McpError};
 pub use quality_report::QualityReport;
 pub use refiner::{IterativeRefiner, RefinerOutcome, RefinerResult};
