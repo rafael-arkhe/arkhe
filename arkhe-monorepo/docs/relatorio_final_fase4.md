@@ -109,9 +109,51 @@ distribuídos em I511–I516, todos fechados por reflexão (`native_decide`).
 | I515-C | 3 < 4 (Φ_V3² = 1/4 < 1/3) | V3 REJEITADO na banda Gap-1 |
 | I516-A/B/C | 57735 < 98370 ≤ 99990 | Φ médio do ledger (0.9837) dentro da banda |
 
-Escopo deferido (bloco 996): refinamento TLA+ `cr1-cr4` e Apalache (Fase 5) e
-Kani (Fase 7) — sem substrato no monorepo, mantidos como recomendação sob o
-precedente I461/I462.
+Escopo deferido (bloco 996, atualizado pelo bloco 999): refinamento TLA+
+`cr1-cr4` e Apalache (Fase 5) e Kani (Fase 7) — sem substrato no monorepo,
+mantidos como recomendação sob o precedente I461/I462.
+
+## 10. Especificação TLA+ do CoherenceLedger (v376.1 — Fase 5, Opção B)
+
+A verificação do bloco_999 confirmou que **não existem** módulos `cr1-cr4`;
+a decisão do bloco_1000 (`ARKHE-v376.1-DECISAO-TLA-PLUS-2026-09-06`) escolheu
+criar a especificação **do zero**, ancorada nesta formalização:
+
+- `packages/arkhe-field-stability/spec/ArkheCoherenceLedger.tla` — modelo abstrato.
+- `packages/arkhe-field-stability/spec/ArkheCoherenceLedger.cfg` — instância TLC.
+
+| Aspecto | Conteúdo |
+| :--- | :--- |
+| Estado | `chain : Seq[Entry]`, `nextTs`, `nextWin`, `hashSeq` |
+| Ação única | `AppendEntry(phi)` — extensão por construção (append-only); guarda `Len(chain) < MaxWindows` + `Quiesce` na borda |
+| Gravity-1 | `Gravity1Inv` — timestamps estritamente crescentes |
+| Loopseal-2 | `Loopseal2Inv` — cada entry carrega o hash do antecessor |
+| Outras | `TypeOK`, `GenesisAnchoredInv`, `UniqueWindowsInv`, `HashTagsDistinctInv` |
+| Liveness | `Liveness == <>(Len(chain) >= MaxWindows)` |
+
+**Reduções declaradas** no cabeçalho do módulo (hashes abstratos, payload
+Ω/Σ/Λ fora do modelo, phi como dado, tick lógico; modelo finito via
+`Len(chain) < MaxWindows` + `Quiesce`; `WF_vars(AppendAct)` no `Spec`).
+
+### 10.1 Model-check TLC (Dia 5) — executado 2026-09-06
+
+Ferramenta: **TLC2 2.19** (`tla2tools.jar` v1.7.4 "Xenophanes", sha1
+`bee4a54f3ee3d4afc347c3240ec2d9e93b075104` confirmado). Instância
+`PhiMax=2, MaxWindows=4, GenesisWindow=0`:
+
+- **PASS — `No error has been found`**: 202 estados gerados / 121 distintos
+  (depth 5; probabilidade de colisão de fingerprint 5.3E-16); 6/6 invariantes
+  e liveness sob `WF_vars(AppendAct)`.
+- **Sensibilidade (teste de mutação):** MUT1 (remove Gravity-1) →
+  `Invariant Gravity1Inv is violated`; MUT2 (remove Loopseal-2) →
+  `Invariant Loopseal2Inv is violated` — a ferramenta rejeita mutantes, logo o
+  PASS não é vacuo.
+- **Limite honesto:** reivindica-se alcançabilidade e liveness **até**
+  `MaxWindows`; Apalache (symbolic) fica como trabalho futuro para a banda
+  real (phi x10⁴, dezenas de janelas); a ferramenta não substitui o núcleo
+  Lean (I511–I516) nem `verify_integrity()`.
+- Evidência: `bloco_1000/evidencia/` (`tlc_modelcheck.log`,
+  `mutacao_gravity.log`, `mutacao_loopseal.log`, SHA256SUMS 5/5).
 
 ---
 
