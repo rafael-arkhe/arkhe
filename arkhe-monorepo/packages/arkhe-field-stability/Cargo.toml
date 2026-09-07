@@ -1,0 +1,57 @@
+[package]
+name = "arkhe-field-stability"
+version = "0.1.0"
+edition = "2021"
+description = "Métricas de estabilidade de campo, relatórios de qualidade e stub MCP (reqwest) para o ecossistema ARKHE — alternativa ao arkhe-mcp-client externo."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Hashing SHA3-256 do ledger de coerência (Fase 4, Opção A) — padrão
+# constitucional Ghost-1 (`manifest.sha3`), já auditado no workspace.
+sha3 = { workspace = true }
+# HTTP (stub MCP) — cliente maduro e ativo.
+reqwest = { version = "0.12", features = ["json"] }
+serde = { workspace = true }
+serde_json = "1"
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+# Timestamps para nome de campo e relatórios.
+chrono = "0.4"
+
+[dev-dependencies]
+# Mock HTTP para os testes do cliente MCP (mcp_stub.rs).
+wiremock = "0.6"
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+[features]
+# Binários de experimento E1–E4 — desativados por padrão para não inflar o
+# binário de produção. Ativar com `--features experiments`.
+experiments = []
+
+[[bin]]
+name = "e1"
+path = "src/bin/e1.rs"
+required-features = ["experiments"]
+
+[[bin]]
+name = "e2"
+path = "src/bin/e2.rs"
+required-features = ["experiments"]
+
+[[bin]]
+name = "e3"
+path = "src/bin/e3.rs"
+required-features = ["experiments"]
+
+[[bin]]
+name = "e4"
+path = "src/bin/e4.rs"
+required-features = ["experiments"]
+
+# Nota: `[profile.release]` não é declarado aqui — o workspace raiz já
+# define lto/opt-level/strip para todos os membros.

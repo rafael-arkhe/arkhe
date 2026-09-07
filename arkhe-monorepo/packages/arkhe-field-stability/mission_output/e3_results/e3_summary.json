@@ -1,0 +1,20 @@
+{
+  "acceptability_floor": 0.8,
+  "criterion": "curva de resposta Phi x degradacao com cruzamentos identificados (Gap-1 e aceitabilidade)",
+  "experiment": "e3",
+  "gap1": 0.5773502691896258,
+  "paths": {
+    "enviesado": {
+      "d_accept_first": 0.2860000000000002,
+      "d_gap1_first": 0.5640000000000004,
+      "phi_at_gap1": 0.5771880417963557
+    },
+    "uniforme": {
+      "d_accept_first": 0.20000000000000015,
+      "d_gap1_first": 0.4240000000000003,
+      "phi_at_gap1": 0.5759999999999996
+    }
+  },
+  "step": 0.002,
+  "success": true
+}

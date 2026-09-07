@@ -1,0 +1,23 @@
+{
+  "base_quality": 0.9,
+  "criteria": {
+    "correlation_significant": "|r| > 0.5",
+    "phi_mean_above": 0.7
+  },
+  "experiment": "e1",
+  "overall": {
+    "mean": 0.9897872987826615,
+    "std": 0.0010840841325373215
+  },
+  "pearson_q_phi": 0.9873476491894702,
+  "phi": {
+    "above_floor_pct": 100.0,
+    "max": 0.9875988336451851,
+    "mean": 0.9836860076222002,
+    "min": 0.979738385606003,
+    "std": 0.0022825319436401534
+  },
+  "samples_per_window": 50,
+  "success": true,
+  "windows": 200
+}

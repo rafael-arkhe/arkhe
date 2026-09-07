@@ -1,0 +1,45 @@
+{
+  "criterion": "Phi permanece dentro de 1 desvio padrao do valor sem ruido para jitter < 20%",
+  "experiment": "e4",
+  "levels": [
+    {
+      "jitter": 0.0,
+      "overall_mean": 0.9911992890088769,
+      "phi_mean": 0.9843760367557375,
+      "phi_std": 0.002088578734322817
+    },
+    {
+      "jitter": 0.05,
+      "overall_mean": 0.9893705922811618,
+      "phi_mean": 0.9837292821163779,
+      "phi_std": 0.0022442311380370017,
+      "within_1_sigma_of_noise_free": true
+    },
+    {
+      "jitter": 0.1,
+      "overall_mean": 0.9860721271544589,
+      "phi_mean": 0.981002919420251,
+      "phi_std": 0.0019107911807361346,
+      "within_1_sigma_of_noise_free": false
+    },
+    {
+      "jitter": 0.15,
+      "overall_mean": 0.983021053242676,
+      "phi_mean": 0.9777241495482251,
+      "phi_std": 0.0016603916249753059,
+      "within_1_sigma_of_noise_free": false
+    },
+    {
+      "jitter": 0.2,
+      "overall_mean": 0.8042628181013527,
+      "phi_mean": 0.7213759646251005,
+      "phi_std": 0.049693438750432126,
+      "within_1_sigma_of_noise_free": false
+    }
+  ],
+  "noise_free": {
+    "phi_mean": 0.9843760367557375,
+    "phi_std": 0.002088578734322817
+  },
+  "success": false
+}

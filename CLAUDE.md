@@ -84,6 +84,9 @@
 - **564-MCP-STATELESS-BRIDGE:** Stateless protocol bridge
 - **565-TLSNOTARY-BRIDGE:** Cryptographic provenance (PSE)
 
+### Transport Layer (680)
+- **KSM680-TORUS-TELEPORT:** Kessler Stabilization Method — toroidal FRC confinement, EVO encapsulation, coherent matter transport (Φ_C 0.976)
+
 ### Orchestration Layer (570)
 - **570-CLAUDE-CODE-ORCHESTRATOR:** Multi-agent workflow engine
 
@@ -162,16 +165,36 @@ docker push arke:v∞.Ω.∇+++
 - **2026-05-22:** TLSNotary integrated as 19th invariant (565)
 - **2026-05-23:** Quantum layer added (569, QKD + teleportation)
 - **2026-05-23:** Claude Code orchestration mapped (570)
+- **2026-07-25:** KSM Teleportation canonized as substrate 680 (toroidal FRC, EVO matter transport)
+- **2026-09-06:** Substrate 924 accepted as v359.0 (bloco 971). 37/37 tests, clippy clean, 3 bugs fixed, invariants I500–I504 proven in core Lean 4 (no Mathlib, no sorry) at src/lean/Substrate924.lean
+- **2026-09-06:** Substrate ARKHE-BITCOIN accepted as v360.0 (bloco 972). 11/11 tests, clippy clean, zero unsafe, WIF Base58Check (not Base64), secp256k1 0.29 aligned to bitcoin 0.32, CLI bin `arkhe-bitcoin` (generate/address/wif/sign/verify/receipt) as agent integration point, invariants I505–I510 proven in core Lean 4 at src/lean/SubstrateBitcoin972.lean
+- **2026-09-06:** Field-stability coherence chain (Plano v375.2, blocos 987–994, crate `arkhe-field-stability`). Φ formal `1 − sqrt(Σwᵢ(1−xᵢ)²)`, W=(0.4,0.4,0.2), Gap-1 `0.577350 < Φ ≤ 0.999900`, theorem `Φ ≤ overall` (Cauchy–Schwarz, errata 991). Experiments E1–E4: E3 found Gap-1 inflexion d=0.424 (uniforme, matches 1−1/√3), E4 frontier robustness (quiet ≤5% 1σ, ≤15% absolute Φ≥0.98, collapse 20% → Φ 0.7214) → E4 PASS CONDITIONAL for expected operational range (jitter<10%). Ledger reform (Opção A, bloco 994): `CoherenceLedger` in `packages/arkhe-field-stability/src/ledger.rs` — append-only data-chain, SHA3-256 chaining (Ghost-1, no new deps), native Gravity-1 (rejects non-monotonic timestamps), strict `previous_hash` validation on push (Loopseal-2), `verify_integrity()` re-chains, `generate_report()` auto-report. 44/44 tests, clippy clean, `#![deny(unsafe_code)]`, per-window entry (200/200, Φ mean 0.9837, e1_summary unchanged). Final report: `docs/relatorio_final_fase4.md`. Seals: `CATEDRAL-OS-FASE4-REFORMA-LEDGER-2026-09-06`.
+- **2026-09-06:** Fases 5–8 reancoradas (blocos 995–997, Opção B). Auditoria honesta: TLA+ `cr1-cr4`, Apalache e Kani **sem substrato no monorepo** (0 `.tla`, 0 refs) → Fases 5/7 DEFERIDAS (precedente I461/I462, bloco 990). Base real provada: núcleo Lean 4 `src/lean/SubstrateFieldStabilityCoherence.lean` — **16 teoremas I511–I516**, kernel v4.33.1, sem Mathlib/sem `sorry`: I511 pesos Gap-1 (Gap-3), I512 banda V1 (S·10⁹=1253156), I513 monotonia refiner V2→V1 (P2), I514 Cauchy–Schwarz quadrático (errata 991), I515 portões disjuntos (V2 inaceitável/constitucional; V3 rejeitado), I516 Φ médio do ledger 0.9837 na banda. Bloco 997 APROVADO, Fase 4 CONCLUÍDA (v375.5). Selos: `CATEDRAL-OS-VERIFICACAO-SUBSTRATO-FASES5-8-2026-09-06`, `CATEDRAL-OS-DECISAO-FASES5-8-REANCORADAS-2026-09-06`, `CATEDRAL-OS-NUCLEO-LEAN-I511-I516-FIELD-STABILITY-2026-09-06`, `CATEDRAL-OS-DECISOES-BLOCO-998-2026-09-06`.
 
 ### Compliance
 - **Royaltes Catedral:** 2% of commercial profit → Architect
 - **License:** Dual MIT/Apache-2.0 (core), proprietary integrations noted
+
+### Propriedade Intelectual e Memória Arquitetural
+- **Natureza:** a memória arquitetural documenta **padrões arquiteturais e
+  invariantes** (blocos `bloco_990..998`, núcleo Lean 4), não código-fonte ou
+  implementações específicas.
+- **Ativos:** blocos 990–998 e núcleo Lean 4 (I511–I516) são ativos da
+  Catedral OS, registrados sob licença dual **MIT/Apache-2.0** (já em vigor).
+- **Caráter:** registro é **descritivo**, não restritivo — a Catedral OS é
+  aberta por princípio.
+- **Precedente de honestidade:** Fases 5 (TLA+/Apalache) e 7 (Kani) deferidas
+  por ausência de substrato; a memória não transforma recomendação em fato.
 
 ### Active Substrates (Latest)
 - **546-LASER-PHOTONIC-ENGINE v1.1** (Φ_C 0.994)
 - **565-TLSNOTARY-BRIDGE** (Φ_C 0.999)
 - **569-TELEPORT-QUANTUM-LINK** (Φ_C 0.988)
 - **570-CLAUDE-CODE-ORCHESTRATOR** (Φ_C 0.984)
+- **KSM680-TORUS-TELEPORT** (Φ_C 0.976)
+- **924-POTT-INTERPLANETARY-TRANSPORT** (PoTT receipts, BIP-340, canonical CBOR — arXiv:2508.20591; v359.0 aceito, I500–I504 provados no núcleo Lean 4 em src/lean/Substrate924.lean, bloco 971)
+- **972-ARKHE-BITCOIN** (P2PKH/P2WPKH/P2TR, WIF Base58Check, BIP-340 Schnorr; v360.0 aceito, CLI bin `arkhe-bitcoin` para delegação de agentes, I505–I510 provados no núcleo Lean 4 em src/lean/SubstrateBitcoin972.lean, bloco 972)
+- **FIELD-STABILITY-COHERENCE** (Φ formal Gap-1, `IterativeRefiner` V2→V1, `CoherenceLedger` SHA3-256 append-only com Gravity-1 nativo; plano v375.2 completo em 987–994, validado para faixa operacional jitter<10%; crate `arkhe-field-stability`, selo `CATEDRAL-OS-FASE4-REFORMA-LEDGER-2026-09-06`; v375.5 — Fases 5–8 reancoradas em 995–997, núcleo Lean 4 I511–I516 em `src/lean/SubstrateFieldStabilityCoherence.lean`, selos `CATEDRAL-OS-NUCLEO-LEAN-I511-I516-FIELD-STABILITY-2026-09-06` e `CATEDRAL-OS-DECISOES-BLOCO-998-2026-09-06`)
 
 ---
 
@@ -184,6 +207,7 @@ docker push arke:v∞.Ω.∇+++
 | TLSNotary | 565-TLSNOTARY | MPC-TLS + Proxy mode |
 | MCP | 564-MCP-STATELESS | Stateless HTTP |
 | Quantum Sim | 569-TELEPORT | Qiskit + QuTiP |
+| Bitcoin | 972-ARKHE-BITCOIN | secp256k1 / BIP-340 Schnorr (keys, addresses, WIF, receipts) |
 
 ---
 

@@ -1,0 +1,48 @@
+{
+  "criterion": "refiner atinge Φ > 0.95 em <= 1000 iteracoes com convergencia monotonica",
+  "experiment": "e2",
+  "runs": [
+    {
+      "end_components": [
+        0.9853229896084492,
+        0.983488363312281,
+        0.896253631376016
+      ],
+      "end_overall": 0.9667752674434953,
+      "end_phi": 0.9515450589455617,
+      "iterations": 26,
+      "monotonic": true,
+      "outcome": "ReachedTarget",
+      "run": "v2_deep_phi055",
+      "start_components": [
+        0.6,
+        0.55,
+        0.5
+      ],
+      "start_phi": 0.5584119566836077,
+      "success": true
+    },
+    {
+      "end_components": [
+        0.9944383683358776,
+        0.9930479604206793,
+        0.9071636242890282
+      ],
+      "end_overall": 0.9764272563604284,
+      "end_phi": 0.9581022247432913,
+      "iterations": 21,
+      "monotonic": true,
+      "outcome": "ReachedTarget",
+      "run": "v2_canonical_phi070",
+      "start_components": [
+        0.8,
+        0.75,
+        0.5
+      ],
+      "start_phi": 0.6983379374200329,
+      "success": true
+    }
+  ],
+  "success": true,
+  "target": "V1 (Phi ~ 0.9646)"
+}

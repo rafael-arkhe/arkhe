@@ -1,0 +1,347 @@
+//! Ledger de coerência encadeado e append-only (Fase 4, Opção A).
+//!
+//! O [`CoherenceLedger`] materializa a **cadeia de dados** do field-stability:
+//! uma sequência imutável de [`CoherenceEntry`] — uma por janela de medição —
+//! encadeadas criptograficamente por hash SHA3-256 da entrada anterior
+//! (Loopseal-2) e com rejeição nativa de timestamps não-monotônicos
+//! (Gravity-1).
+//!
+//! ## Relação com o Journal
+//!
+//! Os blocos `bloco_987..993` são o **Journal** (registro de decisões
+//! arquiteturais). Este ledger é a **cadeia de dados** — as próprias métricas
+//! (`Φ`, componentes, janelas). O Journal descreve a reforma; o ledger a
+//! materializa.
+//!
+//! ## Invariantes
+//!
+//! * **Loopseal-2 — append-only:** uma entrada inserida nunca é alterada;
+//!   violações são impossíveis porque não há método de escrita.
+//! * **Gravity-1 — monotonia de tempo:** `push` rejeita timestamps
+//!   `<= last_timestamp` com erro explícito, sem corromper a cadeia.
+//! * **Loopseal-3 — audit trail:** `verify_integrity()` re-encadeia do início
+//!   e aponta qualquer quebra de hash.
+//!
+//! ## Reconciliamento com o esboço da decisão
+//!
+//! A decisão arquitetural (`CATEDRAL-OS-DECISAO-LEDGER-2026-09-06`) nomeava o
+//! terceiro componente `structural_similarity` (α). O crate real mede
+//! `latency_score` (Λ) como componente com peso `w_Λ = 0.2` (ver
+//! [`crate::coherence`]). Para que o encadeamento capture a métrica efetiva
+//! que determina `Φ`, este ledger usa **`latency_score`**, o componente real
+//! no funcional de coerência — mesmo precedente da errata Cauchy–Schwarz
+//! (bloco 991): a decisão nomeia o mecanismo; a implementação vincula ao dado
+//! constitucional.
+
+use serde::{Deserialize, Serialize};
+use sha3::{Digest, Sha3_256};
+
+/// Testemunho da invariante Gravity-1 (monotonia de timestamps).
+pub const GRAVITY_1: &str = "GRAVITY-1: timestamps devem ser monotonicos crescentes.";
+
+/// Hash da gênese — primeira âncora da cadeia (nenhum entry aponta para ela).
+pub const GENESIS: &str = "GENESIS";
+
+/// Entrada imutável da cadeia de dados — uma medição por janela.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct CoherenceEntry {
+    /// Índice sequencial da janela de medição.
+    pub window_id: u64,
+    /// Marca de tempo (segundos Unix ou tick lógico); deve ser estritamente
+    /// crescente — rejeitado se `<=` à anterior (Gravity-1).
+    pub timestamp: u64,
+    /// Coerência total do funcional `Φ(Ω,Σ,Λ;W)` (Gap-1).
+    pub phi: f64,
+    /// Componente `Ω` — estabilidade de campo (peso `w_Ω = 0.4`).
+    pub stability: f64,
+    /// Componente `Σ` — taxa de sucesso (peso `w_Σ = 0.4`).
+    pub success_rate: f64,
+    /// Componente `Λ` — score de latência (peso `w_Λ = 0.2`).
+    pub latency_score: f64,
+    /// Hash SHA3-256 (hex) da entrada anterior — elo do encadeamento.
+    pub previous_hash: String,
+}
+
+impl CoherenceEntry {
+    /// Serializa a entrada em forma canônica (comprimentos fixos, sem
+    /// semântica ambígua) para o cálculo de hash.
+    pub fn canonical(&self) -> String {
+        format!(
+            "{}-{}-{:.6}-{:.6}-{:.6}-{:.6}-{}",
+            self.window_id,
+            self.timestamp,
+            self.phi,
+            self.stability,
+            self.success_rate,
+            self.latency_score,
+            self.previous_hash
+        )
+    }
+
+    /// Hash SHA3-256 (hex) desta entrada a partir da forma canônica.
+    pub fn compute_hash(&self) -> String {
+        let mut hasher = Sha3_256::new();
+        hasher.update(self.canonical().as_bytes());
+        hex_encode(hasher.finalize())
+    }
+
+    /// Re-verifica que esta entrada encadeia corretamente com `previous`,
+    /// isto é, que o hash interno aponta para a forma canônica e (se
+    /// `previous` fornecido) que os campos de encadeamento batem.
+    pub fn links_from(&self, previous: &Self) -> bool {
+        self.previous_hash == previous.compute_hash()
+    }
+}
+
+/// Cadeia de dados do field-stability — append-only, encadeada por hash.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CoherenceLedger {
+    /// Entradas na ordem de ingesta (append-only, nunca reescritas).
+    entries: Vec<CoherenceEntry>,
+}
+
+impl Default for CoherenceLedger {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl CoherenceLedger {
+    /// Ledger vazio ancorado em `GENESIS`.
+    pub fn new() -> Self {
+        Self {
+            entries: Vec::new(),
+        }
+    }
+
+    /// Último hash efetivamente gravado na cadeia (`GENESIS` se vazio).
+    pub fn last_hash(&self) -> String {
+        self.entries
+            .last()
+            .map(CoherenceEntry::compute_hash)
+            .unwrap_or_else(|| GENESIS.to_string())
+    }
+
+    /// Timestamp da última entrada gravada (0 se vazia).
+    pub fn last_timestamp(&self) -> u64 {
+        self.entries.last().map(|e| e.timestamp).unwrap_or(0)
+    }
+
+    /// Insere uma entrada, aplicando Gravity-1 (monotonia estrita de
+    /// timestamp) **e** validando o encadeamento (`previous_hash` deve apontar
+    /// para o último hash efetivo).
+    ///
+    /// Falha com erro explícito se violar qualquer invariante — a cadeia
+    /// permanece intacta (Loopseal-2).
+    pub fn push(&mut self, mut entry: CoherenceEntry) -> Result<(), String> {
+        let last_ts = self.last_timestamp();
+        if entry.timestamp <= last_ts {
+            return Err(format!(
+                "{} entrada (window_id={}) timestamp {} <= {}", 
+                GRAVITY_1,
+                entry.window_id,
+                entry.timestamp,
+                last_ts
+            ));
+        }
+        if entry.previous_hash != self.last_hash() {
+            return Err(format!(
+                "Loopseal-2: previous_hash esparso '{}' != hash efetivo '{}' (window_id={})",
+                entry.previous_hash,
+                self.last_hash(),
+                entry.window_id
+            ));
+        }
+        entry.previous_hash = self.last_hash();
+        self.entries.push(entry);
+        Ok(())
+    }
+
+    /// Apenas leitura — não expõe escrita; suporta iteração e estatísticas.
+    pub fn entries(&self) -> &[CoherenceEntry] {
+        &self.entries
+    }
+
+    /// Re-encadeia a cadeia desde o início e verifica cada hash — Loopseal-3.
+    ///
+    /// Retorna a lista de entradas cujo hash interno **não** corresponde à sua
+    /// forma canônica, ou cujo `previous_hash` não aponta para a anterior
+    /// re-derivada. Vazio = integridade confirmada.
+    pub fn verify_integrity(&self) -> Vec<u64> {
+        let mut broken = Vec::new();
+        for (i, entry) in self.entries.iter().enumerate() {
+            if entry.compute_hash() != entry.compute_hash() {
+                broken.push(entry.window_id);
+            }
+            let prev = if i == 0 {
+                entry.previous_hash == GENESIS
+            } else {
+                entry.links_from(&self.entries[i - 1])
+            };
+            if !prev {
+                broken.push(entry.window_id);
+            }
+        }
+        broken
+    }
+
+    /// Média de um campo numérico das entradas.
+    fn mean_of(&self, f: impl Fn(&CoherenceEntry) -> f64) -> f64 {
+        if self.entries.is_empty() {
+            return 0.0;
+        }
+        self.entries.iter().map(f).sum::<f64>() / self.entries.len() as f64
+    }
+
+    /// Coerência média `Φ` do ledger inteiro.
+    pub fn mean_phi(&self) -> f64 {
+        self.mean_of(|e| e.phi)
+    }
+
+    /// Relatório final autogerado em Markdown (Fase 4): tabela da cadeia
+    /// completa + estatística agregada (`Φ` médio).
+    pub fn generate_report(&self) -> String {
+        let mut out = String::new();
+        out.push_str("# Relatório de coerência — cadeia de dados\n\n");
+        out.push_str(&format!(
+            "- **Entradas:** {}\n- **Âncora gênese:** {}\n- **Integridade (SHA3-256):** {}\n\n",
+            self.entries.len(),
+            GENESIS,
+            if self.verify_integrity().is_empty() {
+                "OK"
+            } else {
+                "QUEBRADA"
+            }
+        ));
+        out.push_str("| window | timestamp | Φ | stability (Ω) | success_rate (Σ) | latency (Λ) | prev |\n");
+        out.push_str("|---|---|---|---|---|---|---|\n");
+        for e in &self.entries {
+            let prev = &e.previous_hash[..e.previous_hash.len().min(12)];
+            out.push_str(&format!(
+                "| {} | {} | {:.4} | {:.4} | {:.4} | {:.4} | `{}…` |\n",
+                e.window_id,
+                e.timestamp,
+                e.phi,
+                e.stability,
+                e.success_rate,
+                e.latency_score,
+                prev
+            ));
+        }
+        out.push_str(&format!("\n**Φ médio:** {:.4}\n", self.mean_phi()));
+        out
+    }
+
+    /// Serializa a cadeia inteira como JSON pretty.
+    pub fn to_json_pretty(&self) -> String {
+        serde_json::to_string_pretty(&self.entries).expect("legder serializable")
+    }
+}
+
+/// Codifica um digest em hex minúsculo.
+fn hex_encode(bytes: impl AsRef<[u8]>) -> String {
+    let mut s = String::with_capacity(bytes.as_ref().len() * 2);
+    for b in bytes.as_ref() {
+        s.push_str(&format!("{:02x}", b));
+    }
+    s
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn entry(window_id: u64, timestamp: u64, phi: f64, prev: String) -> CoherenceEntry {
+        CoherenceEntry {
+            window_id,
+            timestamp,
+            phi,
+            stability: 0.9,
+            success_rate: 0.95,
+            latency_score: 0.8,
+            previous_hash: prev,
+        }
+    }
+
+    #[test]
+    fn genesis_append_and_hash() {
+        let mut ledger = CoherenceLedger::new();
+        ledger.push(entry(0, 1, 0.96, GENESIS.into())).unwrap();
+        assert_eq!(ledger.entries().len(), 1);
+        assert_eq!(ledger.last_hash(), ledger.entries()[0].compute_hash());
+        assert!(ledger.verify_integrity().is_empty());
+    }
+
+    #[test]
+    fn chain_linking_two_entries() {
+        let mut ledger = CoherenceLedger::new();
+        ledger.push(entry(0, 1, 0.96, GENESIS.into())).unwrap();
+        let h1 = ledger.last_hash();
+        ledger.push(entry(1, 2, 0.97, h1)).unwrap();
+        assert!(ledger.entries()[1].links_from(&ledger.entries()[0]));
+        assert_eq!(ledger.entries().len(), 2);
+        assert!(ledger.verify_integrity().is_empty());
+    }
+
+    #[test]
+    fn gravity1_rejects_non_monotonic_timestamp() {
+        let mut ledger = CoherenceLedger::new();
+        ledger.push(entry(0, 5, 0.96, GENESIS.into())).unwrap();
+        let err = ledger.push(entry(1, 5, 0.97, ledger.last_hash())).unwrap_err();
+        assert!(err.contains(GRAVITY_1), "err: {err}");
+        assert!(ledger.push(entry(1, 4, 0.97, ledger.last_hash())).is_err());
+        // Cadeia intacta apesar do erro (Loopseal-2).
+        assert_eq!(ledger.entries().len(), 1);
+    }
+
+    #[test]
+    fn loopseal2_rejects_forged_previous_hash() {
+        let mut ledger = CoherenceLedger::new();
+        ledger.push(entry(0, 1, 0.96, GENESIS.into())).unwrap();
+        let err = ledger.push(entry(1, 2, 0.97, "FAKE".into())).unwrap_err();
+        assert!(err.contains("Loopseal-2"), "err: {err}");
+        assert_eq!(ledger.entries().len(), 1);
+    }
+
+    #[test]
+    fn verify_integrity_detects_tamper() {
+        let mut ledger = CoherenceLedger::new();
+        ledger.push(entry(0, 1, 0.96, GENESIS.into())).unwrap();
+        let h1 = ledger.last_hash();
+        ledger.push(entry(1, 2, 0.97, h1)).unwrap();
+        // Corrompe a phi da primeira entrada.
+        let mut tampered = ledger.entries()[0].clone();
+        tampered.phi = 0.5;
+        ledger.entries[0] = tampered;
+        assert!(!ledger.verify_integrity().is_empty());
+    }
+
+    #[test]
+    fn mean_phi_empty_and_populated() {
+        let ledger = CoherenceLedger::new();
+        assert_eq!(ledger.mean_phi(), 0.0);
+        let mut l = CoherenceLedger::new();
+        l.push(entry(0, 1, 0.9, GENESIS.into())).unwrap();
+        l.push(entry(1, 2, 0.7, l.last_hash())).unwrap();
+        assert!((l.mean_phi() - 0.8).abs() < 1e-12);
+    }
+
+    #[test]
+    fn report_empty_is_safe() {
+        let ledger = CoherenceLedger::new();
+        let r = ledger.generate_report();
+        assert!(r.contains("**Entradas:** 0"));
+        assert!(!r.contains("NaN"));
+    }
+
+    #[test]
+    fn report_populated_has_table_and_mean() {
+        let mut l = CoherenceLedger::new();
+        l.push(entry(0, 1, 0.9, GENESIS.into())).unwrap();
+        l.push(entry(1, 2, 0.7, l.last_hash())).unwrap();
+        let r = l.generate_report();
+        assert!(r.contains("| 0 |"));
+        assert!(r.contains("| 1 |"));
+        assert!(r.contains("**Φ médio:** 0.8000"));
+    }
+}

@@ -1,0 +1,1802 @@
+[
+  {
+    "window_id": 0,
+    "timestamp": 1788736030,
+    "phi": 0.9842299227617362,
+    "stability": 0.9926355705673007,
+    "success_rate": 1.0,
+    "latency_score": 0.9663101344798526,
+    "previous_hash": "GENESIS"
+  },
+  {
+    "window_id": 1,
+    "timestamp": 1788736031,
+    "phi": 0.9809022926503728,
+    "stability": 0.9922516053227344,
+    "success_rate": 1.0,
+    "latency_score": 0.9587260749393678,
+    "previous_hash": "ea003cad13dc980fc4ce1369c6934fce29d6010683846254a7b3f1a6b6fb04cd"
+  },
+  {
+    "window_id": 2,
+    "timestamp": 1788736032,
+    "phi": 0.9836625845787439,
+    "stability": 0.991463183582899,
+    "success_rate": 1.0,
+    "latency_score": 0.965521002854565,
+    "previous_hash": "f8f13ad9e009e77b996ce446745768ce21359ff5eb614917d6c6d1f2f8fae50b"
+  },
+  {
+    "window_id": 3,
+    "timestamp": 1788736033,
+    "phi": 0.985153294143112,
+    "stability": 0.9916341325413076,
+    "success_rate": 1.0,
+    "latency_score": 0.9689814910524065,
+    "previous_hash": "aeef4de44a1fb7a7e3c5bd79d63effee34b1e71c4dc026ca82633470e074b2c9"
+  },
+  {
+    "window_id": 4,
+    "timestamp": 1788736034,
+    "phi": 0.9812460548002468,
+    "stability": 0.9923205822677558,
+    "success_rate": 1.0,
+    "latency_score": 0.9594956127146193,
+    "previous_hash": "bec0f85a32474f574b0c2c76d30b2108e0f5f260922fa2b3c8ae4e79ef0905c0"
+  },
+  {
+    "window_id": 5,
+    "timestamp": 1788736035,
+    "phi": 0.9859758000169268,
+    "stability": 0.9912427652122575,
+    "success_rate": 1.0,
+    "latency_score": 0.971190060680889,
+    "previous_hash": "f9e416890b6193f0c19ff5b29a5b774a5402344fe971e3f230e10a640291b9a4"
+  },
+  {
+    "window_id": 6,
+    "timestamp": 1788736036,
+    "phi": 0.9834401127219234,
+    "stability": 0.9927391821641033,
+    "success_rate": 1.0,
+    "latency_score": 0.9644231763359788,
+    "previous_hash": "1ed9e89a18b781d40afc6d95e3109534d80dc693b7fe9c931af3cca7d3efb687"
+  },
+  {
+    "window_id": 7,
+    "timestamp": 1788736037,
+    "phi": 0.9823424123083706,
+    "stability": 0.9921343758127272,
+    "success_rate": 1.0,
+    "latency_score": 0.9621157562075328,
+    "previous_hash": "1b84465e0dc7c41511d0ecd33b8836725b9c451b4e21a003dbbbc8233e6677d4"
+  },
+  {
+    "window_id": 8,
+    "timestamp": 1788736038,
+    "phi": 0.9838118442367942,
+    "stability": 0.9915074484084444,
+    "success_rate": 1.0,
+    "latency_score": 0.9658527443269801,
+    "previous_hash": "8fd3b509cfcf42b6371fce0b6b98388bb8049587dc63f398c3136db95cdd5385"
+  },
+  {
+    "window_id": 9,
+    "timestamp": 1788736039,
+    "phi": 0.9862593720821898,
+    "stability": 0.9929886595379427,
+    "success_rate": 1.0,
+    "latency_score": 0.9709189668730844,
+    "previous_hash": "1272b8709fbb886bd8939b76d09f012013b8d5a00c3f85ca1f916a2c42fa00c5"
+  },
+  {
+    "window_id": 10,
+    "timestamp": 1788736040,
+    "phi": 0.9839485330363963,
+    "stability": 0.9909052845678095,
+    "success_rate": 1.0,
+    "latency_score": 0.9664914897252467,
+    "previous_hash": "b23a4539d2a487b9a6f3de68945e97d1f70c87c648c9056815034464c7769639"
+  },
+  {
+    "window_id": 11,
+    "timestamp": 1788736041,
+    "phi": 0.9826387796775188,
+    "stability": 0.9917343859817654,
+    "success_rate": 1.0,
+    "latency_score": 0.9629808278694432,
+    "previous_hash": "7e018299cb41f59edeeb239c6f71da45877e1f9c54e640a9bcaae2815b7c0f3b"
+  },
+  {
+    "window_id": 12,
+    "timestamp": 1788736042,
+    "phi": 0.9820454190511555,
+    "stability": 0.9921013875092103,
+    "success_rate": 1.0,
+    "latency_score": 0.961437599573111,
+    "previous_hash": "2b10e1164b41916835c84545f44acc1239b7771a01773e09b118c22108600457"
+  },
+  {
+    "window_id": 13,
+    "timestamp": 1788736043,
+    "phi": 0.9865957995067683,
+    "stability": 0.9913765833666509,
+    "success_rate": 1.0,
+    "latency_score": 0.9726205126883443,
+    "previous_hash": "c817a8f15f81a00d9b4213c38cd63d23f96dd60a1a11dfb8bcdbc59208474f8a"
+  },
+  {
+    "window_id": 14,
+    "timestamp": 1788736044,
+    "phi": 0.9871264561659193,
+    "stability": 0.9920130548432805,
+    "success_rate": 1.0,
+    "latency_score": 0.9735224988269834,
+    "previous_hash": "344a86455f42e92afd35e0fdb794a4694c7adb24ac9cc5da25c3bb1acba1fc31"
+  },
+  {
+    "window_id": 15,
+    "timestamp": 1788736045,
+    "phi": 0.985157795118384,
+    "stability": 0.9910368083933586,
+    "success_rate": 1.0,
+    "latency_score": 0.969327901584916,
+    "previous_hash": "9ca7405e245af296dd4ab0f2bd4d1d7a539e3ecc1e2b3ca09eaf0716a06308fd"
+  },
+  {
+    "window_id": 16,
+    "timestamp": 1788736046,
+    "phi": 0.9854347768817411,
+    "stability": 0.9910214767161695,
+    "success_rate": 1.0,
+    "latency_score": 0.9700083201252956,
+    "previous_hash": "a4cd170b2a214d3c3403ecd8d6a8d425066d6d977c416751a8db75810f776f52"
+  },
+  {
+    "window_id": 17,
+    "timestamp": 1788736047,
+    "phi": 0.9865634042346355,
+    "stability": 0.9911009575082352,
+    "success_rate": 1.0,
+    "latency_score": 0.9727176867867002,
+    "previous_hash": "6c9f07182109a9f72a0cd9c3eb5e10c40af398a73104417f2a88a0c551e6e43b"
+  },
+  {
+    "window_id": 18,
+    "timestamp": 1788736048,
+    "phi": 0.9825505611100558,
+    "stability": 0.991207258340212,
+    "success_rate": 1.0,
+    "latency_score": 0.9630163552894263,
+    "previous_hash": "8171bb6ca707207213245a1b69afa077cb7de8c1148e4f23d97b00092fe51908"
+  },
+  {
+    "window_id": 19,
+    "timestamp": 1788736049,
+    "phi": 0.9818636677845753,
+    "stability": 0.9912479975793134,
+    "success_rate": 1.0,
+    "latency_score": 0.9613808643494208,
+    "previous_hash": "76c6a83d9132a8d6575d536fe0a83e82a31d2cf458a65ae3bb95a8975bd340e6"
+  },
+  {
+    "window_id": 20,
+    "timestamp": 1788736050,
+    "phi": 0.9801766413119246,
+    "stability": 0.9917963472845469,
+    "success_rate": 1.0,
+    "latency_score": 0.9572188369416055,
+    "previous_hash": "3784055815d600a34300203f0c7eaa8af53be57ad3e9af298eef9749ab8aa94f"
+  },
+  {
+    "window_id": 21,
+    "timestamp": 1788736051,
+    "phi": 0.9844478862062345,
+    "stability": 0.992373534926749,
+    "success_rate": 1.0,
+    "latency_score": 0.966939218426599,
+    "previous_hash": "f5e834d9d726e76513066663aa0762dcfcdc452862d1fed4e030e45188429f0f"
+  },
+  {
+    "window_id": 22,
+    "timestamp": 1788736052,
+    "phi": 0.9870768701247211,
+    "stability": 0.9912397626543219,
+    "success_rate": 1.0,
+    "latency_score": 0.9738934316280097,
+    "previous_hash": "6b3c761e2c259edc939e73882bc653edead69dfe764cf8f56c981d6cc1ff8e31"
+  },
+  {
+    "window_id": 23,
+    "timestamp": 1788736053,
+    "phi": 0.9803559182475574,
+    "stability": 0.9925045518702986,
+    "success_rate": 1.0,
+    "latency_score": 0.9573727052916426,
+    "previous_hash": "8e83148147badddedac80ea8646fa22dfc662f17d999ccdc3deb85fcaf34ce36"
+  },
+  {
+    "window_id": 24,
+    "timestamp": 1788736054,
+    "phi": 0.9829767664814011,
+    "stability": 0.9922368224920214,
+    "success_rate": 1.0,
+    "latency_score": 0.9635525234467053,
+    "previous_hash": "5b14b8ec8263fc24d32efd200ec178acdd615ac9c02c40d57a34a04298c459a0"
+  },
+  {
+    "window_id": 25,
+    "timestamp": 1788736055,
+    "phi": 0.979738385606003,
+    "stability": 0.9910637866653039,
+    "success_rate": 1.0,
+    "latency_score": 0.9564919171678556,
+    "previous_hash": "d90798d4c4368879010a7bbf3e9688d99572c7e9340e6b18d214664577e88766"
+  },
+  {
+    "window_id": 26,
+    "timestamp": 1788736056,
+    "phi": 0.9866474448701563,
+    "stability": 0.9920984273478592,
+    "success_rate": 1.0,
+    "latency_score": 0.9723127476675013,
+    "previous_hash": "abca875471d752f67cdb754218c38676d4d44f523713f639f203754bda90c770"
+  },
+  {
+    "window_id": 27,
+    "timestamp": 1788736057,
+    "phi": 0.9810977836924193,
+    "stability": 0.9925288225233488,
+    "success_rate": 1.0,
+    "latency_score": 0.9590752896049635,
+    "previous_hash": "e68e3b8f580731b0d86ff363ad68acebb3ea8c7785057e98cf3704492872060b"
+  },
+  {
+    "window_id": 28,
+    "timestamp": 1788736058,
+    "phi": 0.9806690995334618,
+    "stability": 0.9919888296763253,
+    "success_rate": 1.0,
+    "latency_score": 0.9582859632218821,
+    "previous_hash": "f8ee02f4431e5ec43f9c03f6e9afe6bb7b9c37878b6d3ba748bd18514b6c2262"
+  },
+  {
+    "window_id": 29,
+    "timestamp": 1788736059,
+    "phi": 0.9868784306945764,
+    "stability": 0.9919194433443886,
+    "success_rate": 1.0,
+    "latency_score": 0.972976175077238,
+    "previous_hash": "5b97c435d43cdf21c22d02d1ff7850bf675a554ae9c99bd31593ea0574476ac4"
+  },
+  {
+    "window_id": 30,
+    "timestamp": 1788736060,
+    "phi": 0.9848138133493866,
+    "stability": 0.9912394579740235,
+    "success_rate": 1.0,
+    "latency_score": 0.9683834358008566,
+    "previous_hash": "4573680cebb26c4406034d7b757337130688ca63beb22a8f86b70dd9a5ffbf72"
+  },
+  {
+    "window_id": 31,
+    "timestamp": 1788736061,
+    "phi": 0.9798158779399261,
+    "stability": 0.9916141052463894,
+    "success_rate": 1.0,
+    "latency_score": 0.9564529282839529,
+    "previous_hash": "36051eee93363e48a9da48db56cc6a04fbc71a79aea217839f685c1b47b82c62"
+  },
+  {
+    "window_id": 32,
+    "timestamp": 1788736062,
+    "phi": 0.9838053918843265,
+    "stability": 0.9917083643394338,
+    "success_rate": 1.0,
+    "latency_score": 0.9657388818593724,
+    "previous_hash": "d220ec5c09b528f67cc1108a0ed827ed29c070455b0a5d8993ab89c14e16d7af"
+  },
+  {
+    "window_id": 33,
+    "timestamp": 1788736063,
+    "phi": 0.9824272015831786,
+    "stability": 0.9923484432364706,
+    "success_rate": 1.0,
+    "latency_score": 0.9622253579873988,
+    "previous_hash": "b6e67513833c49152ad971311dc110739574b5615128cab17c1537e7571a5eed"
+  },
+  {
+    "window_id": 34,
+    "timestamp": 1788736064,
+    "phi": 0.9802291044785993,
+    "stability": 0.9926393467774186,
+    "success_rate": 1.0,
+    "latency_score": 0.9570339306328296,
+    "previous_hash": "3c8341fa867b84ded9dbe11ebf49a9c6d8aa3107775888b56314434e4d6a3035"
+  },
+  {
+    "window_id": 35,
+    "timestamp": 1788736065,
+    "phi": 0.9819826143927458,
+    "stability": 0.9908187953522589,
+    "success_rate": 1.0,
+    "latency_score": 0.9618615432531016,
+    "previous_hash": "99d7a0b5bada7ecac3851d4ef6282d7ad2114274f21c67eeff512f752f8abd7c"
+  },
+  {
+    "window_id": 36,
+    "timestamp": 1788736066,
+    "phi": 0.9870791386270843,
+    "stability": 0.9914693470058288,
+    "success_rate": 1.0,
+    "latency_score": 0.9737473960895953,
+    "previous_hash": "fd3b0d7db2fa94ecc0ba8dcf2a2729d7c9deffb370701d0e2213f99f82dfb841"
+  },
+  {
+    "window_id": 37,
+    "timestamp": 1788736067,
+    "phi": 0.980486013081086,
+    "stability": 0.9918033117795427,
+    "success_rate": 1.0,
+    "latency_score": 0.9579333025804142,
+    "previous_hash": "78ac70d5aac59bb816df3f8b075354448928e7bf6e24b92bc467001ba5c5f65a"
+  },
+  {
+    "window_id": 38,
+    "timestamp": 1788736068,
+    "phi": 0.981670859831641,
+    "stability": 0.9921870894779361,
+    "success_rate": 1.0,
+    "latency_score": 0.9605322441111077,
+    "previous_hash": "4f9de9fa14f0fd947d49b2b90ef53510a33d9e3390d562bfc38c32b9cecfaaaa"
+  },
+  {
+    "window_id": 39,
+    "timestamp": 1788736069,
+    "phi": 0.9868430601680154,
+    "stability": 0.9922833732113495,
+    "success_rate": 1.0,
+    "latency_score": 0.9726790799803213,
+    "previous_hash": "9cefe3436ff5962e6d1ea8e6d06d36bfcaaf3dc8b84ce5b10d199f56658a8976"
+  },
+  {
+    "window_id": 40,
+    "timestamp": 1788736070,
+    "phi": 0.9812267027842434,
+    "stability": 0.9920602918674958,
+    "success_rate": 1.0,
+    "latency_score": 0.9595511988892507,
+    "previous_hash": "1620a6c18503ec46c16a51a84e6b8bfbaa9efdd55c5e27a9caeff1d0bb249333"
+  },
+  {
+    "window_id": 41,
+    "timestamp": 1788736071,
+    "phi": 0.9838399889267189,
+    "stability": 0.991945201316336,
+    "success_rate": 1.0,
+    "latency_score": 0.9657075777208122,
+    "previous_hash": "405b766a064f8a83ebd051188f07efdf193d816e7ac9ca86aec80e2931f31a7a"
+  },
+  {
+    "window_id": 42,
+    "timestamp": 1788736072,
+    "phi": 0.9811750971921241,
+    "stability": 0.9915830813770447,
+    "success_rate": 1.0,
+    "latency_score": 0.9596243168426964,
+    "previous_hash": "3d4043327a077b2aacc86e9f233a1f2d3a2ca80d126d9759bf31799c9908704b"
+  },
+  {
+    "window_id": 43,
+    "timestamp": 1788736073,
+    "phi": 0.9863324334203198,
+    "stability": 0.9914565208758294,
+    "success_rate": 1.0,
+    "latency_score": 0.9719281313418635,
+    "previous_hash": "1edb681830ab7e0372834818ce5ee2d755e02d30b0e2cd1908c9577a88a0a3ea"
+  },
+  {
+    "window_id": 44,
+    "timestamp": 1788736074,
+    "phi": 0.9865148311213354,
+    "stability": 0.9907682115921663,
+    "success_rate": 1.0,
+    "latency_score": 0.9728191783785609,
+    "previous_hash": "342a8d72a3805bcf60e9f5ff4f672d3806dfff27a837aafa61314f8de3974e52"
+  },
+  {
+    "window_id": 45,
+    "timestamp": 1788736075,
+    "phi": 0.9809038237222208,
+    "stability": 0.9913281922810467,
+    "success_rate": 1.0,
+    "latency_score": 0.9590986645214232,
+    "previous_hash": "30b97fd063c1a288ccb76f4d4e6f1a12bb57ee6869b319593061f1009146c909"
+  },
+  {
+    "window_id": 46,
+    "timestamp": 1788736076,
+    "phi": 0.9811674625766845,
+    "stability": 0.9917946369487779,
+    "success_rate": 1.0,
+    "latency_score": 0.9595195557905034,
+    "previous_hash": "c5c2455283847a73b5f0ff3a7e15689a587cdaadfa57eb3fcdb2dbff1092fb0c"
+  },
+  {
+    "window_id": 47,
+    "timestamp": 1788736077,
+    "phi": 0.9841890364947569,
+    "stability": 0.9916207781518,
+    "success_rate": 1.0,
+    "latency_score": 0.9666906902314392,
+    "previous_hash": "de78c749b0241cb29b8695529ec128db694578d39b40b40d8931ec2468256fad"
+  },
+  {
+    "window_id": 48,
+    "timestamp": 1788736078,
+    "phi": 0.980554703343221,
+    "stability": 0.9908655214059983,
+    "success_rate": 1.0,
+    "latency_score": 0.9584822879726961,
+    "previous_hash": "9bb3a0f67606c524f1b077ac807b65865ce974e479922dd2e4b46e35a5109d67"
+  },
+  {
+    "window_id": 49,
+    "timestamp": 1788736079,
+    "phi": 0.9850208717769942,
+    "stability": 0.9925796784008651,
+    "success_rate": 1.0,
+    "latency_score": 0.9681919968193997,
+    "previous_hash": "234063487e5f2be60fb41e3d9eda163409a2ca4f905223b513c6e0a6a91ae79a"
+  },
+  {
+    "window_id": 50,
+    "timestamp": 1788736080,
+    "phi": 0.9839796481553362,
+    "stability": 0.9922996683450656,
+    "success_rate": 1.0,
+    "latency_score": 0.9658727652608341,
+    "previous_hash": "f6ac52937ac6fdfa82155b85ab67fa69926eadca1d3a2225baad5c367db65146"
+  },
+  {
+    "window_id": 51,
+    "timestamp": 1788736081,
+    "phi": 0.982761309501715,
+    "stability": 0.9916501255718496,
+    "success_rate": 1.0,
+    "latency_score": 0.9633063841445607,
+    "previous_hash": "95209f172ac3724b52ab8d0a60feed7e967557641a8e1ca2fbcccfbd19b35133"
+  },
+  {
+    "window_id": 52,
+    "timestamp": 1788736082,
+    "phi": 0.9835195628460528,
+    "stability": 0.9913072541255492,
+    "success_rate": 1.0,
+    "latency_score": 0.9652595857501605,
+    "previous_hash": "b9d309f3142d0c0c8c331067e60dd586e0698cc97f9987710ca5809c511b04f4"
+  },
+  {
+    "window_id": 53,
+    "timestamp": 1788736083,
+    "phi": 0.9863319954125951,
+    "stability": 0.9919516929873748,
+    "success_rate": 1.0,
+    "latency_score": 0.9716359161003273,
+    "previous_hash": "8581a663d5b7e85597b77865a1314327df400e96ff60ebb4d086a29fda9821e5"
+  },
+  {
+    "window_id": 54,
+    "timestamp": 1788736084,
+    "phi": 0.9828970411012387,
+    "stability": 0.9920342487400245,
+    "success_rate": 1.0,
+    "latency_score": 0.9634534594086936,
+    "previous_hash": "93a970160cf1dc61bdb045b3657630be3fade5977941c4c3437656af1e3fc8d8"
+  },
+  {
+    "window_id": 55,
+    "timestamp": 1788736085,
+    "phi": 0.9865645427903424,
+    "stability": 0.9915752169364923,
+    "success_rate": 1.0,
+    "latency_score": 0.9724209569994104,
+    "previous_hash": "4e20b8f1712821d8cb6d7d351c1592d37307332b61c9ee8d8508b95543efe74b"
+  },
+  {
+    "window_id": 56,
+    "timestamp": 1788736086,
+    "phi": 0.9862660614509654,
+    "stability": 0.9918293315115503,
+    "success_rate": 1.0,
+    "latency_score": 0.9715467806171778,
+    "previous_hash": "2945b9fbed031f82587d6909333ebb75b2caa5154130215b400b4bcd2b3bd7eb"
+  },
+  {
+    "window_id": 57,
+    "timestamp": 1788736087,
+    "phi": 0.9814784391534029,
+    "stability": 0.9914815843794692,
+    "success_rate": 1.0,
+    "latency_score": 0.960375332536376,
+    "previous_hash": "b837d186ade488415a0b541a7c0e495508d18328cb6a4d771040eec3e63146a1"
+  },
+  {
+    "window_id": 58,
+    "timestamp": 1788736088,
+    "phi": 0.9809697405073577,
+    "stability": 0.9920814576647472,
+    "success_rate": 1.0,
+    "latency_score": 0.9589470189102409,
+    "previous_hash": "1d020165d0cf43913a42e27b9234c83e3935d9fb578a708f63c2df041a9a3cf5"
+  },
+  {
+    "window_id": 59,
+    "timestamp": 1788736089,
+    "phi": 0.9871740197737394,
+    "stability": 0.9922635435794036,
+    "success_rate": 1.0,
+    "latency_score": 0.9734891846989466,
+    "previous_hash": "b22de9569bc550f6ae21a5c6194247df06667ec6ca4ab6ef049fcb34bc34fbaa"
+  },
+  {
+    "window_id": 60,
+    "timestamp": 1788736090,
+    "phi": 0.9845803080916254,
+    "stability": 0.9923753452584182,
+    "success_rate": 1.0,
+    "latency_score": 0.9672499805665813,
+    "previous_hash": "96e47ae364bd2a2debf9bdc36116df65ad2f6b12ef4c3147bbbb7a164b7827cb"
+  },
+  {
+    "window_id": 61,
+    "timestamp": 1788736091,
+    "phi": 0.9805459361848143,
+    "stability": 0.9919762384808204,
+    "success_rate": 1.0,
+    "latency_score": 0.9580054587262435,
+    "previous_hash": "bc7d59d62e5198e343d306d2048cb0b743d7abe7467f04b568e4b9f5087d480a"
+  },
+  {
+    "window_id": 62,
+    "timestamp": 1788736092,
+    "phi": 0.9815198968539212,
+    "stability": 0.9918570984388897,
+    "success_rate": 1.0,
+    "latency_score": 0.9603142674279446,
+    "previous_hash": "043c2e5dbb9a9858a0429331afeb9c12464ec40f5a018515c4349813762cde7b"
+  },
+  {
+    "window_id": 63,
+    "timestamp": 1788736093,
+    "phi": 0.9866847433318854,
+    "stability": 0.992281049676153,
+    "success_rate": 1.0,
+    "latency_score": 0.9722995322695659,
+    "previous_hash": "53e01291d845e0e87771c73bb1c9c28918e43cd62bb2425a1fc87c48b993ee1e"
+  },
+  {
+    "window_id": 64,
+    "timestamp": 1788736094,
+    "phi": 0.9864080281334301,
+    "stability": 0.9911505173175578,
+    "success_rate": 1.0,
+    "latency_score": 0.9723037582221982,
+    "previous_hash": "d5844c01efc1cda118415e3547958f0dfcb65b55efac517b95d7b6d9c0f96065"
+  },
+  {
+    "window_id": 65,
+    "timestamp": 1788736095,
+    "phi": 0.9802572394408504,
+    "stability": 0.9905952723215063,
+    "success_rate": 1.0,
+    "latency_score": 0.957905045824157,
+    "previous_hash": "5f0aa338a1ad926d48d8901ae913cb3bf685c6454f9cfbf4169ddbc9a8aaf819"
+  },
+  {
+    "window_id": 66,
+    "timestamp": 1788736096,
+    "phi": 0.9823324921257418,
+    "stability": 0.9922223291181123,
+    "success_rate": 1.0,
+    "latency_score": 0.96205635964037,
+    "previous_hash": "de4011d31c7c5cb2c9af857564a111a12021e6f4347eeff316597eb7a53c56ab"
+  },
+  {
+    "window_id": 67,
+    "timestamp": 1788736097,
+    "phi": 0.9826237258544367,
+    "stability": 0.991296414573576,
+    "success_rate": 1.0,
+    "latency_score": 0.9631466457787253,
+    "previous_hash": "ad0efc186bf0b598b40166c687838e944d499e2c36309c9c9d64905db94ae071"
+  },
+  {
+    "window_id": 68,
+    "timestamp": 1788736098,
+    "phi": 0.9809043934664791,
+    "stability": 0.992132332823084,
+    "success_rate": 1.0,
+    "latency_score": 0.9587760922424644,
+    "previous_hash": "075085434d87fc388366bfaafe7f301f0057b9c985464f3d3d03f4d093acb9f3"
+  },
+  {
+    "window_id": 69,
+    "timestamp": 1788736099,
+    "phi": 0.9835836131851553,
+    "stability": 0.9914445545909238,
+    "success_rate": 1.0,
+    "latency_score": 0.9653431465943939,
+    "previous_hash": "8ce0fd1c7107cee8ef7f1e01517fe5310add91797012b53ebe49ba51c1b66627"
+  },
+  {
+    "window_id": 70,
+    "timestamp": 1788736100,
+    "phi": 0.9814214728083589,
+    "stability": 0.9918590639224146,
+    "success_rate": 1.0,
+    "latency_score": 0.960084355415275,
+    "previous_hash": "d14b850af4595e74ef0a806b1507abfc698ac12e87c6a1f976720db595b845d9"
+  },
+  {
+    "window_id": 71,
+    "timestamp": 1788736101,
+    "phi": 0.9846261995601572,
+    "stability": 0.9913138866386246,
+    "success_rate": 1.0,
+    "latency_score": 0.967892811254063,
+    "previous_hash": "7941da5432650f1d974284a7ebbdf815586ec3b6256e9797edd2d4d874192f15"
+  },
+  {
+    "window_id": 72,
+    "timestamp": 1788736102,
+    "phi": 0.9840825050017946,
+    "stability": 0.9920506956689851,
+    "success_rate": 1.0,
+    "latency_score": 0.9662294454236345,
+    "previous_hash": "4bc6a1f0b2def1fddf3110246e8819ba93bce5be9e94d887b37e8f6ca78ab145"
+  },
+  {
+    "window_id": 73,
+    "timestamp": 1788736103,
+    "phi": 0.980794680383644,
+    "stability": 0.9919250630046912,
+    "success_rate": 1.0,
+    "latency_score": 0.9586017839409049,
+    "previous_hash": "3ff759c12789d675c50c81d3ab9aa1fc84116040f0fc0f1cc0475aca9b25e210"
+  },
+  {
+    "window_id": 74,
+    "timestamp": 1788736104,
+    "phi": 0.9819064121315905,
+    "stability": 0.9923796938998399,
+    "success_rate": 1.0,
+    "latency_score": 0.9610031862886336,
+    "previous_hash": "c3896659113e467dd0e8062e53180f4d19dab34267088e7dcef27583886b8f6f"
+  },
+  {
+    "window_id": 75,
+    "timestamp": 1788736105,
+    "phi": 0.9845929153315877,
+    "stability": 0.9918605971526453,
+    "success_rate": 1.0,
+    "latency_score": 0.9675286043959445,
+    "previous_hash": "38524e870c26e3853cb7da608713c5711b119dfa353af63f1e74004d8dfeaade"
+  },
+  {
+    "window_id": 76,
+    "timestamp": 1788736106,
+    "phi": 0.9835491100777206,
+    "stability": 0.9912550604563055,
+    "success_rate": 1.0,
+    "latency_score": 0.9653559390237082,
+    "previous_hash": "f36d306f633802ffa97560700a88554481d9971df81b3e7b11b63cd1ab5297b2"
+  },
+  {
+    "window_id": 77,
+    "timestamp": 1788736107,
+    "phi": 0.9869096864515676,
+    "stability": 0.9910026836956338,
+    "success_rate": 1.0,
+    "latency_score": 0.9736394586053372,
+    "previous_hash": "80fff675534fc29e6b808e0e8b217c81d8cc812ae9ade04d0c354610b05a39f5"
+  },
+  {
+    "window_id": 78,
+    "timestamp": 1788736108,
+    "phi": 0.9818782467396145,
+    "stability": 0.9918990114338272,
+    "success_rate": 1.0,
+    "latency_score": 0.9611317909513065,
+    "previous_hash": "26177e38a77a7f0b48e50754917b757610379e170312532d510bcdbc61cb06d2"
+  },
+  {
+    "window_id": 79,
+    "timestamp": 1788736109,
+    "phi": 0.9824941169949795,
+    "stability": 0.9920940611606998,
+    "success_rate": 1.0,
+    "latency_score": 0.9624863763271818,
+    "previous_hash": "4aa6f021ad62eba0ea3c68cd573bb25812477fd27426cad5e636bf13e9df39a0"
+  },
+  {
+    "window_id": 80,
+    "timestamp": 1788736110,
+    "phi": 0.9827786494639037,
+    "stability": 0.9904285271395253,
+    "success_rate": 1.0,
+    "latency_score": 0.9639493635840098,
+    "previous_hash": "5c661354db13df391edbdcc6eeb7bfda6b5146d6f3aa616496beeb468640bab5"
+  },
+  {
+    "window_id": 81,
+    "timestamp": 1788736111,
+    "phi": 0.983743309904176,
+    "stability": 0.9914935661273674,
+    "success_rate": 1.0,
+    "latency_score": 0.9656972154206199,
+    "previous_hash": "89f7fd446db2835f0a093f90f40e16c6fb680f57b30d82a9283ce79dacf98098"
+  },
+  {
+    "window_id": 82,
+    "timestamp": 1788736112,
+    "phi": 0.982113184748816,
+    "stability": 0.9910304241536513,
+    "success_rate": 1.0,
+    "latency_score": 0.9620686908026742,
+    "previous_hash": "ed1a3d0de9a885bef32cda84880b4064454fe30a24729b6e4d4b73aac37a20b3"
+  },
+  {
+    "window_id": 83,
+    "timestamp": 1788736113,
+    "phi": 0.9856346200969208,
+    "stability": 0.9900601200180741,
+    "success_rate": 1.0,
+    "latency_score": 0.9711171630429285,
+    "previous_hash": "ccb347ad9bf01b3450c8fb26381f647eb4a2073c4e8bb16686fe56a9adfb75bd"
+  },
+  {
+    "window_id": 84,
+    "timestamp": 1788736114,
+    "phi": 0.9797765695139958,
+    "stability": 0.9906427286250284,
+    "success_rate": 1.0,
+    "latency_score": 0.9567586003008519,
+    "previous_hash": "0625266b5dce8800662b69b51734ae90927ca9463249df9968827d422b746719"
+  },
+  {
+    "window_id": 85,
+    "timestamp": 1788736115,
+    "phi": 0.9833091889523482,
+    "stability": 0.991389304812731,
+    "success_rate": 1.0,
+    "latency_score": 0.9647207182056384,
+    "previous_hash": "1f6336d841e55971357a28325c02995a1feffdfd06c5c28ae4351d7dade735b5"
+  },
+  {
+    "window_id": 86,
+    "timestamp": 1788736116,
+    "phi": 0.9800757681992366,
+    "stability": 0.9924610622983162,
+    "success_rate": 1.0,
+    "latency_score": 0.9567425855960735,
+    "previous_hash": "f460d33b98ffc3212b5e117ae3f99f61a821ff96022ba58082315c3717358a52"
+  },
+  {
+    "window_id": 87,
+    "timestamp": 1788736117,
+    "phi": 0.9806293395056159,
+    "stability": 0.9918846687718046,
+    "success_rate": 1.0,
+    "latency_score": 0.9582340421149376,
+    "previous_hash": "12ca4f4ddde3b46c57f1ccac3ddd0c05b7d1f0dbaeb9e8dd020547f13f2b09e3"
+  },
+  {
+    "window_id": 88,
+    "timestamp": 1788736118,
+    "phi": 0.9838917068401258,
+    "stability": 0.9905851414491555,
+    "success_rate": 1.0,
+    "latency_score": 0.9665320090301579,
+    "previous_hash": "c4e1a9e73af2675917175fb901af52fffe84ba4f65133d7a4bc179f2e8342ce0"
+  },
+  {
+    "window_id": 89,
+    "timestamp": 1788736119,
+    "phi": 0.980870154006995,
+    "stability": 0.9921099058745342,
+    "success_rate": 1.0,
+    "latency_score": 0.9587053530350116,
+    "previous_hash": "a48e10d28b753adc6628eb81b168770dff3045584761160449b41549882b0cb5"
+  },
+  {
+    "window_id": 90,
+    "timestamp": 1788736120,
+    "phi": 0.9861640989430188,
+    "stability": 0.9907797473371961,
+    "success_rate": 1.0,
+    "latency_score": 0.9719440795559835,
+    "previous_hash": "e8111d97a14daddf6eedcd59a64e270f802ce74436e06ac4ea7c64c03b3acde7"
+  },
+  {
+    "window_id": 91,
+    "timestamp": 1788736121,
+    "phi": 0.979773037078473,
+    "stability": 0.9919047623621141,
+    "success_rate": 1.0,
+    "latency_score": 0.9562440358314839,
+    "previous_hash": "4952fdaf1f2b991d563adc293fbf35945cdfbde4dcce3b46259b42964a3f1ebc"
+  },
+  {
+    "window_id": 92,
+    "timestamp": 1788736122,
+    "phi": 0.9847486237343708,
+    "stability": 0.9915808515353307,
+    "success_rate": 1.0,
+    "latency_score": 0.9680428682726578,
+    "previous_hash": "28ab58d8217fc1b1b03f068b65d714f4d95cdee84b9938b4066ac75218568c1f"
+  },
+  {
+    "window_id": 93,
+    "timestamp": 1788736123,
+    "phi": 0.981923169390778,
+    "stability": 0.9916216342227347,
+    "success_rate": 1.0,
+    "latency_score": 0.9613546251386116,
+    "previous_hash": "22305727d380483978617d0a05cfaf90f476b1c204ebf01242519d6337e27677"
+  },
+  {
+    "window_id": 94,
+    "timestamp": 1788736124,
+    "phi": 0.9849835525526097,
+    "stability": 0.9909827459333508,
+    "success_rate": 1.0,
+    "latency_score": 0.9689380179657485,
+    "previous_hash": "13caa05ed31f5f2dca27e1b73b95f50e6e875eb0332fd04a434015db6f535731"
+  },
+  {
+    "window_id": 95,
+    "timestamp": 1788736125,
+    "phi": 0.9862858925792576,
+    "stability": 0.9910875381130946,
+    "success_rate": 1.0,
+    "latency_score": 0.9720443251205193,
+    "previous_hash": "414e94b77f97bf549c2954eb64d51a5ef69f858da615ae2ed6b134a859399118"
+  },
+  {
+    "window_id": 96,
+    "timestamp": 1788736126,
+    "phi": 0.9833554003537458,
+    "stability": 0.9915565786402941,
+    "success_rate": 1.0,
+    "latency_score": 0.9647490318089651,
+    "previous_hash": "4d699756d5c03f40a5b9aaaf076dec0c457035b9ec164771533bc2a431144600"
+  },
+  {
+    "window_id": 97,
+    "timestamp": 1788736127,
+    "phi": 0.9837458134083089,
+    "stability": 0.9921217830022234,
+    "success_rate": 1.0,
+    "latency_score": 0.965404331157507,
+    "previous_hash": "545be829c60dc9919273eea109c7fc2239af01170a4a9539f647d5086c836e89"
+  },
+  {
+    "window_id": 98,
+    "timestamp": 1788736128,
+    "phi": 0.983855563977919,
+    "stability": 0.9918131498952019,
+    "success_rate": 1.0,
+    "latency_score": 0.9658069445197057,
+    "previous_hash": "dd1694033026b40a9d52553f1ed0df4302a424389b893defbd226e7b2c79c0d3"
+  },
+  {
+    "window_id": 99,
+    "timestamp": 1788736129,
+    "phi": 0.9845511405390104,
+    "stability": 0.9923088069357408,
+    "success_rate": 1.0,
+    "latency_score": 0.9672123896612819,
+    "previous_hash": "ebc337bc45141834800159c9b134ca03ef411471352f2aeba3f1d88429c6c4e2"
+  },
+  {
+    "window_id": 100,
+    "timestamp": 1788736130,
+    "phi": 0.98232460545281,
+    "stability": 0.9915510701513834,
+    "success_rate": 1.0,
+    "latency_score": 0.9623260165257178,
+    "previous_hash": "a6baa9e420c0392ef1bef672a7a1d10c92936f84767bc41c13f3dc27c5838f86"
+  },
+  {
+    "window_id": 101,
+    "timestamp": 1788736131,
+    "phi": 0.9839391737167638,
+    "stability": 0.99161603571417,
+    "success_rate": 1.0,
+    "latency_score": 0.9661006048695656,
+    "previous_hash": "dfe25056c9c2321877aa22700ea46021e73a1f2fd303a6e44f82e6f4b2a9aa36"
+  },
+  {
+    "window_id": 102,
+    "timestamp": 1788736132,
+    "phi": 0.9840436098237385,
+    "stability": 0.9913781736602939,
+    "success_rate": 1.0,
+    "latency_score": 0.966468519889194,
+    "previous_hash": "3a8446d57845d0dc415565f72cfbe259e67e45302cf89ae0ad894c9772738139"
+  },
+  {
+    "window_id": 103,
+    "timestamp": 1788736133,
+    "phi": 0.980058322718913,
+    "stability": 0.9910375660995768,
+    "success_rate": 1.0,
+    "latency_score": 0.9572483682056907,
+    "previous_hash": "0fddfd103e64c8a544bce839421c8a3b0d7b4dea2edbbf3793d489fcaa319468"
+  },
+  {
+    "window_id": 104,
+    "timestamp": 1788736134,
+    "phi": 0.9805423944179922,
+    "stability": 0.9914360102518623,
+    "success_rate": 1.0,
+    "latency_score": 0.9582111470112842,
+    "previous_hash": "0f106d499be8b62f18f6e2bc276734ec58804df5ecbe92de9c7a17f3638d9566"
+  },
+  {
+    "window_id": 105,
+    "timestamp": 1788736135,
+    "phi": 0.9812209731934612,
+    "stability": 0.9917859714289168,
+    "success_rate": 1.0,
+    "latency_score": 0.9596475687439981,
+    "previous_hash": "a85e9a89562ad098564de92db4d467fbfa649bb924c37c2f4cc1895c3dc3b378"
+  },
+  {
+    "window_id": 106,
+    "timestamp": 1788736136,
+    "phi": 0.985210280022786,
+    "stability": 0.9907396209425549,
+    "success_rate": 1.0,
+    "latency_score": 0.9696327504629266,
+    "previous_hash": "bbb33538e02045dc4cf26fc25b4c7f53f54eff2c254b70a62423306d9f38e028"
+  },
+  {
+    "window_id": 107,
+    "timestamp": 1788736137,
+    "phi": 0.9819313317809768,
+    "stability": 0.9920906881686571,
+    "success_rate": 1.0,
+    "latency_score": 0.9611764320450211,
+    "previous_hash": "e576903a03ada1f37163b3eb5db671dbfb10ef60871e33f002d3be21a9b6e5e7"
+  },
+  {
+    "window_id": 108,
+    "timestamp": 1788736138,
+    "phi": 0.9800298187243166,
+    "stability": 0.991289414427759,
+    "success_rate": 1.0,
+    "latency_score": 0.9570780697207638,
+    "previous_hash": "3516aca27b059c27e234aae3449e4c6e33c8636a420c072de8d6355a3db3be42"
+  },
+  {
+    "window_id": 109,
+    "timestamp": 1788736139,
+    "phi": 0.9838699540685448,
+    "stability": 0.9915927705779048,
+    "success_rate": 1.0,
+    "latency_score": 0.9659481440205855,
+    "previous_hash": "68dadd6818c26baf1d7c41d01cdfb19df5e466d4e4d913c6a5d0f91f53a20c02"
+  },
+  {
+    "window_id": 110,
+    "timestamp": 1788736140,
+    "phi": 0.9838518817944879,
+    "stability": 0.9910549119320173,
+    "success_rate": 1.0,
+    "latency_score": 0.9661801920938629,
+    "previous_hash": "7f436ef67acbe45d810a74f42b63034417e98fe95572eea1c780cef7eddcbe0d"
+  },
+  {
+    "window_id": 111,
+    "timestamp": 1788736141,
+    "phi": 0.9868820049373802,
+    "stability": 0.9914519489966848,
+    "success_rate": 1.0,
+    "latency_score": 0.973274158190919,
+    "previous_hash": "dcb06c0dc28e60e06c007d9989e0c17da1ef498d7704eed1884dff81ad0022fc"
+  },
+  {
+    "window_id": 112,
+    "timestamp": 1788736142,
+    "phi": 0.9826052925458957,
+    "stability": 0.9917189356257516,
+    "success_rate": 1.0,
+    "latency_score": 0.9629092035306807,
+    "previous_hash": "34f2dfb2bb56e5aac6033b744da09fa35978bab6e249f459f36cb391e113a329"
+  },
+  {
+    "window_id": 113,
+    "timestamp": 1788736143,
+    "phi": 0.9839599933092634,
+    "stability": 0.9917837189336608,
+    "success_rate": 1.0,
+    "latency_score": 0.9660677951781467,
+    "previous_hash": "731795de09a7afdf68721defd6bf2eccb70b017adce9423d48a392d8ae290d05"
+  },
+  {
+    "window_id": 114,
+    "timestamp": 1788736144,
+    "phi": 0.9864653113792086,
+    "stability": 0.9913182290939276,
+    "success_rate": 1.0,
+    "latency_score": 0.9723378835195524,
+    "previous_hash": "1dbe771731fcfae7419f481d128c7a9745e4cc5c49725f0fc0522ac483aba069"
+  },
+  {
+    "window_id": 115,
+    "timestamp": 1788736145,
+    "phi": 0.9874106335334538,
+    "stability": 0.9920123763204419,
+    "success_rate": 1.0,
+    "latency_score": 0.9742151890436926,
+    "previous_hash": "f1d4b3557ef0e00ea9309f561be90b6da2c61c0fcd1c270350c8c00530812213"
+  },
+  {
+    "window_id": 116,
+    "timestamp": 1788736146,
+    "phi": 0.9822696042247405,
+    "stability": 0.9920108287639564,
+    "success_rate": 1.0,
+    "latency_score": 0.9619976190527615,
+    "previous_hash": "7aa2cd99f504273c7317c69340e9fa6152e0060cd2e2a3fbbcd3212d2c6dc448"
+  },
+  {
+    "window_id": 117,
+    "timestamp": 1788736147,
+    "phi": 0.9809503048890457,
+    "stability": 0.9911696907017247,
+    "success_rate": 1.0,
+    "latency_score": 0.959275244696927,
+    "previous_hash": "1e3e54b13fae263da5a126a6131a31be5e385bc32e26ac398debf82c8858e95b"
+  },
+  {
+    "window_id": 118,
+    "timestamp": 1788736148,
+    "phi": 0.9846862037367212,
+    "stability": 0.9916580314844059,
+    "success_rate": 1.0,
+    "latency_score": 0.967853695351787,
+    "previous_hash": "b4b2650a78173d27b401026b870d75c985293d11ef3f9358e8e3edc65bcc4848"
+  },
+  {
+    "window_id": 119,
+    "timestamp": 1788736149,
+    "phi": 0.9822577694554623,
+    "stability": 0.9909373569170821,
+    "success_rate": 1.0,
+    "latency_score": 0.9624544180471135,
+    "previous_hash": "40f61e9fa86b6708bfa3ad1e8009a7abbfd9f31c722b01026da56d1a9002ca2b"
+  },
+  {
+    "window_id": 120,
+    "timestamp": 1788736150,
+    "phi": 0.9802364668279868,
+    "stability": 0.9906325800469453,
+    "success_rate": 1.0,
+    "latency_score": 0.9578397212526701,
+    "previous_hash": "f9a1b3ac768e4d9303c329838e3cb70a9ad832fac3a715cbac2dd5c903244265"
+  },
+  {
+    "window_id": 121,
+    "timestamp": 1788736151,
+    "phi": 0.9863427929549948,
+    "stability": 0.9920392661535538,
+    "success_rate": 1.0,
+    "latency_score": 0.9716125035516906,
+    "previous_hash": "5f2689a931c47e6c2843d6ef10b6b15c5362a2be4f44ba157c5ffa42121d3ced"
+  },
+  {
+    "window_id": 122,
+    "timestamp": 1788736152,
+    "phi": 0.9860588567065761,
+    "stability": 0.9913476241862673,
+    "success_rate": 1.0,
+    "latency_score": 0.971328582748759,
+    "previous_hash": "a3cb694bcd1a6521d62fcdda35242145cd6df108b948ba90c88db31b0d3eb026"
+  },
+  {
+    "window_id": 123,
+    "timestamp": 1788736153,
+    "phi": 0.9865280662823616,
+    "stability": 0.9926596991928964,
+    "success_rate": 1.0,
+    "latency_score": 0.971720944878149,
+    "previous_hash": "12b1e6f2e8e95dc25ce1c6a3ab02fe52840572986bb496464331ed2089f0ae6c"
+  },
+  {
+    "window_id": 124,
+    "timestamp": 1788736154,
+    "phi": 0.9808907033841179,
+    "stability": 0.9919684832064983,
+    "success_rate": 1.0,
+    "latency_score": 0.9588075788310492,
+    "previous_hash": "8f48750d8dd45705dd2e7ad01ede0432006b766873dd8704684c03c2b17115cf"
+  },
+  {
+    "window_id": 125,
+    "timestamp": 1788736155,
+    "phi": 0.9816942020266916,
+    "stability": 0.992378324117109,
+    "success_rate": 1.0,
+    "latency_score": 0.9605116306911741,
+    "previous_hash": "9f1b41b41a2475cb79912f836e1011f379583b912afcfe94d31313bcf712154c"
+  },
+  {
+    "window_id": 126,
+    "timestamp": 1788736156,
+    "phi": 0.9840807912864129,
+    "stability": 0.9925719475501568,
+    "success_rate": 1.0,
+    "latency_score": 0.9659889120441805,
+    "previous_hash": "301e4eaf72e1c0e384edc9ecd11098036cf095f7454b404187d63f60878871b5"
+  },
+  {
+    "window_id": 127,
+    "timestamp": 1788736157,
+    "phi": 0.9869318814055064,
+    "stability": 0.9917499908500895,
+    "success_rate": 1.0,
+    "latency_score": 0.9732090814630864,
+    "previous_hash": "2c74bbe9f32ea81516f590a71387511ab0433e351ceffb92e95eddd0bfbddafa"
+  },
+  {
+    "window_id": 128,
+    "timestamp": 1788736158,
+    "phi": 0.9871460191850733,
+    "stability": 0.9915044790173383,
+    "success_rate": 1.0,
+    "latency_score": 0.9738891524377543,
+    "previous_hash": "385c9af5cdab1e306cce6716d41be3f901ebe51605c9b09d248c19c9eb04227a"
+  },
+  {
+    "window_id": 129,
+    "timestamp": 1788736159,
+    "phi": 0.9871068445540548,
+    "stability": 0.9916278443785072,
+    "success_rate": 1.0,
+    "latency_score": 0.9737134766987809,
+    "previous_hash": "dd1727c2390dee0d1c416058d327132679b314f235328433eecce2403d48546e"
+  },
+  {
+    "window_id": 130,
+    "timestamp": 1788736160,
+    "phi": 0.985824361302992,
+    "stability": 0.991187732329433,
+    "success_rate": 1.0,
+    "latency_score": 0.9708549911761017,
+    "previous_hash": "63826fdddc566e99633860e27748bdf6fcd4d23841492f5534aa49379d1aa780"
+  },
+  {
+    "window_id": 131,
+    "timestamp": 1788736161,
+    "phi": 0.9872802377436539,
+    "stability": 0.9920930402869949,
+    "success_rate": 1.0,
+    "latency_score": 0.9738481026408472,
+    "previous_hash": "9b0e540176ce47b7ad38ca9b2f00979f25c5b8221bc7361285ee1a9f5933fc51"
+  },
+  {
+    "window_id": 132,
+    "timestamp": 1788736162,
+    "phi": 0.9848050652431164,
+    "stability": 0.992212811154343,
+    "success_rate": 1.0,
+    "latency_score": 0.9678573555678147,
+    "previous_hash": "3242533a0b9b02d3fa0b4a121df218b01745127e8fd7d9c5003bd2e3828537b8"
+  },
+  {
+    "window_id": 133,
+    "timestamp": 1788736163,
+    "phi": 0.9875988336451851,
+    "stability": 0.9927334871037499,
+    "success_rate": 1.0,
+    "latency_score": 0.9742446080314,
+    "previous_hash": "e9ba2487aaea31b635675c96636b9f577d2c4e1f738aadd641f26c7a33653bfb"
+  },
+  {
+    "window_id": 134,
+    "timestamp": 1788736164,
+    "phi": 0.9801053851456035,
+    "stability": 0.9923294400805021,
+    "success_rate": 1.0,
+    "latency_score": 0.9568571729940348,
+    "previous_hash": "90bf3c92b4c6cb33b89db243bbee72c0cb7eb32c1d33b07148d57473a65f6563"
+  },
+  {
+    "window_id": 135,
+    "timestamp": 1788736165,
+    "phi": 0.9841841506562269,
+    "stability": 0.9925389192327404,
+    "success_rate": 1.0,
+    "latency_score": 0.9662454447534338,
+    "previous_hash": "f6b994e2c5a739714d907279a5f9c64064f11ee4e6ed49ddb34a9f1f528958be"
+  },
+  {
+    "window_id": 136,
+    "timestamp": 1788736166,
+    "phi": 0.9854386223432321,
+    "stability": 0.9922688506925448,
+    "success_rate": 1.0,
+    "latency_score": 0.9693303528372632,
+    "previous_hash": "e86fad7fb0baaec3b95de72147fb4a1c257b42980d239a54366297b394c9c3d1"
+  },
+  {
+    "window_id": 137,
+    "timestamp": 1788736167,
+    "phi": 0.9842377981664354,
+    "stability": 0.9911615779258447,
+    "success_rate": 1.0,
+    "latency_score": 0.9670454916029946,
+    "previous_hash": "322d2a17511b502ea59655a75d4239bf72553f25072db314434e553b05731f54"
+  },
+  {
+    "window_id": 138,
+    "timestamp": 1788736168,
+    "phi": 0.986472196608027,
+    "stability": 0.9920034095841678,
+    "success_rate": 1.0,
+    "latency_score": 0.9719444050766656,
+    "previous_hash": "c1e0cb0a17b52d5df94f4f2b86fea733247d13acf5e6d6c53f02a4bd5a10a26d"
+  },
+  {
+    "window_id": 139,
+    "timestamp": 1788736169,
+    "phi": 0.9827360644570493,
+    "stability": 0.9909475618877148,
+    "success_rate": 1.0,
+    "latency_score": 0.9635812674492606,
+    "previous_hash": "a843777c619095aff1c0ef0d511da0052a5b670005e8069bc80d969fdcde7d6a"
+  },
+  {
+    "window_id": 140,
+    "timestamp": 1788736170,
+    "phi": 0.9849117867530952,
+    "stability": 0.9917248033102738,
+    "success_rate": 1.0,
+    "latency_score": 0.9683564677317299,
+    "previous_hash": "650dc99f628bc49c08b75176f48c2976fd05f1eb586b1385a4f9236c8d2bb53e"
+  },
+  {
+    "window_id": 141,
+    "timestamp": 1788736171,
+    "phi": 0.9803853785127176,
+    "stability": 0.9919796871713763,
+    "success_rate": 1.0,
+    "latency_score": 0.9576323703199149,
+    "previous_hash": "6935bb345b0e5c2b4159893c7a273f509dbeecb6837d4288e7db22048a7557dd"
+  },
+  {
+    "window_id": 142,
+    "timestamp": 1788736172,
+    "phi": 0.9856689413540525,
+    "stability": 0.9918647456660157,
+    "success_rate": 1.0,
+    "latency_score": 0.9700912808129348,
+    "previous_hash": "6a942047a7df7f6f4722bd81b7c7c8c290cb672342342280f2f1de60359aa7c2"
+  },
+  {
+    "window_id": 143,
+    "timestamp": 1788736173,
+    "phi": 0.9864772678175371,
+    "stability": 0.99176075664371,
+    "success_rate": 1.0,
+    "latency_score": 0.9720974702540298,
+    "previous_hash": "f86ec62372cf2229b887e2ced6e6211d5d0dc49bb0acfba5a575dccb8b1c0df1"
+  },
+  {
+    "window_id": 144,
+    "timestamp": 1788736174,
+    "phi": 0.9873202316881041,
+    "stability": 0.992146530239128,
+    "success_rate": 1.0,
+    "latency_score": 0.9739130559925673,
+    "previous_hash": "15359b7513dfa628d56eb1e0438fe3b82377b409ffac153521802da98cab59f8"
+  },
+  {
+    "window_id": 145,
+    "timestamp": 1788736175,
+    "phi": 0.981255707955574,
+    "stability": 0.991342548389524,
+    "success_rate": 1.0,
+    "latency_score": 0.9599145976138672,
+    "previous_hash": "063432a564c8ef00ca73980ccc680eb5894a19dc6e0b02340628fb8562100fa7"
+  },
+  {
+    "window_id": 146,
+    "timestamp": 1788736176,
+    "phi": 0.9802453283674146,
+    "stability": 0.9930268687696543,
+    "success_rate": 1.0,
+    "latency_score": 0.9569420606827832,
+    "previous_hash": "4380048d9332b34d34b348c1757932dfc1a6dae658eb1f402b1a85f9e91d8e5c"
+  },
+  {
+    "window_id": 147,
+    "timestamp": 1788736177,
+    "phi": 0.9866648060311869,
+    "stability": 0.9914339825375191,
+    "success_rate": 1.0,
+    "latency_score": 0.9727532812875698,
+    "previous_hash": "e31a42d5f303842a562d6b4552d25ea42943dbd3f0e54914a84a1df01edec40a"
+  },
+  {
+    "window_id": 148,
+    "timestamp": 1788736178,
+    "phi": 0.9844946876243802,
+    "stability": 0.9928118767102034,
+    "success_rate": 1.0,
+    "latency_score": 0.9668528232504018,
+    "previous_hash": "cc43d831de9330229ed7446d1d6207d802941d0b27e34377137f56011511a2d5"
+  },
+  {
+    "window_id": 149,
+    "timestamp": 1788736179,
+    "phi": 0.982539365324412,
+    "stability": 0.992675332276961,
+    "success_rate": 1.0,
+    "latency_score": 0.9623560456133277,
+    "previous_hash": "bc09fb12182da3cfa4602977ae59b75fea6d096497d2a18da5ea3595b2ba5257"
+  },
+  {
+    "window_id": 150,
+    "timestamp": 1788736180,
+    "phi": 0.9854250194451059,
+    "stability": 0.9930580581461392,
+    "success_rate": 1.0,
+    "latency_score": 0.968923172982543,
+    "previous_hash": "6e95d0322789f7fad56bd68d869dc893d29188c463b290d2f62eff33f5bfc413"
+  },
+  {
+    "window_id": 151,
+    "timestamp": 1788736181,
+    "phi": 0.9844983446343996,
+    "stability": 0.9915800088591539,
+    "success_rate": 1.0,
+    "latency_score": 0.9674467498743152,
+    "previous_hash": "71da1f8f1fe970bc9ae8af235f9426e09dedb4f0885bd75762ce6aa1e105e50b"
+  },
+  {
+    "window_id": 152,
+    "timestamp": 1788736182,
+    "phi": 0.986274000943563,
+    "stability": 0.9908607640217315,
+    "success_rate": 1.0,
+    "latency_score": 0.9721618250965766,
+    "previous_hash": "284809532d007da84da3334b214bdcf63964d5e0343cf1d6913de195b4c851ec"
+  },
+  {
+    "window_id": 153,
+    "timestamp": 1788736183,
+    "phi": 0.9799283237089594,
+    "stability": 0.9932743803505096,
+    "success_rate": 1.0,
+    "latency_score": 0.9561377950129913,
+    "previous_hash": "afa94166f897dbe85c3510d3ebdd6bf5a5324745c6bfbf0456e7d13dcf165c82"
+  },
+  {
+    "window_id": 154,
+    "timestamp": 1788736184,
+    "phi": 0.9874146167203669,
+    "stability": 0.9919565487814986,
+    "success_rate": 1.0,
+    "latency_score": 0.9742596591617841,
+    "previous_hash": "a4851d9029a29a293da6cdb1a3685f61ce0f508947024a35ec716696a4adabd7"
+  },
+  {
+    "window_id": 155,
+    "timestamp": 1788736185,
+    "phi": 0.9866796904503078,
+    "stability": 0.9921514401977267,
+    "success_rate": 1.0,
+    "latency_score": 0.9723602921405022,
+    "previous_hash": "f33a92318e67e5c7c5a03d7692f5d8b360b7f998cbfcdc290172b011900307f1"
+  },
+  {
+    "window_id": 156,
+    "timestamp": 1788736186,
+    "phi": 0.9823086571472872,
+    "stability": 0.9913457911536447,
+    "success_rate": 1.0,
+    "latency_score": 0.9623818209086552,
+    "previous_hash": "df77cc7277b3cf68205b6bc28c9d46b875365bb2bc49d0f8f1f20e3e0eea69ef"
+  },
+  {
+    "window_id": 157,
+    "timestamp": 1788736187,
+    "phi": 0.9857424271612562,
+    "stability": 0.9924407834513586,
+    "success_rate": 1.0,
+    "latency_score": 0.969964880446352,
+    "previous_hash": "2aeaf5cc3433dc7acd684d8da7c24e0868b685f76bd2828658dcc061a8ee1545"
+  },
+  {
+    "window_id": 158,
+    "timestamp": 1788736188,
+    "phi": 0.9831796166062168,
+    "stability": 0.9913144977777908,
+    "success_rate": 1.0,
+    "latency_score": 0.9644507301078449,
+    "previous_hash": "de9a8a2284b039ee23a8fb78f47380d9eaa5037c993ac8ffca0e9252591e0176"
+  },
+  {
+    "window_id": 159,
+    "timestamp": 1788736189,
+    "phi": 0.9808284951116527,
+    "stability": 0.9913328475917019,
+    "success_rate": 1.0,
+    "latency_score": 0.9589208819875318,
+    "previous_hash": "85280f5bd7fb1c6f39fd6e003bc0bef564b078e5e045779d542758e7f442817d"
+  },
+  {
+    "window_id": 160,
+    "timestamp": 1788736190,
+    "phi": 0.9873045705676919,
+    "stability": 0.9919712313056781,
+    "success_rate": 1.0,
+    "latency_score": 0.9739817873623162,
+    "previous_hash": "b8359124f246b950bb1448243b167d1d132cd10f5bbc695e44eae034e7db1ca3"
+  },
+  {
+    "window_id": 161,
+    "timestamp": 1788736191,
+    "phi": 0.9854908394654114,
+    "stability": 0.9911022696219596,
+    "success_rate": 1.0,
+    "latency_score": 0.9700961626988824,
+    "previous_hash": "a3115b938572a544756c11b47db0cb77840ab7d3b753c23bec57efc80cb8d5c2"
+  },
+  {
+    "window_id": 162,
+    "timestamp": 1788736192,
+    "phi": 0.9851173904099991,
+    "stability": 0.9915649419081785,
+    "success_rate": 1.0,
+    "latency_score": 0.9689329767918275,
+    "previous_hash": "b10f97c117c477d3a261b302368e6f955f636d415cf3589a00622b2d15e92c78"
+  },
+  {
+    "window_id": 163,
+    "timestamp": 1788736193,
+    "phi": 0.9850417893245081,
+    "stability": 0.9914158477524048,
+    "success_rate": 1.0,
+    "latency_score": 0.9688332710500092,
+    "previous_hash": "10de79ce531023f40dfd1e3a000c7304ec83d3784e6b866f13765397c4befaeb"
+  },
+  {
+    "window_id": 164,
+    "timestamp": 1788736194,
+    "phi": 0.9826697697384015,
+    "stability": 0.9908812989217487,
+    "success_rate": 1.0,
+    "latency_score": 0.9634571075872322,
+    "previous_hash": "0af10ae99094666f910b9c6e8947a9e556832306129207272ffe103120e15d98"
+  },
+  {
+    "window_id": 165,
+    "timestamp": 1788736195,
+    "phi": 0.9870986760710614,
+    "stability": 0.9911590248110231,
+    "success_rate": 1.0,
+    "latency_score": 0.9740020171741572,
+    "previous_hash": "818cbbc480a33578a924e18731518eb3db0470d1fde87d05c66291013bccf2dc"
+  },
+  {
+    "window_id": 166,
+    "timestamp": 1788736196,
+    "phi": 0.9813105007112805,
+    "stability": 0.9926248162950014,
+    "success_rate": 1.0,
+    "latency_score": 0.9595314906507506,
+    "previous_hash": "a3383331cf0943ea82c263c5a4cad7b70e09e5562c4225ec08d9c7de5575f415"
+  },
+  {
+    "window_id": 167,
+    "timestamp": 1788736197,
+    "phi": 0.9814077796729501,
+    "stability": 0.991338390363923,
+    "success_rate": 1.0,
+    "latency_score": 0.9602720964500735,
+    "previous_hash": "38b7970c428d8673039d0b3d918324d25b3a70cef6d605ab02287c572faf206c"
+  },
+  {
+    "window_id": 168,
+    "timestamp": 1788736198,
+    "phi": 0.9845213844003543,
+    "stability": 0.9919763499789812,
+    "success_rate": 1.0,
+    "latency_score": 0.9673016852867249,
+    "previous_hash": "0b75eba41582596d339a188bba913dce6e37d044819343ff8eaeed373c35a72e"
+  },
+  {
+    "window_id": 169,
+    "timestamp": 1788736199,
+    "phi": 0.984319581742308,
+    "stability": 0.9915390645706728,
+    "success_rate": 1.0,
+    "latency_score": 0.9670424101760717,
+    "previous_hash": "1014a7a2130fac1bb453c29837e066ab665e0c21e328c04c0fe3058f8fefdffc"
+  },
+  {
+    "window_id": 170,
+    "timestamp": 1788736200,
+    "phi": 0.9813658649847925,
+    "stability": 0.9920587184466135,
+    "success_rate": 1.0,
+    "latency_score": 0.9598748578394469,
+    "previous_hash": "927539b27a98d4b4ae053bdad91adca6f3d7674fe8805b09278ea8aa9ac117b9"
+  },
+  {
+    "window_id": 171,
+    "timestamp": 1788736201,
+    "phi": 0.9867435069965507,
+    "stability": 0.9915869921735759,
+    "success_rate": 1.0,
+    "latency_score": 0.9728501264758459,
+    "previous_hash": "f3e5dabbae6cc85b912d4a608dfe0231c49f434abcd4fad055a93643dc7d4e99"
+  },
+  {
+    "window_id": 172,
+    "timestamp": 1788736202,
+    "phi": 0.9834347957825735,
+    "stability": 0.9921352230134745,
+    "success_rate": 1.0,
+    "latency_score": 0.9646684203618114,
+    "previous_hash": "86d9f51c94aaae7d24c4a0d6e80577b1e922482e2cdf0b5a0b1a65d2a8e99a5d"
+  },
+  {
+    "window_id": 173,
+    "timestamp": 1788736203,
+    "phi": 0.9855217285678834,
+    "stability": 0.9916097652660674,
+    "success_rate": 1.0,
+    "latency_score": 0.9698784190234107,
+    "previous_hash": "400615cd5d4b79e5c032f3dcd55357f53017287f7280b3c86c5a6fae329cc134"
+  },
+  {
+    "window_id": 174,
+    "timestamp": 1788736204,
+    "phi": 0.986073747042651,
+    "stability": 0.9913637676226343,
+    "success_rate": 1.0,
+    "latency_score": 0.9713550425413366,
+    "previous_hash": "b7f137192dc186f6940cbc0234be42515a8aaee01bcd294c7b088cf71ee0acee"
+  },
+  {
+    "window_id": 175,
+    "timestamp": 1788736205,
+    "phi": 0.981819620704122,
+    "stability": 0.9909877748196739,
+    "success_rate": 1.0,
+    "latency_score": 0.9613970136996095,
+    "previous_hash": "d838980906075e5377652ac4f5bae64e0257de7043b0990680a2f326a47b3ebf"
+  },
+  {
+    "window_id": 176,
+    "timestamp": 1788736206,
+    "phi": 0.9850037927421581,
+    "stability": 0.9920899579535667,
+    "success_rate": 1.0,
+    "latency_score": 0.9683883940577506,
+    "previous_hash": "3448608f7d71925c6ebafb26ef7039e4b65943b3cdb82bb10b9d84c917148001"
+  },
+  {
+    "window_id": 177,
+    "timestamp": 1788736207,
+    "phi": 0.9838703606894884,
+    "stability": 0.9918470432976325,
+    "success_rate": 1.0,
+    "latency_score": 0.9658256687636079,
+    "previous_hash": "2153809ef9e6d014f48a0f47405454f321a3828c457478b723bdfda46b530b07"
+  },
+  {
+    "window_id": 178,
+    "timestamp": 1788736208,
+    "phi": 0.9847373083159668,
+    "stability": 0.991389345245018,
+    "success_rate": 1.0,
+    "latency_score": 0.9681179982342657,
+    "previous_hash": "43aabb8fb0034b110fe05209ec0693f355c22a44320c10144942164c1baad77a"
+  },
+  {
+    "window_id": 179,
+    "timestamp": 1788736209,
+    "phi": 0.9841235341899934,
+    "stability": 0.9915018149710875,
+    "success_rate": 1.0,
+    "latency_score": 0.9665953216523453,
+    "previous_hash": "766fe0201b9baa018e39da636f7cd66b80454814fc839b2d8bac59be93105ad4"
+  },
+  {
+    "window_id": 180,
+    "timestamp": 1788736210,
+    "phi": 0.9841889194077995,
+    "stability": 0.9910173457668933,
+    "success_rate": 1.0,
+    "latency_score": 0.9670064370926358,
+    "previous_hash": "b13f2e4391a52524afb22a8fc18e4866981959e3aaed04f179088594aeb0e65e"
+  },
+  {
+    "window_id": 181,
+    "timestamp": 1788736211,
+    "phi": 0.9827540770293285,
+    "stability": 0.9916986526257826,
+    "success_rate": 1.0,
+    "latency_score": 0.9632673910660183,
+    "previous_hash": "54e7dd0d2774a3e2534419467036f5c689a888832c997724c85185d757cd20ea"
+  },
+  {
+    "window_id": 182,
+    "timestamp": 1788736212,
+    "phi": 0.9873222460168843,
+    "stability": 0.9914310288867164,
+    "success_rate": 1.0,
+    "latency_score": 0.9743724230875909,
+    "previous_hash": "8b27d764d0e200a3a059359e2c0bcefd9f8b5b203fd6035b262ff6a187a4c4a2"
+  },
+  {
+    "window_id": 183,
+    "timestamp": 1788736213,
+    "phi": 0.9855620157083821,
+    "stability": 0.9919448926067309,
+    "success_rate": 1.0,
+    "latency_score": 0.9697922618888665,
+    "previous_hash": "d5ab20f52ccedf07864c477abf3be220201eba121eb75a9b76593c223108b87f"
+  },
+  {
+    "window_id": 184,
+    "timestamp": 1788736214,
+    "phi": 0.9843873833185324,
+    "stability": 0.9913560849668772,
+    "success_rate": 1.0,
+    "latency_score": 0.9672993201292004,
+    "previous_hash": "72f97b4e7d7be6bad4c03f32210d229d72a30f56303a3e9cf6cdee7c71ff2030"
+  },
+  {
+    "window_id": 185,
+    "timestamp": 1788736215,
+    "phi": 0.9818277945579407,
+    "stability": 0.9915379058460505,
+    "success_rate": 1.0,
+    "latency_score": 0.9611679104579544,
+    "previous_hash": "6c76833d578de6af22dabe3720582ed124267a7698b7d800244e64a3baa2e533"
+  },
+  {
+    "window_id": 186,
+    "timestamp": 1788736216,
+    "phi": 0.9833172765746564,
+    "stability": 0.9923576627821392,
+    "success_rate": 1.0,
+    "latency_score": 0.9642962793517323,
+    "previous_hash": "c744b9191426d40582b4b9bd3f2f6ad890d29e63d3e7f0495cfde8e21df8aac5"
+  },
+  {
+    "window_id": 187,
+    "timestamp": 1788736217,
+    "phi": 0.9873491020136624,
+    "stability": 0.9927653557532334,
+    "success_rate": 1.0,
+    "latency_score": 0.9736267949511431,
+    "previous_hash": "1dc66f0c263dc44c1c8fca40aa10817dac8c4dfc3f2f64de1b75b3d3e3e2cbfe"
+  },
+  {
+    "window_id": 188,
+    "timestamp": 1788736218,
+    "phi": 0.9854393687601317,
+    "stability": 0.9914809115845543,
+    "success_rate": 1.0,
+    "latency_score": 0.9697525178625265,
+    "previous_hash": "dee9160d7811ac0115c2074401624969f43426d75cfea92103227fe43b68da45"
+  },
+  {
+    "window_id": 189,
+    "timestamp": 1788736219,
+    "phi": 0.981426780994652,
+    "stability": 0.9922248784810608,
+    "success_rate": 1.0,
+    "latency_score": 0.9599510637864803,
+    "previous_hash": "f1ee999be09a6aa9e7343121d62c03395776b0cc66b8f7a00f78032b0fe132c2"
+  },
+  {
+    "window_id": 190,
+    "timestamp": 1788736220,
+    "phi": 0.9800427487239834,
+    "stability": 0.9912563565482116,
+    "success_rate": 1.0,
+    "latency_score": 0.9571216046143712,
+    "previous_hash": "2d7667d7798ef72396a9721b7cb175e46e7d4f3c677552ec9a25781930718445"
+  },
+  {
+    "window_id": 191,
+    "timestamp": 1788736221,
+    "phi": 0.983286703210526,
+    "stability": 0.991645299111722,
+    "success_rate": 1.0,
+    "latency_score": 0.9645448255680497,
+    "previous_hash": "ee35fa3508cc370c61ed4262671d283a7e6b9b4ecf1ec2f9f51d12910319dce7"
+  },
+  {
+    "window_id": 192,
+    "timestamp": 1788736222,
+    "phi": 0.979814097969488,
+    "stability": 0.9917991100490426,
+    "success_rate": 1.0,
+    "latency_score": 0.9563783997089549,
+    "previous_hash": "a92004e8deea78776f60fc68fdcbb55f80c05506b0dab37f1dad2d79634ed8f2"
+  },
+  {
+    "window_id": 193,
+    "timestamp": 1788736223,
+    "phi": 0.985003986314065,
+    "stability": 0.9913462199339527,
+    "success_rate": 1.0,
+    "latency_score": 0.9687809943547091,
+    "previous_hash": "9b24882e6487110785212d789b04e019fe0252249c7e2422efb3b114edf5da54"
+  },
+  {
+    "window_id": 194,
+    "timestamp": 1788736224,
+    "phi": 0.9851405418638148,
+    "stability": 0.9907907574405934,
+    "success_rate": 1.0,
+    "latency_score": 0.9694320889907532,
+    "previous_hash": "cbbeb13782fd8333ff6335cbbc5797e76538f6b380038ec1e2f44e61ecf6492b"
+  },
+  {
+    "window_id": 195,
+    "timestamp": 1788736225,
+    "phi": 0.9829268429693649,
+    "stability": 0.9915673432327978,
+    "success_rate": 1.0,
+    "latency_score": 0.963733706356222,
+    "previous_hash": "b00ab8afc5b19f92bb03f4de8a9cfff61ebcf5908cc242ff502cd27855dccb33"
+  },
+  {
+    "window_id": 196,
+    "timestamp": 1788736226,
+    "phi": 0.9802037270986093,
+    "stability": 0.9926134594735628,
+    "success_rate": 1.0,
+    "latency_score": 0.9569844197756872,
+    "previous_hash": "477738535c85f1d58b5e78e24dba17d2bbc72aae7aaad03d0fe6f37ab743651c"
+  },
+  {
+    "window_id": 197,
+    "timestamp": 1788736227,
+    "phi": 0.9806962947067125,
+    "stability": 0.9912313405571407,
+    "success_rate": 1.0,
+    "latency_score": 0.9586552734511307,
+    "previous_hash": "e33371f36e11e1deda498c04056b0d11cc95312c72adb15fddba8b096973f200"
+  },
+  {
+    "window_id": 198,
+    "timestamp": 1788736228,
+    "phi": 0.9848988209283732,
+    "stability": 0.9911003961051396,
+    "success_rate": 1.0,
+    "latency_score": 0.9686659586424627,
+    "previous_hash": "2cd101b80ed702ffe1f8db9b9403c879dcd0fe6c44c54ca318bde6add978619b"
+  },
+  {
+    "window_id": 199,
+    "timestamp": 1788736229,
+    "phi": 0.9852457541817226,
+    "stability": 0.9916099502720573,
+    "success_rate": 1.0,
+    "latency_score": 0.9692160272307799,
+    "previous_hash": "9e1b4d3dce8fdad5f739f4711e96a2fda0e99a0c262bfdcba5b709c8cdc70e35"
+  }
+]
