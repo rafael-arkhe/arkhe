@@ -1,0 +1,44 @@
+name: field-stability-verify
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+env:
+  TLA_VERSION: v1.7.4
+  TLA_SHA1: bee4a54f3ee3d4afc347c3240ec2d9e93b075104
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Toolchain Rust (stable + clippy)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cargo — testes do crate (39/39, incl. D1 A1 + BeyondHorizon)
+        working-directory: arkhe-monorepo
+        run: cargo test -p arkhe-field-stability
+
+      - name: Cargo — clippy (D warnings)
+        working-directory: arkhe-monorepo
+        run: cargo clippy -p arkhe-field-stability --lib -- -D warnings
+
+      - name: Lake — núcleo Lean (v4.33.1, I511–I516 + FieldStabilityTLCSpec I517–I523)
+        working-directory: arkhe-monorepo/src/lean/nuclei
+        run: |
+          curl -sSfL "https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh" | sh -s -- -y --default-toolchain v4.33.1
+          "$HOME/.elan/bin/lake" build
+
+      - name: TLC — model-check ArkheCoherenceLedger (pinned v1.7.4, sha1 verificada)
+        working-directory: arkhe-monorepo/packages/arkhe-field-stability/spec
+        run: |
+          curl -sSfL -o tla2tools.jar "https://github.com/tlaplus/tlaplus/releases/download/${TLA_VERSION}/tla2tools.jar"
+          echo "${TLA_SHA1}  tla2tools.jar" | sha1sum -c -
+          java -jar tla2tools.jar -config ArkheCoherenceLedger.cfg ArkheCoherenceLedger.tla > tlc_run.log 2>&1
+          grep -F -q "Model checking completed. No error has been found." tlc_run.log
