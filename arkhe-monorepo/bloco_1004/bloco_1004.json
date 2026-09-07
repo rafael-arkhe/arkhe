@@ -1,0 +1,21 @@
+{
+  "bloco": 1004,
+  "versao": "v381.1",
+  "handover_anterior": 1003,
+  "data": "2026-09-07",
+  "tipo": "AUDITORIA_PRE_EXECUCAO_FASE7",
+  "descricao": "Verificacao factual dos pontos da decisao v381.1 antes da implementacao da Fase 7. A direcao (reancorar em Rust trackeado, definicao canonica, sem .tla untracked) esta correta. Divergencias remanescentes: formula de Phi na decisao e LINEAR, mas a canonica e QUADRATICA (coherence.rs); Omega/Sigma/Lambda sao stability/success_rate/latency, nao Ontologica/Semantica/Temporal; crate 'arkhe-coherence' INEXISTENTE (real: arkhe-field-stability); bloco_1002 NAO contem definicao de 4 componentes; hash 7f83b165 NAO reproduzivel. Nenhum codigo de Fase 7 iniciado.",
+  "verificacoes": {
+    "formula_phi_decisao": "LINEAR 0.4O+0.4S+0.2L (nao e a implementada)",
+    "formula_phi_canonica": "QUADRATICA 1 - sqrt(0.4(1-O)^2 + 0.4(1-S)^2 + 0.2(1-L)^2) fonte packages/arkhe-field-stability/src/coherence.rs",
+    "significado_Omega_Sigma_Lambda": "CANONICO: stability / success_rate / latency (medicao), nao Ontologica/Semantica/Temporal",
+    "crate_citado": "arkhe-coherence INEXISTENTE",
+    "crate_real": "arkhe-field-stability (packages/arkhe-field-stability)",
+    "bloco_1002_contem_def_4_comp": false,
+    "hash_corrigido_reproduzivel": false,
+    "hash_real_json_comprimido": "cb4289962ed293e9d765b56f0ee2fb7ca83081102a503dcabf1c16bdb33171c2"
+  },
+  "direcao_correta": "Reancorar Fase 7 em Rust trackeado na definicao canonica de Phi (nao usar .tla untracked) - APOIADA",
+  "status": "AGUARDANDO_CONFIRMACAO_FINAL",
+  "selo": "CATEDRAL-OS-AUDITORIA-PRE-EXECUCAO-FASE7-BLOCO-1004-2026-09-07"
+}
