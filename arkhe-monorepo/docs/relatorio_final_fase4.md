@@ -157,4 +157,35 @@ Ferramenta: **TLC2 2.19** (`tla2tools.jar` v1.7.4 "Xenophanes", sha1
 
 ---
 
+## 11. Limite honesto TLC ↔ Núcleo Lean ↔ `verify_integrity()` (Fase 6, bloco 1002)
+
+A Fase 6 (plano `bloco_1001`, execução `bloco_1002`) integra as três camadas,
+registrando com transparência o que **cada uma garante** — e o que **não** garante:
+
+| Camada | O que prova | Limite honesto |
+| :--- | :--- | :--- |
+| **TLC** (TLA+, `ArkheCoherenceLedger.tla`) | Alcançabilidade + liveness no **modelo finito** `MaxWindows=4` | Poderá ser exaustivo apenas até `Len < MaxWindows`; `Quiesce` na borda; Apalache (symbolic) fica para trabalho futuro |
+| **Lean** (`nuclei/FieldStabilityTLCSpec.lean`, I517–I523) | Teoremas fechados no kernel v4.33.1 (`native_decide`), sem Mathlib/sem `sorry`, **sobre o mesmo modelo finito** | Finitude `Len < MaxWindows` declarada como **hipótese** em cada teorema (nunca fato infinito) |
+| **Rust** (`verify_integrity()`) | **Integridade de dados** real de toda a cadeia (re-derivação do `hash` interno + encadeamento `previous_hash`) | Na cadeia real (e1: 200 entradas) retorna `BeyondHorizon{len=200, max_windows=4}` — dados íntegros **além** do horizonte formal; jamais prova formal infinita |
+
+**Resultado da verificação da Fase 6 (mecânico, `bloco_1002/evidencia/`):**
+
+- `cargo test -p arkhe-field-stability` → **39/39** (inclui D1 anti-cosmético e
+  `BeyondHorizon`); `cargo clippy -- -D warnings` limpo.
+- `lake build` (núcleo `nuclei`, v4.33.1) → exit 0 (I517–I523).
+- TLC v1.7.4 pinned (sha1 verificado) → `No error has been found`, 202/121
+  estados, colisão 5.3E-16.
+- Fix **A1 (D1)**: `verify_integrity()` re-deriva `entry.hash` (novo campo
+  `CoherenceEntry.hash`); teste anti-cosmético (mutação da **última** entrada
+  fora do `push`) falhou no RED (36/37) e passou no GREEN (39/39), provando que
+  a correção não é cosmética.
+- `IntegrityStatus { Ok, Broken{window_ids}, BeyondHorizon{len,max_windows} }`
+  (D3) — `BeyondHorizon` **não é erro**.
+
+**Conclusão:** a garantia **formal** (TLC/Lean) aplica-se ao modelo finito
+(`len ≤ MAX_HORIZON_WINDOWS = 4`); a garantia **de dados** (`verify_integrity`)
+cobre a cadeia real inteira. Nada é reivindicado além do que foi executado.
+
+---
+
 **Selo:** `CATEDRAL-OS-RELATORIO-FINAL-FASE4-2026-09-06`
