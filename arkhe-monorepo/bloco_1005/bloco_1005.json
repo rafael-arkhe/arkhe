@@ -1,0 +1,23 @@
+{
+  "bloco": 1005,
+  "versao": "v381.1",
+  "handover_anterior": 1004,
+  "data": "2026-09-07",
+  "tipo": "EXECUCAO_FASE7",
+  "descricao": "Execucao da Fase 7 concluida apos confirmacao executiva v381.1 (blocos 1003/1004): (a) SemanticValidity em src/validators.rs - trait Validator, Verdict, aggregate_validity, quorum estrito >2/3 (VALIDATOR_QUORUM), conjunto minimo MIN_VALIDATORS=3; (b) Loopseal em src/loopseal.rs - LoopSeal incremental, verify_chain_acyclic, deteccao de loops/aeliclicidade em cadeias hash; (c) phi.rs - envelope CoherenceReport/Assurance juntando Phi quadratico canonico (coherence::phi_default, inalterado I511-I516) com os eixos de garantia ortogonais SemanticValidity/Loopseal, GAP1_INFERIOR/GAP1_SUPERIOR const e gap1_satisfied (Gap-1). Os eixos NAO compoem Phi - sao qualificadores ortogonais do relatorio (decisao v381.1, bloco 1004). e1 regera 200 janelas Phi medio 0.9837 + fase7_assurance 100% sound/acceptable. CI atualizado (test 78/78, clippy all-targets features -D warnings, e1). Commit 988bb45.",
+  "decisoes_atendidas": {
+    "v381.1_confirmacao_formula": "QUADRATICA canonica mantenida - CoherenceReport.phi chama coherence::phi_default (1 - sqrt(0.4(1-O)^2+0.4(1-S)^2+0.2(1-L)^2))",
+    "v381.1_crate_real": "implementado no crate real arkhe-field-stability (packages/), nao em arkhe-coherence (inexistente)",
+    "v381.1_eixos_ortogonais": "SemanticValidity/Loopseal sao novos eixos de garantia, nao componentes da formula de Phi (bloco 1004 Nota)",
+    "v381.1_hash_real": "hash_real registrado na evidencia (SHA256SUMS) para reproducao"
+  },
+  "verificacao": {
+    "cargo_test": "78/78 exit 0 (70 lib + 8 doc, com features experiments)",
+    "clippy": "all-targets --features experiments -- -D warnings exit 0 (sem warnings)",
+    "e1": "200 janelas, Phi medio 0.9837, success true, correlacao Q-Phi Pearson 0.9873, fase7_assurance 100.0% sound / 100.0% acceptable, integridade BeyondHorizon len=200>MaxWindows=4 (honesto)",
+    "commit_implementacao": "988bb45 (QC-0892)"
+  },
+  "limitacao_honesta": "Os eixos SemanticValidity/Loopseal sao validados por testes unitarios e de propriedade em Rust (boundness, monotonicidade, quorum estrito) - NAO sao ainda cobertos por model-check TLC+/prova Lean dedicada. A integridade criptografica do ledger (TLC/Lean I517-I523, Fase 6) permanece aplicada a cadeia de dados real.",
+  "status": "EXECUCAO_CONCLUIDA",
+  "selo": "CATEDRAL-OS-FASE7-EXECUCAO-BLOCO-1005-2026-09-07"
+}
