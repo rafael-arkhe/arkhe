@@ -15,6 +15,12 @@
 //!   (Fase 2).
 //! * [`ledger`] — `CoherenceLedger`, cadeia de dados append-only encadeada
 //!   por hash SHA3-256 (Fase 4, Opção A; Gravity-1 nativo).
+//! * [`validators`] — SemanticValidity, eixo de garantia da Fase 7 com quórum
+//!   estrito de validadores (ortogonal a Φ).
+//! * [`loopseal`] — eixo de garantia da Fase 7, detecção de loops/aelíclicidade
+//!   em cadeias encadeadas por hash (ortogonal a Φ).
+//! * [`phi`] — envelope de relatório Fase 7: Φ canônico quadrático + eixos de
+//!   garantia (SemanticValidity/Loopseal) consolidados.
 //! * [`mcp_stub`] — cliente HTTP stub para o protocolo MCP (substitui o
 //!   `arkhe-mcp-client` externo, que não tinha evidência pública de manutenção).
 //! * [`constants`] — pesos heurísticos e limiares.
@@ -30,9 +36,12 @@ pub mod constants;
 pub mod experiment;
 pub mod field_stability;
 pub mod ledger;
+pub mod loopseal;
 pub mod mcp_stub;
+pub mod phi;
 pub mod quality_report;
 pub mod refiner;
+pub mod validators;
 
 pub use coherence::{phi, phi_default, phi_from_field_stability, WEIGHTS_DEFAULT};
 pub use constants::*;
@@ -41,6 +50,12 @@ pub use ledger::{
     CoherenceEntry, CoherenceLedger, IntegrityStatus, GENESIS, GRAVITY_1,
     MAX_HORIZON_WINDOWS,
 };
+pub use loopseal::{verify_chain_acyclic, ChainLink, LoopSeal, LoopStatus};
 pub use mcp_stub::{HandoverPayload, McpClient, McpError};
+pub use phi::{Assurance, CoherenceReport, GAP1_INFERIOR, GAP1_SUPERIOR, gap1_satisfied};
 pub use quality_report::QualityReport;
 pub use refiner::{IterativeRefiner, RefinerOutcome, RefinerResult};
+pub use validators::{
+    aggregate_validity, SemanticValidity, Validator, ValidatorSetError, Verdict, MIN_VALIDATORS,
+    VALIDATOR_QUORUM,
+};

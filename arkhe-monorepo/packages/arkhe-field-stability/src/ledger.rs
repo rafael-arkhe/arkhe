@@ -55,7 +55,7 @@ pub const MAX_HORIZON_WINDOWS: usize = 4;
 /// A hierarquia é estrita: `Broken` (dado realmente adulterado) prevalece
 /// sobre `BeyondHorizon` (fora do horizonte formal, mas dados íntegros) que
 /// prevalece sobre `Ok`.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IntegrityStatus {
     /// Cadeia íntegra e dentro do horizonte formal (`len <= MAX_HORIZON_WINDOWS`).
     Ok,

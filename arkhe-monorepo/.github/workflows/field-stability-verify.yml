@@ -21,13 +21,17 @@ jobs:
         with:
           components: clippy
 
-      - name: Cargo — testes do crate (39/39, incl. D1 A1 + BeyondHorizon)
+      - name: Cargo — testes do crate (70/70 lib; +8 de doc = 78 com features, Fase 7: SemanticValidity/Loopseal/CoherenceReport)
         working-directory: arkhe-monorepo
         run: cargo test -p arkhe-field-stability
 
-      - name: Cargo — clippy (D warnings)
+      - name: Cargo — clippy all-targets (D warnings) com feature experiments
         working-directory: arkhe-monorepo
-        run: cargo clippy -p arkhe-field-stability --lib -- -D warnings
+        run: cargo clippy -p arkhe-field-stability --all-targets --features experiments -- -D warnings
+
+      - name: Cargo — e1 regera artefato com eixos Fase 7 (Φ 0.9837, garantia 100%)
+        working-directory: arkhe-monorepo
+        run: cargo run -p arkhe-field-stability --features experiments --bin e1
 
       - name: Lake — núcleo Lean (v4.33.1, I511–I516 + FieldStabilityTLCSpec I517–I523)
         working-directory: arkhe-monorepo/src/lean/nuclei

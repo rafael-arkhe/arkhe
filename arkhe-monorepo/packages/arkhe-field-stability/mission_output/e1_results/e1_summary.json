@@ -5,6 +5,11 @@
     "phi_mean_above": 0.7
   },
   "experiment": "e1",
+  "fase7_assurance": {
+    "note": "SemanticValidity/Loopseal sao eixos ortogonais; nao compoem Phi",
+    "windows_acceptable_pct": 100.0,
+    "windows_sound_pct": 100.0
+  },
   "overall": {
     "mean": 0.9897872987826615,
     "std": 0.0010840841325373215

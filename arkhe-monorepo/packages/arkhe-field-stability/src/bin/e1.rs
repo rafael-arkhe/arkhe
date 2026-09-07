@@ -10,6 +10,12 @@
 //! Desde a Fase 4 (bloco 994), cada janela grava também uma [`CoherenceEntry`]
 //! no [`CoherenceLedger`] — a **cadeia de dados** encadeada por SHA3-256 (o
 //! Journal bloco_987..993 registra decisões; o ledger registra métricas).
+//!
+//! Desde a Fase 7 (bloco 1005), cada janela consolida também um
+//! [`CoherenceReport`] — Φ canônico quadrático **mais** os eixos de garantia
+//! ortogonais (SemanticValidity com quórum estrito > 2/3 e Loopseal de
+//! aelíclicidade). Estes eixos **não compõem** Φ; qualificam a confiança do
+//! dado num envelope de auditoria.
 
 #![deny(unsafe_code)]
 #![warn(missing_docs)]
@@ -18,8 +24,10 @@ use arkhe_field_stability::experiment::{
     artifact_root, mean, pearson, std, write_json, write_text, Srng,
 };
 use arkhe_field_stability::{
-    phi_from_field_stability, CoherenceEntry, CoherenceLedger, FieldStability, IntegrityStatus,
-    QualityReport, LATENCY_TOLERANCE_MS, WEIGHT_LATENCY, WEIGHT_STABILITY, WEIGHT_SUCCESS_RATE,
+    aggregate_validity, phi_from_field_stability, ChainLink, CoherenceEntry, CoherenceLedger,
+    CoherenceReport, FieldStability, GAP1_INFERIOR, IntegrityStatus, LoopSeal, LoopStatus,
+    MIN_VALIDATORS, QualityReport, SemanticValidity, Validator, Verdict, LATENCY_TOLERANCE_MS,
+    WEIGHT_LATENCY, WEIGHT_STABILITY, WEIGHT_SUCCESS_RATE,
 };
 
 const WINDOWS: usize = 200;
@@ -32,6 +40,53 @@ const PHI_FLOOR: f64 = 0.70;
 /// monotônicos — simulação honesta, não medição de relógio de parede.
 const BASE_TIMESTAMP: u64 = 1_788_736_030;
 
+/// Validador nominal — aprova entradas íntegras.
+struct NominalValidator;
+impl Validator for NominalValidator {
+    fn id(&self) -> &str {
+        "e1_nominal"
+    }
+    fn verify(&self, entry: &CoherenceEntry) -> Verdict {
+        if entry.hash == entry.compute_hash() && entry.phi > 0.5 {
+            Verdict::Approve
+        } else {
+            Verdict::Reject
+        }
+    }
+}
+
+/// Validador de piso — aprova apenas Φ acima do piso constitucional.
+struct FloorValidator;
+impl Validator for FloorValidator {
+    fn id(&self) -> &str {
+        "e1_floor"
+    }
+    fn verify(&self, entry: &CoherenceEntry) -> Verdict {
+        if entry.phi > GAP1_INFERIOR {
+            Verdict::Approve
+        } else {
+            Verdict::Reject
+        }
+    }
+}
+
+/// Validador de aelíclicidade — aprova entradas cujo hash é novo.
+struct NoveltyValidator {
+    seal: LoopSeal,
+}
+impl Validator for NoveltyValidator {
+    fn id(&self) -> &str {
+        "e1_novelty"
+    }
+    fn verify(&self, entry: &CoherenceEntry) -> Verdict {
+        if self.seal.seen_hashes().contains(&entry.hash) {
+            Verdict::Reject
+        } else {
+            Verdict::Approve
+        }
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
         .with_env_filter(std::env::var("RUST_LOG").unwrap_or_else(|_| "info".into()))
@@ -39,6 +94,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut rng = Srng::default();
     let mut ledger = CoherenceLedger::new();
+    let mut novelty = LoopSeal::new();
+    let mut sound_total = 0usize;
+    let mut acceptable_total = 0usize;
 
     let mut phi_series = Vec::with_capacity(WINDOWS);
     let mut overall_series = Vec::with_capacity(WINDOWS);
@@ -75,6 +133,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             ledger.last_hash(),
         );
         ledger.push(entry).expect("ledger: gravity-1 + chaining");
+
+        // Fase 7: eixos de garantia ortogonais — SemanticValidity + Loopseal.
+        let validators: [&dyn Validator; MIN_VALIDATORS] = [
+            &NominalValidator,
+            &FloorValidator,
+            &NoveltyValidator { seal: novelty.clone() },
+        ];
+        let semantic = aggregate_validity(&validators, ledger.entries().last().unwrap())
+            .unwrap_or_else(|_| SemanticValidity::new(0, 0));
+        // Incorpora o hash na cadeia de novidade (Loopseal) na ordem de ingesta.
+        let last = ledger.entries().last().unwrap();
+        novelty.push(&ChainLink {
+            hash: last.hash.clone(),
+            previous_hash: last.previous_hash.clone(),
+        });
+        let integrity = ledger.verify_integrity();
+        let coherence = CoherenceReport::new(
+            fs.stability,
+            fs.success_rate,
+            fs.latency_score,
+            integrity,
+            semantic,
+            LoopStatus::New {
+                previous_hash: Some(last.previous_hash.clone()),
+            },
+        );
+        if coherence.assurance.is_sound() {
+            sound_total += 1;
+        }
+        if coherence.acceptable {
+            acceptable_total += 1;
+        }
     }
 
     let root = artifact_root("e1");
@@ -117,7 +207,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         "overall": { "mean": mean(&overall_series), "std": std(&overall_series) },
         "pearson_q_phi": corr,
-        "success": success
+        "success": success,
+        "fase7_assurance": {
+            "windows_sound_pct": sound_total as f64 / WINDOWS as f64 * 100.0,
+            "windows_acceptable_pct": acceptable_total as f64 / WINDOWS as f64 * 100.0,
+            "note": "SemanticValidity/Loopseal sao eixos ortogonais; nao compoem Phi"
+        }
     });
     write_json(&root.join("e1_summary.json"), &summary)?;
 
@@ -146,6 +241,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "  Ledger: {} entradas, média Φ {:.4}, integridade {integrity}",
         ledger.entries().len(),
         ledger.mean_phi()
+    );
+    println!(
+        "  Fase 7: {:.1}% janelas com garantia sólida, {:.1}% aceitáveis (eixos ortogonais)",
+        sound_total as f64 / WINDOWS as f64 * 100.0,
+        acceptable_total as f64 / WINDOWS as f64 * 100.0
     );
     println!("  Artefatos: {}", root.display());
     println!("========================================");
