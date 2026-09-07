@@ -1,0 +1,7 @@
+name = "nuclei"
+version = "0.1.0"
+
+defaultTargets = ["nuclei"]
+
+[[lean_lib]]
+name = "nuclei"
