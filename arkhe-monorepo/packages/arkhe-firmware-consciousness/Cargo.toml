@@ -1,0 +1,15 @@
+[package]
+name = "arkhe-firmware-consciousness"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE Firmware Consciousness v0.1.0 — no_std consciousness governance for embedded devices. Minimal consciousness bridge (C-01..C-04), integer Φ approximation (Gap-1 aligned), watchdog with rollback, and compact CBOR-like serial protocol for host communication."
+license = "MIT OR Apache-2.0"
+rust-version = "1.85"
+
+[dependencies]
+heapless = "0.8"
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "deny"

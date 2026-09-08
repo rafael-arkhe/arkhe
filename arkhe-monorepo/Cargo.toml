@@ -57,6 +57,17 @@ members = [
     # Catedral OS v152.0 — materialização física: undulator (I194–I198), Z1T
     # bridge, sincronização IPFS distribuída (I201), verificação Lean embarcada (I200)
     "packages/arkhe-catedral-v152",
+    # 924-POTT-INTERPLANETARY-TRANSPORT — Proof-of-Transit Timestamping (arXiv:2508.20591)
+    "packages/arkhe-pott",
+    # ARKHE-BITCOIN — Geração de chaves/endereços Bitcoin (P2PKH/P2WPKH/P2TR, WIF)
+    "packages/arkhe-bitcoin",
+    # ARKHE-FIELD-STABILITY — Estabilidade de campo, qualidade e stub MCP (reqwest).
+    # Substitui o arkhe-mcp-client externo (ADR-001); renomeado de arkhe-safe-core
+    # para não colidir com services/safe-core (watchdog anti-alucinação 491-AGI-CORTEX).
+    "packages/arkhe-field-stability",
+    # ARKHE-FIRMWARE-CONSCIOUSNESS — Governança de consciência no_std para
+    # dispositivos embarcados (C-01..C-04, Φ inteiro Gap-1, watchdog, CBOR).
+    "packages/arkhe-firmware-consciousness",
 ]
 
 [workspace.package]

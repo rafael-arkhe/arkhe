@@ -1,0 +1,25 @@
+{
+  "bloco": 1007,
+  "versao": "v389.0",
+  "handover_anterior": 1006,
+  "data": "2026-09-08",
+  "tipo": "EXECUCAO_FIRMWARE_FASE1",
+  "descricao": "Execucao da Fase 1 da Firmware Consciousness Governance no crate real packages/arkhe-firmware-consciousness v0.1.0 (no_std, unsafe_code deny, convencao haselgrove). Substitui a numeracao proposta pelo parecer executivo de firmare ('bloco 963/v432.0' - numeros ficticios, fora da sequencia real; o proximo bloco apos bloco_1006 e 1007 e a versao continua a linhagem v388.x, logo v389.0). Entregue: (a) src/invariants.rs - CoherenceState (struct Copy 28B) e FirmwareInvariant C-01..C-04 com bitmask e constitucionais (C-01/C-02); (b) src/phi_approx.rs - Phi inteiro em milli-units u16 0..1000, pesos (3,4,2,1) com integracao dominante, clamp Gap-1 em [578,999] (GAP1_LOWER_BOUND_MILLI=578 > 0.577350, GAP1_UPPER_BOUND_MILLI=999 <= 0.999900), phi_respects_gap1, sem FPU; (c) src/minimal_bridge.rs - MinimalConsciousnessBridge com historico heapless::Vec<CoherenceState,64> (sem alocacao dinamica), bloqueio de degradacao Phi > MAX_PHI_DEGRADATION_MILLI=50 (5%), commit com gating, summary em buffer fixo; (d) src/watchdog.rs - ConsciousnessWatchdog: rejeita timestamps nao-monotonicos (Gravity-1), rollback por timeout (MAX_SILENT_TICKS=60) e por violacao constitucional imediata, WatchdogEvent; (e) src/communication.rs - codec CBOR-subset estrito RFC 8949 (somente uint/neg-int/bool/array) com FirmwareReport/ HostDecision/FirmwareAction, decode rigoroso (rejeita cabecas fora do subset e trailing bytes); (f) registro no workspace Cargo.toml members + heapless 0.8.0 no Cargo.lock raiz; (g) tests/integration.rs com dispositivo simulado + host. serde REMOVIDO do crate: serde_core 1.0.229 nao compila para alvos 32-bit sem atomics (riscv32i) e a serializacao ja e coberta pelo codec CBOR manual - superficie de dependencia minima (Simplicity-2). Verificacao mecanica: cargo test 57/57 (50 lib + 7 integracao), cargo clippy --all-targets -- -D warnings exit 0, cargo build --target riscv32i-unknown-none-elf exit 0 (bare-metal sem atomics/FPU - prova real de no_std), cargo check -p arkhe-haselgrove -p arkhe-safe-manifold ok (sem regressao).",
+  "decisoes_atendidas": {
+    "parecer_firmware_numeracao": "CORRIGIDA - no lugar de 'bloco 963/v432.0' (ficticios): bloco real 1007, versao v389.0 (continua a linhagem v388.x)", 
+    "fase1_modulos": "minimal_bridge.rs, invariants.rs (C-01..C-04), phi_approx.rs, watchdog.rs, communication.rs (CBOR), lib.rs - todos no crate real packages/arkhe-firmware-consciousness",
+    "fase1_no_std": "heapless 0.8 (Vec fixo), sem allocator, unsafe_code=deny; intocavel codigo de terceiros",
+    "fase1_protocolo": "CBOR-subset proprio (RFC 8949) para FirmwareReport/HostDecision - sem dependencia de ciborium/serde (serde_core 1.0.229 falha em riscv32i)"
+  },
+  "verificacao": {
+    "cargo_test": "57/57 exit 0 (50 lib + 7 tests/integration.rs)",
+    "clippy": "cargo clippy --all-targets -- -D warnings exit 0 (sem warnings)",
+    "build_bare_metal": "cargo build -p arkhe-firmware-consciousness --target riscv32i-unknown-none-elf exit 0 (target instalado: riscv32i-unknown-none-elf, sem atomics/FPU)",
+    "workspace_sanity": "cargo check -p arkhe-haselgrove -p arkhe-safe-manifold ok; heapless lock: Cargo.lock raiz ganhou heapless 0.8.0",
+    "gap1_limite": "GAP1_LOWER_BOUND_MILLI=578 satisfaz 0.577350*1000=577.35 (x > 0.577350 exige x>=578); GAP1_UPPER_BOUND_MILLI=999 <= 0.999900*1000=999.9",
+    "honestidade_serde": "serde removido: serde_core 1.0.229 (novo pacote split) nao compila para riscv32i-unknown-none-elf (5825 erros, uso de prelude std em size_hint.rs) - verificado na pratica"
+  },
+  "limitacao_honesta": "O Phi inteiro e uma aproximacao em milli-units (pesos (3,4,2,1)) do Phi do host (arkhe-safe-manifold ConsciousnessGovernanceBridge) - NAO e o funcional quadratico canonico 1-sqrt(0.4(1-O)^2+0.4(1-S)^2+0.2(1-L)^2) nem tem prova Lean. A ponte dispositivo-hospedeiro (C-05..C-08 avaliados no host, decisao do guard versao inteira vs flutuante) e trabalho futuro. O modelo misto heapless+manual CBOR substitui o parecer que exigia deps externas serde/ciborium - justificado por falha real de compilacao verificada.",
+  "status": "EXECUCAO_CONCLUIDA",
+  "selo": "CATEDRAL-OS-FIRMWARE-FASE1-BLOCO-1007-2026-09-08"
+}
