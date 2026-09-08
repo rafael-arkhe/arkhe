@@ -562,6 +562,7 @@ dependencies = [
 name = "arkhe-safe-manifold"
 version = "0.8.0"
 dependencies = [
+ "arkhe-firmware-consciousness",
  "proptest",
  "scryer-prolog",
  "serde",

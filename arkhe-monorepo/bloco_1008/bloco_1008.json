@@ -1,0 +1,25 @@
+{
+  "bloco": 1008,
+  "versao": "v389.1",
+  "handover_anterior": 1007,
+  "data": "2026-09-08",
+  "tipo": "EXECUCAO_FASE2_BRIDGE_HOST",
+  "descricao": "Execucao da Fase 2 da Consciousness Governance: ponte dispositivo-hospedeiro no crate real packages/arkhe-safe-manifold v0.8.0 (host-side C-05..C-08). (a) src/device_bridge.rs - DeviceConsciousnessBridge: avalia cada FirmwareReport do dispositivo contra a cadeia completa C-01..C-08; C-01..C-04 vem do bitmask do report (validado on-device), C-05 experience learning = Phi do dispositivo nao-regressa entre reports consecutivos (Option<bool>, None=cold start), C-06 metacognicao = calibracao |phi_dispositivo - phi_host| <= CALIBRATION_TOLERANCE_MILLI=40 (4%), C-07 adaptabilidade = 1 - sigma(Phi)/50 clamp [0,1] (neutro 0.5 ate 3 observacoes), C-08 Turing Plus = fracao de C-01..C-06; (b) re-estimativa host do Phi vem do ConsciousnessGovernanceBridge existente (phi_approximation x 1000, clamp Gap-1) e a projecao canonica passa pelo motor Prolog (check_invariants + check_constitutional_safeguards via PrologBackend real); (c) politica de decisao documentada em ordem de prioridade: 1) nao-constitucional OU Phi fora da janela (578 = clamp floor tratado como degenerado) -> Rollback; 2) projecao canonica host falhou -> Rollback; 3) metacognicao medida como falha -> AlertHost; 4) constitucional, calibrado, estavel e Φ < DEFAULT_OPERATIONAL_THRESHOLD_MILLI=600 -> ReconfigureThreshold (mediana do historico); 5) senao Continue; (d) decisoes serializaveis em HostDecision (CBOR-subset do crate firmware reutilizado - fonte unica do protocolo); (e) novo evento de auditoria ConsciousnessDeviceDecision (label consciousness_device_decision) + AuditLog::log_consciousness_device_decision; (f) dependencia workspace-interna arkhe-firmware-consciousness (path dep) - zero deps externas novas (Simplicity-2). Correcao de lixo preexistente: clippy was explore_critical_regions.rs:189 clone_on_copy (lint latente, surfaced por -D warnings; removido o .clone() em tipo Copy - sem mudanca de comportamento). Verificacao mecanica: 167 testes em arkhe-safe-manifold (99 lib + 18 consciousness + 4 device_bridge + 44 integration + 2 doc) exit 0, firmware 57/57 intacto, cargo clippy --all-targets -- -D warnings exit 0 (ambos crates), cargo check -p arkhe-haselgrove ok (sem regressao).",
+  "decisoes_atendidas": {
+    "fase2_closing_loop": "C-05..C-08 avaliados no host sobre o FirmwareReport do dispositivo; decisao volta em HostDecision para o watchdog - loop fechado (correcao da limitacao honesta registrada no bloco 1007)",
+    "fase2_prolog": "projecao canonica do estado host atravessa o PrologBackend real (check_invariants + check_constitutional_safeguards); falha do motor ou salvaguardas inativas -> Rollback conservador",
+    "fase2_dependencia": "reuso do crate firmware (path dep workspace) para FirmwareReport/HostDecision - fonte unica do protocolo, zero deps externas novas",
+    "fase2_honestidade": "C-05/C-06 sao Option<bool>: None = nao mensuravel (cold start) e nunca dispara escalada; apenas Some(false) acede alerta/rollback"
+  },
+  "verificacao": {
+    "cargo_test": "167/167 exit 0 em arkhe-safe-manifold (99 lib + 18 tests/consciousness_tests.rs + 4 tests/device_bridge_tests.rs + 44 tests/integration.rs + 2 doc); 13 novos testes unit em device_bridge + 4 de integracao round-trip",
+    "firmware_intacto": "arkhe-firmware-consciousness 57/57 exit 0 (50 lib + 7 integration) - sem regressao na fase 1",
+    "clippy": "cargo clippy -p arkhe-firmware-consciousness -p arkhe-safe-manifold --all-targets -- -D warnings exit 0 (corrigido lint preexistente explore_critical_regions.rs:189 clone_on_copy)",
+    "workspace_sanity": "cargo check -p arkhe-haselgrove ok (sem regressao vizinha); Cargo.lock raiz com heapless 0.8.0 (ja presente)",
+    "gap1_host": "re-estimativa host clampada em [578,999]; janela efetiva (577,999] - leitura no clamp floor 578 tratada como degenerada (alinhada ao watchdog do firmware)",
+    "honestidade_unmeasured": "None (nao mensuravel) != Some(false) (falha medida): politica so age sobre falha medida - coberto por teste cold_start_c06_is_unmeasured_not_failed"
+  },
+  "limitacao_honesta": "A re-estimativa host do Phi continua sendo a aproximacao do ConsciousnessGovernanceBridge (phi_approximation, clampada em milli-units), NAO o funcional quadratico canonico nem prova Lean - mesma limitacao registrada no bloco 1007. A calibracao C-06 depende da historia causal do host (CALIBRATION_MIN_HISTORY=2) e usa a janela clampada; nenhum teorema Lean novo foi produzido nesta fase. Falha de submotor Prolog real (ScryerBackend) nao foi exercitada end-to-end (MockProlog usado nos testes) - a falha real e modelada via MockProlog::empty() (salvaguardas inativas).",
+  "status": "EXECUCAO_CONCLUIDA",
+  "selo": "CATEDRAL-OS-FASE2-BRIDGE-HOST-BLOCO-1008-2026-09-08"
+}

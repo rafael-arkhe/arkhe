@@ -1,0 +1,37 @@
+[package]
+name = "arkhe-safe-manifold"
+version = "0.8.0"
+edition = "2021"
+description = "SafeManifold v0.8.0 — 16-invariant security projection with EU AI Act, NIST RMF, ISO 42001, hybrid PQC, bias detection, explainability, supply-chain verification, and consciousness governance (C-01 to C-08)"
+authors = ["Arquiteto-Chefe"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/arkhe-org/arkhe-safe-manifold"
+keywords = ["security", "ai-safety", "invariants", "manifold", "prolog", "eu-ai-act", "nist-rmf"]
+categories = ["cryptography", "development-tools"]
+rust-version = "1.85"
+
+[features]
+default = ["audit"]
+audit = []
+mssp = []
+pqc = []
+nist = []
+iso42001 = []
+agentic = []
+async = []
+prolog = []
+recovery = []
+eu_ai_act = []
+supply_chain = []
+bias = []
+explainability = []
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+scryer-prolog = "0.10.0"
+arkhe-firmware-consciousness = { path = "../arkhe-firmware-consciousness", version = "0.1.0" }
+
+[dev-dependencies]
+proptest = "1.4"
