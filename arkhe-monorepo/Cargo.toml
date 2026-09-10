@@ -68,14 +68,43 @@ members = [
     # ARKHE-FIRMWARE-CONSCIOUSNESS — Governança de consciência no_std para
     # dispositivos embarcados (C-01..C-04, Φ inteiro Gap-1, watchdog, CBOR).
     "packages/arkhe-firmware-consciousness",
+    # ARKHE-LEAN-BRIDGE — Ponte Lean↔Rust (v494.1 real): kernel Lean 4.33.1
+    # como único ponto de confiança (FFI forte), fingerprints SHA3-256 (Ghost-1)
+    # e critérios de falsificação F1–F6 (núcleo I524–I529, bloco proposto 1009).
+    "packages/arkhe-lean-bridge",
+    # ARKHE-ORCHESTRATOR-GATE — Gate mínimo real de orquestração (bloco 1010,
+    # v390.1): autorização de passo só com veredito verified do kernel Lean
+    # (arkhe-lean-bridge) E Φ na banda Gap-1 conservadora (5774, 9999]
+    # (arkhe-field-stability); contenção contabilística commits ≤ provas
+    # (I535-A); trilha auditável via CoherenceLedger real (I534/I535). Núcleo
+    # Lean core em src/lean/OrchestratorGateNucleus.lean.
+    "packages/arkhe-orchestrator-gate",
+    # ARKHE-GPU — Camada GPU da Catedral (bloco 1011, v390.2): governança de
+    # lançamentos (banda G-07 threads≤1024, grid≤2³¹−1; capas Tile 5 s e SIMT
+    # 10 s), auditoria append-only com contenção contabilística (I537) e
+    # MockGpuBackend testável sem hardware (Mutex<HashMap>, zero unsafe).
+    # Núcleo Lean core I536/I537/I538 em src/lean/GpuInvariantsNucleus.lean.
+    # Track real Tile (feature `tile`, crate `cutile`) e SIMT (feature `simt`)
+    # off por default — nenhuma compila neste ambiente (sm_75<sm_80,
+    # CUDA 12.1<13.3, Windows).
+    "packages/arkhe-gpu",
     # ARKHE-BLINK-BRIDGE — Consolidação tripla MEV + ANTH + ARKHE (bloco 1052,
-    # v530.0): UnifiedBlinkBridge aplica 16 invariantes em sequência.
+    # v530.0): UnifiedBlinkBridge aplica 16 invariantes em sequência
+    # (MEV-001..006, ANTH-001..006, I619/I622/I623/I624). Self-contained
+    # (nenhum crate fictício), zero unsafe, única dep sha3 (workspace). Backend
+    # Blink simulado em memória (digest SHA3-256 determinístico); a ponte real
+    # de assinatura pertence ao substrato 972-ARKHE-BITCOIN.
     "packages/arkhe-blink-bridge",
-    # ARKHE-P2P — Camada P2P da Catedral (bloco 1055): libp2p 0.56.0 pinado,
-    # identidade Ed25519 (PeerId), mensagens assinadas + rede Kademlia/gossipsub.
+    # ARKHE-P2P — Camada P2P da Catedral (bloco 1055, decisão de transporte):
+    # libp2p 0.56.0 PINADO (MSRV 1.83.0, auditado e compilado no rustc 1.94.0),
+    # identidade Ed25519 (PeerId), mensagens assinadas (sign/verify + antireplay)
+    # e rede real Kademlia + gossipsub + identify. Núcleo testável sem malha
+    # multi-nó (convenção de honestidade dos blocos 1052/1054).
     "packages/arkhe-p2p",
-    # ARKHE-INVARIANT-REGISTRY — Registry canónico (bloco 1057 ratificado):
-    # IDs atestados por realização testada; referências mortas rejeitadas.
+    # ARKHE-INVARIANT-REGISTRY — Registry canónico de invariantes (bloco 1057
+    # ratificado): IDs atestados apenas por realização testada; referências sem
+    # substrato são rejeitadas (nunca geram renomeações); I625+ ficam livres.
+    # Política em docs/namespace_policy.md.
     "packages/arkhe-invariant-registry",
 ]
 

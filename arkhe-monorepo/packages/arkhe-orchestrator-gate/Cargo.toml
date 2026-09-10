@@ -1,0 +1,28 @@
+[package]
+name = "arkhe-orchestrator-gate"
+version = "0.1.0"
+edition = "2021"
+description = "Gate mínimo real de orquestração (bloco 1010, v390.1): invariantes I534/I535 — autorização de passo só com veredito `verified` do kernel Lean (arkhe-lean-bridge) E Φ na banda Gap-1 conservadora (5774, 9999] (arkhe-field-stability); contenção contabilística commits ≤ provas (I535-A); trilha auditável via CoherenceLedger real."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Âncora real 1 — Ponte FFI ao kernel Lean (LeanKernel → KernelVerdict::is_sound).
+arkhe-lean-bridge = { path = "../arkhe-lean-bridge" }
+# Âncora real 2 — Φ canônico quadrático (gap1_satisfied/phi_default), ledger
+# CoherenceLedger (SHA3-256/Gravity-1) e modelo de decaimento I530 (decay_scaled).
+arkhe-field-stability = { path = "../arkhe-field-stability" }
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+# Razões do design (devido rigor e honestidade):
+#  - O gate NÃO interpreta provas: consome `KernelVerdict.is_sound()` da ponte
+#    real (digest SHA3-256 + exit 0 + #check elaborado) e a banda Gap-1 do
+#    crate real. A paridade núcleo↔Rust fecha por teste FFI contra o texto que
+#    o kernel aceitou (convenção de `arkhe-lean-bridge`).
+#  - Sem crate fictício: as duas dependências são packages reais do workspace,
+#    ao contrário dos alvos do v514.0 (arkhe-ml-bridge, arkhe-agents,
+#    arkhe-sandbox, crates/arkhe-agent-orchestrator) que não têm substrato.
+#  - Zero `unsafe` (unsafe_code = deny), zero dependências externas novas
+#    (Simplicity-2).

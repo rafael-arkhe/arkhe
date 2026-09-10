@@ -1,0 +1,23 @@
+[package]
+name = "arkhe-lean-bridge"
+version = "35.0.0"
+edition = "2021"
+description = "Ponte Lean↔Rust (v494.1 real): verificação centralizada no kernel Lean 4.33.1 como único ponto de confiança (FFI forte), fingerprints SHA3-256 (Ghost-1) e critérios de falsificação F1–F6 (I524–I529)."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Fingerprint SHA3-256 das fontes de prova (Ghost-1 / manifest.sha3) — sem
+# dependências externas novas exigidas pela política de superfície mínima.
+sha3 = { workspace = true }
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+# Razão do design (devido rigor e honestidade):
+#  - FFI forte: o binário do kernel Lean (com `lean` no PATH ou
+#    `ARKHE_LEAN_BIN`) é o único ponto de confiança; o Rust nunca interpreta a
+#    prova, apenas confirma `exit 0` + nomes elaborados + digest da fonte.
+#  - Zero `unsafe` (proibido por `unsafe_code = deny`): a passagem de fronteira
+#    é `std::process` (subprocesso), não ponteiros.
+#  - Sem `lean-rs`/`libloading` (deps externas novas violariam Simplicity-2).
