@@ -1,0 +1,27 @@
+{
+  "bloco": 1070,
+  "versao": "v552.1",
+  "hash_anterior": "sha256-git:ed620c9f062b3ec57de329b5f1ab0dc15d5a2a1d",
+  "data": "2026-09-10",
+  "tipo": "RATIFICACAO_COMMIT_1009_1011",
+  "descricao": "Ratificacao da decisao de registro do bloco 1009-1011. Requisito pre-commit executado: hashes dos crates apensados aos respetivos evidencia/SHA256SUMS (bloco_1009 -> arkhe-lean-bridge 5 entradas; bloco_1010 -> arkhe-orchestrator-gate 4; bloco_1011 -> arkhe-gpu 9). Crates e nucleos Lean ja estavam materializados no working tree (untracked debt do 1057); o commit canonicaliza o verificado sem reescrever nem fabricar.",
+  "checklist_pre_commit": {
+    "sha256sum_crates": "OK - apensado em bloco_1009/1010/1011/evidencia/SHA256SUMS (paths relativos ao dir evidencia, convencao existente)",
+    "cargo_test_lean_bridge": "OK 7/7 (reproduzido apos apensacao)",
+    "cargo_test_orchestrator_gate": "OK 15+3 (reproduzido)",
+    "cargo_test_gpu": "OK 14+3 (reproduzido)",
+    "clippy_3_crates": "OK exit 0 (cargo clippy --all-targets -- -D warnings)",
+    "git_commit_minimal": "OK ed620c9f062b3ec57de329b5f1ab0dc15d5a2a1d (chore(canon): register bloco 1009-1011 unit as verified)"
+  },
+  "hash_conteudo": "sha256:6050981E13602CA9BC9C6761B9376B133290D973F0BEEC8FEF89C3A7874E07B3",
+  "arquivos_registrados": {
+    "bloco_1009": ["README.md", "bloco_1009.json", "evidencia/execucao_extensao_i530_decay.md", "evidencia/SHA256SUMS"],
+    "bloco_1010": ["README.md", "bloco_1010.json", "evidencia/execucao_gate_orquestracao_i534_i535.md", "evidencia/SHA256SUMS"],
+    "bloco_1011": ["README.md", "bloco_1011.json", "evidencia/execucao_camada_gpu_i536_i538.md", "evidencia/SHA256SUMS"],
+    "crates": ["packages/arkhe-lean-bridge/*", "packages/arkhe-orchestrator-gate/*", "packages/arkhe-gpu/*"],
+    "nucleos_lean": ["src/lean/LeanBridgeNucleus.lean", "src/lean/OrchestratorGateNucleus.lean", "src/lean/GpuInvariantsNucleus.lean"],
+    "cargo": ["Cargo.toml (membros lean-bridge/orchestrator-gate/gpu)", "Cargo.lock (entradas dos 3 crates registados)"]
+  },
+  "status": "REGISTRADO",
+  "selo": "ARKHE-v552.1-COMMIT-REGISTRO-CONCLUIDO-2026-09-10"
+}
