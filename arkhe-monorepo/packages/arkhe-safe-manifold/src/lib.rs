@@ -50,6 +50,7 @@ pub mod invariants;
 pub mod prolog_bridge;
 pub mod prolog_backend;
 pub mod escape_region;
+pub mod frontier;
 pub mod mssp_bridge;
 pub mod explore_critical_regions;
 pub mod state_transition;
@@ -76,6 +77,7 @@ pub use safe_manifold::{
 pub use abel_jacobi::{embed_state, is_within_manifold, observer_defect, collision_detected, torelli_equivalence};
 pub use invariants::{SystemState, SystemConfig, Invariant, ManifoldError};
 pub use escape_region::EscapeRegion;
+pub use frontier::{dominant_invariant, sample_interleaved, severity, FrontierHistory};
 pub use prolog_bridge::{PrologBridge, PrologClient, PrologError, RULES_SRC, RSI_SRC};
 pub use prolog_backend::{PrologBackend, MockProlog};
 pub use prolog_bridge::ScryerBackend;

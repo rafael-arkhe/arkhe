@@ -1,0 +1,57 @@
+{
+  "bloco": 1073,
+  "tipo": "SUBSTRATO_IMPLEMENTACAO_FRONTIER",
+  "data": "2026-09-10",
+  "hash_anterior": "sha256-git:0224c4bbc335919ab2a893193ef954f6be68517b",
+  "handover_anterior": "bloco 1072 (AUDITORIA_DYNAWEB — paper REAL, codigo citado 0 ocorrencias, substrato real identificado com hashes)",
+  "status": "CONCLUIDO",
+
+  "construcao": {
+    "crate": "arkhe-safe-manifold",
+    "modulo_novo": "src/frontier.rs",
+    "funcoes": {
+      "severity": "u8 0..4 monotono Safe..Outside (espelha classify_escape real)",
+      "dominant_invariant": "moda de uma janela; vazio -> None; empate -> MAIS SEVERO (conservador)",
+      "FrontierHistory": "janela bounded (VecDeque); observe descarta o mais velho; dominant_changed() compara moda com moda sem o elemento mais novo — correcao da pratica `front()` criticada na auditoria 1072",
+      "sample_interleaved": "real e imaginado; comprimento real.len()*(ratio+1); imaginado ciclico; imaginado vazio -> repete real (pendula a doutrina DynaWeb)"
+    },
+    "api_publica_lib.rs": "pub mod frontier; pub use frontier::{dominant_invariant, sample_interleaved, severity, FrontierHistory}"
+  },
+
+  "verificacao": {
+    "testes_unit_9_9": "dominant_simple_majority, tie_breaks_towards_severe, scales_outside, empty_is_none, window_bounded, dominant_changed_detects_modal_drift, interleave_length_and_order, empty_imagined_keeps_real, severity_monotonic",
+    "proptests_6_6": "prop_dominant_homogeneous, prop_dominant_empty, prop_severity_in_range, prop_interleave_length, prop_interleave_real_first, prop_window_bounded",
+    "suite_completa": "182 passed; 0 failed (108 lib + 18 integration + 4 + 6 proptest frontier + 44 + 2)",
+    "clippy_strict": "cargo clippy -p arkhe-safe-manifold --all-targets -- -D warnings — exit 0, zero warnings"
+  },
+
+  "nucleo_lean": {
+    "arquivo": "src/lean/SafeManifoldNucleus.lean",
+    "kernel": "Lean 4 real (elan), exit 0 — SEM Mathlib, SEM sorry (convencao blocos 966/971/972/996/1009)",
+    "teoremas": {
+      "I647": "severidade estritamente monotona 0..4 (4 teoremas: safe<warning<boundary<continuum<outside)",
+      "I648": "dominio da moda — dominant [] = none; dominant [x] = some x (2 singletons provados)",
+      "I649": "tie-break conservador — contagens iguais vence a MAIS SEVERA (dominant [safe, warning] = some warning; dominant [safe, warning, boundary] = some boundary)",
+      "uniformidade": "dominant [x,x,x] = some x (safe e outside provados)"
+    },
+    "total": "11 teoremas verificados pelo kernel"
+  },
+
+  "honestidade": {
+    "escopo": "o Rust (frontier.rs) e a realizacao de sanidade sobre substrato real; o nucleo Lean prova a SEMANTICA MODAL sobre modelo Lean do mesmo tipo indutivo e mesma funcao de contagem/tie-break",
+    "sem_ffi": "nao ha FFI Lean->Rust neste bloco; nenhuma afirmacao de extensionalidade automatica entre os dois",
+    "ancoras": "escape_region.rs (ADE9A4705B90068D601AA0F32FECE70B8CF8791847F9A1762E20C3E86D2B11FC) e safe_manifold.rs (E6E8B05E0AFD1D9832DB2C821C2305B3F90490086B4405CF29F8DC0513D50C54) NAO foram tocadas — hashes do bloco 1072 intactos",
+    "referencia": "doutrina DynaWeb (arXiv:2601.22149) aplicada como construcao nova (sample_interleaved), nao como correcao contra fantasma"
+  },
+
+  "hashes_artefatos": {
+    "src/frontier.rs": "sha256:66535ABC907F48D5E9629E920AC6052538972F9DC8171753616A3D275CDFE17C",
+    "src/lib.rs": "sha256:3626A3A03441A6B2942B4D4344DE6292842995A3E56C7C815FA30E0B03F8B91E",
+    "tests/frontier.rs": "sha256:66647C46E35E8E37AF8CBB99242056A598F4030668C833082F71DFA14EFF3B3E",
+    "src/lean/SafeManifoldNucleus.lean": "sha256:02059291E9E3211E814BABE906725A2B6E80B82911E80E3DE09986F14E5895DB"
+  },
+
+  "hash_conteudo": "sha256:162440ECD3B65DE37F2F4438D9812B7B81AD88F3BA5160660E44BBD16756D42A",
+  "metodo_hash_conteudo": "sha256 sobre a concatenacao ASCII (ordem fixa) dos 4 hashes SHA256: src/frontier.rs + src/lib.rs + tests/frontier.rs + src/lean/SafeManifoldNucleus.lean",
+  "selo": "ARKHE-BLOCO-1073-SUBSTRATO-FRONTIER-2026-09-10"
+}
