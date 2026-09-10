@@ -1,0 +1,31 @@
+{
+  "bloco": 1058,
+  "tipo": "ERRATA",
+  "data": "2026-09-09",
+  "alvo": "docs/protocol/p2p_spec.md",
+  "sha256_alvo": "sha256:369FC4192CBC7A513B7B1B2F82BDB426C5E6F26782F11FA15A935DD0BABA8CE1",
+  "correcoes": [
+    {
+      "campo": "header Data",
+      "valor_original": "2026-09-10",
+      "valor_corrigido": "2026-09-09",
+      "motivo": "Data forward-dated herdada da sessao anterior; relogio real confirmado via Get-Date (2026-09-09). Flageado em secao 11 do proprio spec (bloco 1057)."
+    },
+    {
+      "campo": "Selo secao 8 (v1.0 de decisao)",
+      "valor_original": "CATEDRAL-OS-P2P-DECISAO-TRANSPORTE-BLOCO-1055-2026-09-10",
+      "valor_corrigido": "CATEDRAL-OS-P2P-DECISAO-TRANSPORTE-BLOCO-1055-2026-09-09",
+      "motivo": "Selo do bloco 1055 corrigido para data real de emissao (Gravity-1), consistente com bloco_1055_errata_ratificada.json."
+    },
+    {
+      "campo": "Selo secao 9 (v1.1 malha verificada)",
+      "valor_original": "CATEDRAL-OS-P2P-MALHA-2-NOS-BLOCO-1056-2026-09-10",
+      "valor_corrigido": "CATEDRAL-OS-P2P-MALHA-2-NOS-BLOCO-1056-2026-09-09",
+      "motivo": "Selo do bloco 1056 corrigido para data real de emissao (Gravity-1), consistente com bloco_1056_errata_ratificada.json."
+    }
+  ],
+  "nota_apuracao": "Secao 10 (fechamento I624) e secao 11 ja carregam a data correta 2026-09-09 (selo ...1057-2026-09-09 sane). APENAS header Data, secao 8 e secao 9 estao adiantados. Headers das seccoes 8/9 intocados conforme o padrao dos blocos 1055/1056; a erratizacao completa-se com registro novo.",
+  "politica": "Loopseal-2 (append-only): a spec nao e reescrita retroativamente, exceto pelo apontamento explicito aqui registado; o registro original permanece e referencia o corrigido.",
+  "status": "ERRATA_REGISTRADA",
+  "selo": "CATEDRAL-OS-ERRATA-P2P-SPEC-BLOCO-1058-2026-09-09"
+}

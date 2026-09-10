@@ -1,0 +1,29 @@
+{
+  "bloco": 1058,
+  "versao": "v396.3",
+  "handover_anterior": 1057,
+  "data": "2026-09-09",
+  "tipo": "ERRATA_CHAIN_CLOSEOUT",
+  "descricao": "Fechamento da cadeia de errata iniciada no bloco 1057 (secao II do parecer). As datas forwards-dated da spec P2P (header Data 2026-09-10, selos das seccoes 8/9 2026-09-10) foram erratizadas: novo registro bloco_1058_errata_p2p_spec.json (ERRATA_REGISTRADA, campo alvo = docs/protocol/p2p_spec.md com sha256 pre-errata 369FC419...) e homologacao bloco_1058_errata_p2p_spec_ratificada.json (ERRATA_RATIFICADA) com sha256 pos-errata DD760894...; seccao 12 apensada a spec. Em paralelo, o portao de namespace em tools/ci/check_invariants.sh passou a emitir explicitamente os conjuntos attested_only (IDs com substrato sem referencia em docs: 30) e docs_only (IDs referidos em docs sem substrato: 16, todos parecer-rejeitados I461/I462/I627-I646) - a divergencia 70 atestados / 56 refs-doc fica visivel a cada execucao, nao mais rever-engenharia. Decisao da auditoria: os 30 attested_only sao IDs legitimos de codigo interno nao promovidos a politica por escrito; os 16 docs_only sao exatamente a allowlist de rejeitadas. Nenhuma renomeacao, nenhum reset de numeracao.",
+  "decisoes_atendidas": {
+    "delta_explicito": "portao emite attested_only e docs_only (30/16) - a divergencia deixa de ser incidental e vira contrato reprodutivel",
+    "espec_p2p_sane": "header Data + selos 8/9 corrigidos via errata homologada; seccoes 8-11 intactas (Loopseal-2), seccao 12 documenta",
+    "honestidade_mantida": "os 30 attested_only sao IDs de codigo real (ex.: I536-I538 do arkhe-gpu, I647/I650 de nucleo) que ainda nao possuem entrada de politica em docs; nao foram promovidos nem renomeados",
+    "sem_reset_numeracao": "docs_only = allowlist parecer-rejeitada completa (I461,I462,I627,I628,I629,I630,I632,I633,I635,I636,I641,I642,I643,I644,I645,I646)"
+  },
+  "arquivos_alterados": {
+    "docs/protocol/p2p_spec.md": "seccao 12 'Erratizacao temporal (bloco 1058)' apensada; header Data e selos 8/9 INTACTOS (append-only)",
+    "bloco_1058/bloco_1058_errata_p2p_spec.json": "ERRATA_REGISTRADA - campo alvo, sha256 pre-errata, 3 correcoes temporais",
+    "bloco_1058/bloco_1058_errata_p2p_spec_ratificada.json": "ERRATA_RATIFICADA - hashes reais pre/pos, referencia a errata",
+    "tools/ci/check_invariants.sh": "emissao explicita de attested_only / docs_only no fim do portao"
+  },
+  "verificacao": {
+    "hashes_reais": "p2p_spec pre-errata 369FC4192CBC7A513B7B1B2F82BDB426C5E6F26782F11FA15A935DD0BABA8CE1; pos-errata DD76089431DBCCED9A6E6E8332612C6E1ECF897824DF4A0C0E85B9DA2461CA41; errata 414C95AF2BAF377E94B123D5D18048ECD6CF1A652D2EBC31E1043D3BD3368440 (Get-FileHash)",
+    "portao_semantica": "analogo PowerShell rg.exe: attested=70, docs=56, attested_only=30, docs_only=16, shared=40; I624 atestado; 0 violacoes fora da allowlist",
+    "json_valido": "bloco_1058.json + bloco_1058_errata_p2p_spec.json + bloco_1058_errata_p2p_spec_ratificada.json parseiam (ConvertFrom-Json)",
+    "testes_na_regressao": "sem alteracao de codigo Rust - registry 4/4, blink 35/35, p2p 14/14 permanecem (base a691ecd)"
+  },
+  "limitacao_honesta": "(1) Os 30 attested_only nao estao documentados como politica escrita - apenas a listagem do portao os torna visiveis; promove-los a I625+ e trabalho futuro quando houver entrada de politica; (2) o hashing da spec e sobre o arquivo no disco - qualquer edicao futura altera pos-errata; (3) workspace-wide clippy segue bloqueado pela condicao pre-existente hardy MSRV 1.95 (rustc 1.94 local).",
+  "status": "CONCLUIDO",
+  "selo": "CATEDRAL-OS-ERRATA-CHAIN-CLOSEOUT-BLOCO-1058-2026-09-09"
+}

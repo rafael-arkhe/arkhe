@@ -80,6 +80,24 @@ else
     VIOLATED=1
 fi
 
+# --- 5. Delta explicito (bloco 1058): attested_only / docs_only visiveis ---
+# Divergencia entre codigo e documentacao deixa de ser incidental: cada ID sem a
+# presenca no outro dominio e listado, para a proxima auditoria nao relitigar.
+ATTESTED_ONLY_NO_DOCS="$(printf '%s\n' "$ATTESTED" | while read -r id; do echo "$DOC_REFS" | grep -qx "$id" || echo "$id"; done | sort -u)"
+DOCS_ONLY_NO_CODE="$(printf '%s\n' "$DOC_REFS" | while read -r id; do echo "$ATTESTED" | grep -qx "$id" || echo "$id"; done | sort -u)"
+echo ""
+echo "Delta atestados vs docs refs (bloco 1058):"
+echo "  atestados total: $(echo "$ATTESTED" | grep -c .)"
+echo "  docs refs total: $(echo "$DOC_REFS" | grep -c .)"
+echo "  shared:          $(comm -12 <(printf '%s\n' "$ATTESTED") <(printf '%s\n' "$DOC_REFS") | grep -c .)"
+echo "  attested_only (nao referidos em docs):  $(echo "$ATTESTED_ONLY_NO_DOCS" | grep -c .)"
+echo "  docs_only (sem substrato, ver allowlist): $(echo "$DOCS_ONLY_NO_CODE" | grep -c .)"
+echo ""
+echo "  attested_only:"
+[ -z "$ATTESTED_ONLY_NO_DOCS" ] && echo "    (nenhum)" || echo "$ATTESTED_ONLY_NO_DOCS" | sed 's/^/    - /'
+echo "  docs_only (ID de docs sem substrato — todos da allowlist parecer-rejeitada):"
+[ -z "$DOCS_ONLY_NO_CODE" ] && echo "    (nenhum)" || echo "$DOCS_ONLY_NO_CODE" | sed 's/^/    - /'
+
 echo ""
 echo "--------------------------------------------------"
 if [ "$VIOLATED" -eq 0 ]; then

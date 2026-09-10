@@ -181,9 +181,30 @@ cobre tipo + assinatura, não HSM.
    cripto-vinculado (bloco 1057); invariantes futuros (ex.: desempenho MLPerf)
    tomam ID fresco (I625+), nunca reutilizam I624 fora da família implementada.
 2. **Errata temporal (herdada da sessão anterior).** O cabeçalho deste documento
-   («Data: 2026-09-10»), os registos `bloco_1055.json`/`bloco_1056.json` e os
-   selos das secções 8/9 carregam data `2026-09-10`, adiantada em relação ao
-   relógio real de verificação (`2026-09-09`, confirmado via `Get-Date`).
-   Conforme Loopseal-2 (append-only), esses registos **não são reescritos** aqui;
-   ficam **flagados para erratização** nas suas próprias revisões de aceitação. O
-   bloco 1057 adota a data de emissão real: `2026-09-09`.
+    («Data: 2026-09-10»), os registos `bloco_1055.json`/`bloco_1056.json` e os
+    selos das secções 8/9 carregam data `2026-09-10`, adiantada em relação ao
+    relógio real de verificação (`2026-09-09`, confirmado via `Get-Date`).
+    Conforme Loopseal-2 (append-only), esses registos **não são reescritos** aqui;
+    ficam **flagados para erratização** nas suas próprias revisões de aceitação. O
+    bloco 1057 adota a data de emissão real: `2026-09-09`.
+
+## 12. Erratização temporal (bloco 1058)
+
+Erratização dos selos adiantados detetados na secção 11 (bloco 1057). Conforme
+Loopseal-2 (append-only), o cabeçalho «Data» e os selos das secções 8/9 deste
+documento **não são reescritos**; a correção fica registada aqui e nos registos
+de errata homologados:
+
+- **Header Data:** `2026-09-10` → `2026-09-09` (data real de emissão).
+- **Selo secção 8 (v1.0 de decisão):**
+  `CATEDRAL-OS-P2P-DECISAO-TRANSPORTE-BLOCO-1055-2026-09-10` →
+  `CATEDRAL-OS-P2P-DECISAO-TRANSPORTE-BLOCO-1055-2026-09-09`.
+- **Selo secção 9 (v1.1 — malha verificada):**
+  `CATEDRAL-OS-P2P-MALHA-2-NOS-BLOCO-1056-2026-09-10` →
+  `CATEDRAL-OS-P2P-MALHA-2-NOS-BLOCO-1056-2026-09-09`.
+- **Registos:** `bloco_1058/bloco_1058_errata_p2p_spec.json`
+  (ERRATA_REGISTRADA, sha256 do alvo `369FC4192CBC7A…`),
+  `bloco_1058/bloco_1058_errata_p2p_spec_ratificada.json`
+  (ERRATA_RATIFICADA), `bloco_1058/bloco_1058.json`.
+- **Selos:** `CATEDRAL-OS-ERRATA-P2P-SPEC-BLOCO-1058-2026-09-09`,
+  `CATEDRAL-OS-ERRATA-P2P-SPEC-RATIFICADA-BLOCO-1058-2026-09-09`.

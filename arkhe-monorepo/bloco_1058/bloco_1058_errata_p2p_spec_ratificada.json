@@ -1,0 +1,35 @@
+{
+  "bloco": 1058,
+  "tipo": "ERRATA_RATIFICADA",
+  "data": "2026-09-09",
+  "parent_bloco": 1057,
+  "alvo": "docs/protocol/p2p_spec.md",
+  "sha256_alvo_version_pre_errata": "sha256:369FC4192CBC7A513B7B1B2F82BDB426C5E6F26782F11FA15A935DD0BABA8CE1",
+  "sha256_alvo_version_pos_errata": "sha256:DD76089431DBCCED9A6E6E8332612C6E1ECF897824DF4A0C0E85B9DA2461CA41",
+  "referencia_errata": "bloco_1058/bloco_1058_errata_p2p_spec.json",
+  "sha256_referencia_errata": "sha256:414C95AF2BAF377E94B123D5D18048ECD6CF1A652D2EBC31E1043D3BD3368440",
+  "revisao": {
+    "correcoes_ratificadas": [
+      {
+        "campo": "header Data",
+        "valor_original": "2026-09-10",
+        "valor_corrigido": "2026-09-09"
+      },
+      {
+        "campo": "Selo secao 8 (v1.0)",
+        "valor_original": "CATEDRAL-OS-P2P-DECISAO-TRANSPORTE-BLOCO-1055-2026-09-10",
+        "valor_corrigido": "CATEDRAL-OS-P2P-DECISAO-TRANSPORTE-BLOCO-1055-2026-09-09"
+      },
+      {
+        "campo": "Selo secao 9 (v1.1)",
+        "valor_original": "CATEDRAL-OS-P2P-MALHA-2-NOS-BLOCO-1056-2026-09-10",
+        "valor_corrigido": "CATEDRAL-OS-P2P-MALHA-2-NOS-BLOCO-1056-2026-09-09"
+      }
+    ],
+    "correcoes_rejeitadas": [],
+    "nota": "Correcoes estritamente temporais (Gravity-1). Seccao 12 apensada a spec apos a errata (hash pos-errata DD7608...); seccoes 8/9 e header Data preservados (Loopseal-2). Seccao 10/11 ja sane."
+  },
+  "politica": "Loopseal-2 (append-only): original preservado; errata ratificada e novo bloco. Selos de erratizacao: CATEDRAL-OS-ERRATA-P2P-SPEC-BLOCO-1058-2026-09-09 / CATEDRAL-OS-ERRATA-P2P-SPEC-RATIFICADA-BLOCO-1058-2026-09-09.",
+  "status": "ERRATA_RATIFICADA",
+  "selo": "CATEDRAL-OS-ERRATA-P2P-SPEC-RATIFICADA-BLOCO-1058-2026-09-09"
+}
