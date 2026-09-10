@@ -1,0 +1,32 @@
+{
+  "bloco": 1054,
+  "versao": "v395.2",
+  "handover_anterior": 1053,
+  "data": "2026-09-10",
+  "tipo": "AUDITORIA_P2P_PARECER_NAO_EXECUTAVEL_COMO_ESCRITO",
+  "descricao": "Auditoria do parecer 'finalizacao P2P v1.0 + implementacao libp2p + integracao gRPC' (apresentado como bloco 1055 proposto). PARECER_NAO_EXECUTAVEL_COMO_ESCRITO (precedente bloco 1011/v514.0, v520.0, v521.0, v605.0): NADA foi implementado. Fatores verificados (filesystem + grep): (1) nao existem no monorepo os diretorios/pacotes reivindicados - crates/, crates/arkhe-p2p, agent/, proto/, proto/cathedral.proto, packages/arkhe-tools, bloco_1054, bloco_1055; (2) os unicos usos de 'libp2p' na arvore sao em docs/protocol/p2p_spec.md (que diz explicitamente 'libp2p e CANDIDATO, nao decisao') e num ficheiro de export nao-relacionado (etherscan_verified_signatures_export.json); (3) o bloco 1055 proposto reivindica 'score_Omega': 100 e 'status': 'P2P_OPERACIONAL' - REJEITADOS por regra estabelecida nos blocos 1052/1053 (sem Score Omega fabricado; projecao != verificacao); (4) o codigo apresentado nao compilaria localmente nem numa versao atual de libp2p: usa API pre-0.52 deprecada (TokioTcpConfig, SwarmBuilder::new, Identify::new, NetworkBehaviourEventProcess), parser de peer_id via PeerId::from_bytes sobre um Multiaddr, e import de crate::identity::Identity que nao existe (peer.rs define Identity); (5) reivindica rust-version 1.95 - toolchain local e rustc 1.94.0; (6) testes '12 unit + 3 integracao' inventados - o crate arkhe-blink-bridge real tem 15 unit + 8 integracao (23/23) e nao foi modificado; (7) os nomes de metodo do pipeline (verify_formal, ensure_privacy, ensure_atomicity, enforce_sandbox, recover_value) NAO existem na API real (MevProtection/AnthProtection/ArkheVerifier em modulos mev/anth/arkhe, pipeline submit_unified de 14 passos). DECISAO SOBRE TRANSPORTE: NAO tomada - libp2p segue candidato (p2p_spec.md rascunho). O bloco 1054 (que o parecer alegava conter a decisao) nao existia; este bloco materializa o registo honesto.",
+  "decisoes_atendidas": {
+    "parecer_nao_executavel": "o parecer P2P v1.0 com implementacao completa NAO EXECUTAVEL_COMO_ESCRITO - todos os artefatos reivindicados ausentes do monorepo (precedente bloco 1011); nada foi aceite como P2P_OPERACIONAL",
+    "score_omega_rejeitado": "score_Omega 100 e status P2P_OPERACIONAL do bloco 1055 proposto REJEITADOS - sem Score Omega fabricado (regra dos blocos 1052/1053); score e projecao explicita ou ausente, nunca verificacao",
+    "sem_presuncao_de_existencia": "nenhum arquivo/dirino/crate do parecer existe: crates/(home real de crates e packages/), crates/arkhe-p2p, agent/, proto/, packages/arkhe-tools, bloco_1054, bloco_1055 - verificado por Test-Path e grep; libp2p so em p2p_spec.md como CANDIDATO",
+    "transporte_ainda_candidato": "decisao de transporte NAO tomada: libp2p permanece candidato; a resolucao depende de (a) backlog MSRV (rustc 1.94.0 local, hardy-bpv7/hardy-cbor 1.95) e (b) versao de libp2p que compile e seja auditavel; API apresentada (0.54 no texto, mas TokioTcpConfig/SwarmBuilder::new deprecados) nao e a referencia",
+    "pipeline_real_intacto": "o UnifiedBlinkBridge real NAO foi alterado; continua com os 14 passos e 23/23 testes; nomes de API do parecer nao correspondem a implementacao real (modulos mev/anth/arkhe)",
+    "registro_1054_materializado": "o bloco 1054 alegado (decisao de transporte) nao existia - este bloco materializa o registo honesto da decisao: NAO DECIDIDO + parecer rejeitado"
+  },
+  "verificacao": {
+    "filesystem": "Test-Path crates=False, crates/arkhe-p2p=False, agent=False, proto=False, packages/arkhe-tools=False, bloco_1054=False, bloco_1055=False",
+    "grep": "unico uso de libp2p/arkhe-tools/cathedral.proto/arkhe-p2p na arvore: docs/protocol/p2p_spec.md (libp2p candidato) e etherscan_verified_signatures_export.json (nao relacionado)",
+    "rustc": "1.94.0 (4a4ef493e 2026-03-02) - abaixo do MSRV 1.95 alegado no parecer",
+    "crate_real": "cargo test -p arkhe-blink-bridge continua 23/23 (15 unit + 8 integracao), clippy -D warnings exit 0 - nenhuma alteracao feita"
+  },
+  "limitacao_honesta": "(1) O parecer apresentou como FEITO o que era PROPOSTA - nenhum codigo P2P, gRPC ou agente existe; (2) o codigo ilustrativo usa APIs de libp2p deprecadas/inexistentes e importa modulos que nao existem; reivindicalo como compilado/testado e fabricacao; (3) score_Omega 100 descartado; so sera registado quando existir instrumentacao real; (4) a decisao de transporte fica pendente; candidatos: libp2p (verificar versao/MSRV e API) e protocolo proprio leve - decisao no proximo bloco apos auditoria de versao. Nenhuma alteracao em crates existentes, no CoherenceLedger (Fase 4) nem nos nucleos I500-I535.",
+  "plano": [
+    "Auditar versao real de libp2p compilavel no rustc 1.94.0 (msrv e API atual, nao a do texto proposto)",
+    "Decidir transporte (libp2p ou protocolo proprio) com base na auditoria - registar no bloco seguinte",
+    "So entao criar packages/arkhe-p2p (home real de crates no monorepo) se libp2p e a decisao",
+    "Integracao gRPC depende de proto/cathedral.proto e agent/ existirem - nao existem; requerer decisao de escopo antes",
+    "Bloco 1055 sera reclassificado: so recebe P2P_OPERACIONAL quando existir codigo real verificado"
+  ],
+  "status": "REJEITADO_COMO_ESCRITO_PENDENTE_DECISAO_TRANSPORTE",
+  "selo": "CATEDRAL-OS-AUDITORIA-P2P-PARECER-NAO-EXECUTAVEL-BLOCO-1054-2026-09-10"
+}

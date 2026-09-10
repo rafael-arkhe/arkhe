@@ -1,0 +1,19 @@
+{
+  "bloco": 1056,
+  "tipo": "ERRATA",
+  "data": "2026-09-09",
+  "referencia": "bloco_1056.json",
+  "sha256_referencia": "sha256:C8C71BB92060B2BA9C31CC31123C0F7248D33B8ACC04DEEFA61310FCF70DC5E8",
+  "correcoes": [
+    {
+      "campo": "data",
+      "valor_original": "2026-09-10",
+      "valor_corrigido": "2026-09-09",
+      "motivo": "Data forward-dated herdada da sessao anterior; relogio real confirmado via Get-Date (2026-09-09)"
+    }
+  ],
+  "nota_apuracao": "A versao do parecer ARKHE-BLOCO-1057-PARECER-CONDICIONAL propunha tambem corrigir campo 'tipo' de 'CORRECAO_NAMESPACE_INVARIANTES' para 'REVOGADO'. APURADO CONTRA O MONOREPO: bloco_1056.json nao contem esse campo nem esse valor de tipo — o tipo real e 'MALHA_P2P_2_NOS_VERIFICADA'. A correcao de namespace de I624 NAO pertence ao bloco 1056 (foi resolvida no bloco 1057, docs/namespace_policy.md, packages/arkhe-invariant-registry). Registar essa correcao aqui seria fabricar proveniencia; por isso fica apenas esta nota, sem correcao de tipo.",
+  "politica": "Loopseal-2 (append-only): o registro bloco_1056.json NAO e reescrito; a errata e registada como registro novo que referencia o anterior.",
+  "status": "ERRATA_REGISTRADA",
+  "selo": "CATEDRAL-OS-ERRATA-BLOCO-1056-2026-09-09"
+}

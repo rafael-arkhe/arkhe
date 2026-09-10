@@ -68,6 +68,15 @@ members = [
     # ARKHE-FIRMWARE-CONSCIOUSNESS — Governança de consciência no_std para
     # dispositivos embarcados (C-01..C-04, Φ inteiro Gap-1, watchdog, CBOR).
     "packages/arkhe-firmware-consciousness",
+    # ARKHE-BLINK-BRIDGE — Consolidação tripla MEV + ANTH + ARKHE (bloco 1052,
+    # v530.0): UnifiedBlinkBridge aplica 16 invariantes em sequência.
+    "packages/arkhe-blink-bridge",
+    # ARKHE-P2P — Camada P2P da Catedral (bloco 1055): libp2p 0.56.0 pinado,
+    # identidade Ed25519 (PeerId), mensagens assinadas + rede Kademlia/gossipsub.
+    "packages/arkhe-p2p",
+    # ARKHE-INVARIANT-REGISTRY — Registry canónico (bloco 1057 ratificado):
+    # IDs atestados por realização testada; referências mortas rejeitadas.
+    "packages/arkhe-invariant-registry",
 ]
 
 [workspace.package]

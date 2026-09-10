@@ -1,0 +1,31 @@
+{
+  "bloco": 1056,
+  "tipo": "ERRATA_RATIFICADA",
+  "data": "2026-09-09",
+  "parent_bloco": 1055,
+  "referencia": "bloco_1056.json",
+  "sha256_referencia": "sha256:C8C71BB92060B2BA9C31CC31123C0F7248D33B8ACC04DEEFA61310FCF70DC5E8",
+  "referencia_errata": "bloco_1056_errata.json",
+  "sha256_referencia_errata": "sha256:055540E507866604B2742591DFCC45130DF4D83CE7F3FB59C55374EC6296E138",
+  "revisao": {
+    "correcoes_ratificadas": [
+      {
+        "campo": "selo",
+        "valor_original": "2026-09-10 (forward-dated)",
+        "valor_corrigido": "2026-09-09 (data real de emissao)",
+        "fundamento": "Get-Date confirmou 2026-09-09; selo deve carregar data real de emissao (Gravity-1)"
+      }
+    ],
+    "correcoes_rejeitadas": [
+      {
+        "campo": "tipo",
+        "proposta": "REVOGADO",
+        "motivo_rejeicao": "O campo CORRECAO_NAMESPACE_INVARIANTES nao existe no registro original; fabricar uma correcao de tipo seria inventar substrato. O tipo real do bloco 1056 e MALHA_P2P_2_NOS_VERIFICADA."
+      }
+    ],
+    "nota": "Ratificada a correcao temporal; recusada a correcao de tipo por ausencia de substrato (precedente de honestidade, blocos 990/1006/1011/1054/1057)."
+  },
+  "politica": "Loopseal-2 (append-only): bloco original preservado; errata ratificada e novo bloco.",
+  "status": "ERRATA_RATIFICADA",
+  "selo": "CATEDRAL-OS-ERRATA-RATIFICADA-BLOCO-1056-2026-09-09"
+}

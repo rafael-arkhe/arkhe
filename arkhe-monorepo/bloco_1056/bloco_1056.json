@@ -1,0 +1,47 @@
+{
+  "bloco": 1056,
+  "versao": "v396.1",
+  "handover_anterior": 1055,
+  "data": "2026-09-10",
+  "tipo": "MALHA_P2P_2_NOS_VERIFICADA",
+  "descricao": "Malha real de 2 nos em loopback construida e VERIFICADA sobre packages/arkhe-p2p (libp2p 0.56.0 pinado). ENTREGA: 3 testes de integracao novos em tests/mesh_test.rs - (1) two_nodes_dial_and_connect: B diala A em /ip4/127.0.0.1/tcp/{porta}/p2p/{PeerId}; conexao noise+yamux observada em AMBOS os lados (espera explicita de established bilateral antes de qualquer overlay); (2) gossipsub_signed_publish_subscribe_with_anti_replay: A publica 10 mensagens P2PMessage assinadas frescas + 1 obsoleta no topico /arkhe/blocks/1; B recebe todas; validate(&PublicKey, now, 60) aceita 10/10 e REJEITA a obsoleta (anti-replay por timestamp); espera pelo evento gossipsub::Event::Subscribed de B antes de publicar (evita NoPeersSubscribedToTopic - heartbeat do gossipsub propaga a assinatura); (3) kademlia_bootstrap_and_record_roundtrip: add_address + bootstrap() nos 2 nos; put_record(Quorum::One) reporta PutRecord(Ok) com requests:2 success:2 failure:0 (registro observado como InboundRequest::PutRecord no no A); get_record de A recupera o valor exato via GetRecordOk::FoundRecord(PeerRecord). DUAS DESCOBERTAS EMPIRICAS REGISTRADAS: (a) libp2p-kad 0.48.0 Config::default() inicia em Mode::Client (auto_mode) e niega o protocolo /ipfs/kad/1.0.0 no lado entrante (handler.rs listen_protocol: DeniedUpgrade para Mode::Client) - em 2 nos simples o auto_mode NAO sobe para Server, a lista de protocolos do identify nao contem /ipfs/kad/1.0.0, e toda requisicao kad falha silenciosamente (failure:1 sem eventos; bootstrap conclui com num_remaining=0; put erra com QuorumFailed{success:[]}). Correcao: kad.set_mode(Some(Mode::Server)) em behaviour.rs; (b) corrida de dial no Windows: se um no diala o outro enquanto a conexao entrante ainda nao foi registrada no connection pool, o dial paralelo ao mesmo endereco loopback colide com WSAE10048 (AddrInUse) e a consulta kad conta failure:1 - mitigado esperando a conexao estabelecida nos dois lados antes de semear o DHT.",
+  "decisoes_atendidas": {
+    "malha_2_nos_real": "dial + conexao noise/yamux verificada (teste) entre 2 Network distintos na mesma runtime tokio",
+    "gossipsub_eletivo": "publicacao e recepcao reais com assinatura verificada por chave publica do emissor e antireplay por timestamp: 10 aceitas / 1 obsoleta rejeitada",
+    "kademlia_dht": "bootstrap concluido nos 2 nos; put_record com Quorum::One observado Ok (success:2); get_record recuperou o valor exato; InboundRequest::PutRecord visto no no destino",
+    "mode_server": "kad set_mode(Some(Mode::Server)) - descoberta empirica: default e Client+auto_mode que niega o protocolo entrante em 2 nos",
+    "anti_replay_cluster": "validate(public_key, now, max_age) = assinatura + frescor (janela 60s) aplicado no recebedor",
+    "métricas_observadas": "sem score Omega fabricado; numeros reais: 14/14 testes (9 unit + 5 integracao), clippy -D warnings exit 0, blink-bridge 23/23"
+  },
+  "arquivos_alterados": {
+    "packages/arkhe-p2p/src/behaviour.rs": "kad.set_mode(Some(Mode::Server)) no Behaviour::new (protocolo kad entrante habilitado)",
+    "packages/arkhe-p2p/src/network.rs": "subscribe, behaviour_mut, next_event (tokio::time::timeout sobre swarm.next - Sem busy-wait manual), add_bootstrap_peer, bootstrap_kademlia, put_record (Record::new/RecordKey/Quorum::One), get_record; fixes de API reais: RecordKey privatised (usar libp2p::kad::RecordKey), subscribe retorna Result<bool>->(), get_record retorna QueryId",
+    "packages/arkhe-p2p/src/messages.rs": "verify agora recebe &libp2p::identity::PublicKey (nao &Identity) - quem verifica nao precisa da identidade privada; novo validate(public_key, now, max_age) = assinatura + frescor",
+    "packages/arkhe-p2p/src/lib.rs": "exporta Behaviour, BehaviourEvent, Network, NetworkConfig",
+    "packages/arkhe-p2p/tests/mesh_test.rs": "3 testes de integracao da malha (novo arquivo)",
+    "packages/arkhe-p2p/tests/network_test.rs": "verify(&alice.keypair().public())",
+    "docs/protocol/p2p_spec.md": "secao 9 - malha 2 nos verificada; header Estado v1.1"
+  },
+  "dificuldades_empiricas": {
+    "kad_mode": "libp2p-kad 0.48.0 inicia em Mode::Client (behaviour.rs:513 Config::default) com auto_mode; handler.rs:607 listen_protocol entrega DeniedUpgrade em Mode::Client, sem /ipfs/kad/1.0.0 no identify; sintoma: toda requisicao kad falha com failure:1 silencioso, bootstrap Ok com num_remaining=0, put QuorumFailed{success:[]}",
+    "dial_race_windows": "dial paralelo ao mesmo endereco loopback antes do established bilateral -> WSAE10048 AddrInUse no dial de kand; mitigado com espera explicita de ConnectionEstablished nos 2 lados antes de semear DHT",
+    "gossipsub_heartbeat": "publicar imediatamente apos conexao -> NoPeersSubscribedToTopic; espera do evento Subscribed do par resolve"
+  },
+  "verificacao": {
+    "cargo_test_p2p": "cargo test -p arkhe-p2p --all-targets 14/14 exit 0 = 9 unit (identity 5 + messages 4) + 5 integracao (network_test 2 + mesh_test 3)",
+    "clippy": "cargo clippy -p arkhe-p2p --all-targets -- -D warnings exit 0 (lints corrigidos: manual_unwrap_or_default, collapsible_match)",
+    "blink_bridge_intacto": "cargo test -p arkhe-blink-bridge 15+8=23/23 exit 0 - nenhuma regressao",
+    "unsafe_code": "unsafe_code deny no crate (sem regressao)",
+    "lockfile": "Cargo.lock continua com arkhe-p2p e libp2p 0.56.0 pinados"
+  },
+  "limitacao_honesta": "(1) Malha limitada a 2 nos em loopback na MESMA maquina/processo - NAO ha P2P_OPERACIONAL para 3+ hosts, churn, peerstore persistente, nem roteamento sobre rede fisica; (2) publish/put exigem esperas de estado (Subscribed / established bilateral) - ainda nao ha fila reativa que emita requicoes conforme a rede amadurece; (3) o mapeamento I624 (key registry master/backup do arkhe-blink-bridge x PeerId Ed25519) NAO foi fechado - as chaves dos nos de teste sao aleatorias por execucao; (4) mensagens gossip em bytes serde_json - ausente ainda a equivalencia com os CBOR-subset do handover/validation/sync da spec; (5) cargo check --workspace segue bloqueado pela condicao PRE-EXISTENTE hardy-bpv7/hardy-cbor MSRV 1.95 (rustc local 1.94.0) - nada a ver com este crate; (6) sem score_Omega: metricas acima sao observacoes dos testes, nao projecao.",
+  "plano": [
+    "Fechar mapeamento I624: registrar PeerId Ed25519 no key registry do arkhe-blink-bridge e reutilizar chaves deterministicas nos nos de teste",
+    "Mensagens de aplicacao equivalentes a spec v1.1 (CBOR-subset handover/validation/sync) trafegando no gossip assinado",
+    "Fila reativa no Network (notify-on-event) para publicar/put de forma autonoma conforme mesh amadurece (sem esperas manuais)",
+    "3+ nos e/ou hosts separados: preservar cifras 100% e trabalhar a resiliencia (churn, re-conexao)",
+    "Clamp do runtime p2p com o backend Blink real (salto do backend simulado em memoria do arkhe-blink-bridge)"
+  ],
+  "status": "MALHA_P2P_2_NOS_VERIFICADA_ELETIVA",
+  "selo": "CATEDRAL-OS-P2P-MALHA-2-NOS-BLOCO-1056-2026-09-10"
+}

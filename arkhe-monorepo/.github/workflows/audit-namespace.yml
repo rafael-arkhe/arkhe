@@ -1,0 +1,51 @@
+name: audit-namespace
+
+on:
+  push:
+    paths:
+      - "arkhe-monorepo/packages/**"
+      - "arkhe-monorepo/docs/**"
+      - "arkhe-monorepo/tools/**"
+      - "arkhe-monorepo/bloco_105*/**"
+      - ".github/workflows/audit-namespace.yml"
+  pull_request:
+    paths:
+      - "arkhe-monorepo/packages/**"
+      - "arkhe-monorepo/docs/**"
+      - "arkhe-monorepo/tools/**"
+      - "arkhe-monorepo/bloco_105*/**"
+      - ".github/workflows/audit-namespace.yml"
+  workflow_dispatch:
+
+jobs:
+  namespace-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar ripgrep
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+
+      - name: Toolchain Rust (stable + clippy)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Auditoria de namespace (bloco 1057 ratificado)
+        working-directory: arkhe-monorepo
+        run: bash tools/ci/check_invariants.sh
+
+      - name: Cargo — testes registry canonico (4/4)
+        working-directory: arkhe-monorepo
+        run: cargo test -p arkhe-invariant-registry
+
+      - name: Cargo — testes blink-bridge (35/35) com vinculo P2P (I624)
+        working-directory: arkhe-monorepo
+        run: cargo test -p arkhe-blink-bridge
+
+      - name: Cargo — clippy (D warnings) na cadeia I624 (escopo, nao no workspace: hardy MSRV 1.95 bloqueia rustc 1.94)
+        working-directory: arkhe-monorepo
+        run: cargo clippy -p arkhe-invariant-registry -p arkhe-blink-bridge -p arkhe-p2p --all-targets -- -D warnings

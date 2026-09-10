@@ -1,0 +1,34 @@
+{
+  "bloco": 1055,
+  "versao": "v395.3",
+  "handover_anterior": 1054,
+  "data": "2026-09-10",
+  "tipo": "DECISAO_TRANSPORTE_E_NUCLEO_P2P",
+  "descricao": "Decisao de transporte tomada apos auditoria EMPIRICA (bloco 1054 apontava 'PENDENTE_DECISAO_TRANSPORTE'): libp2p 0.56.0 ADOTADO e PINADO (=0.56.0). Auditoria real: ultima versao no crates.io e 0.56.0, rust-version 1.83.0 (compativel com rustc 1.94.0 local), features verificadas no metadata (kad, gossipsub, identify, noise, tcp, dns, tokio, yamux, macros, ed25519), nodo minimo COMPILADO e EXECUTADO em Windows (peer_id 12D3KooWNmWKNMqhWxWYxD9z4p3SVvENjKWQf9dPsuc7xZYd9bkD, listen_on ok). A API real diverge da proposta rejeitada no bloco 1054: SwarmBuilder na raiz (libp2p::SwarmBuilder) com with_existing_identity->with_tokio->with_tcp(tcp::Config, noise::Config::new, yamux::Config::default)->with_dns()->with_behaviour(); tipos renomeados: gossipsub::Behaviour (nao Gossipsub), kad::Behaviour (nao Kademlia), identify::Behaviour (nao Identify); identity::Keypair::sign->Vec<u8>, verify em PublicKey(msg, sig), to_protobuf_encoding->Result. ENTREGA REAL: packages/arkhe-p2p (membro do workspace): identity.rs (Identity Ed25519 via libp2p, PeerId, assinatura sign/verify, persistencia protobuf), messages.rs (P2PMessage assinado: payload handshake/transaction/query/response, canonical timestamp||peer_id||serde_json(payload), antireplay is_fresh), behaviour.rs (NetworkBehaviour derive: kad+ gossipsub+ identify), network.rs (Network real: build the Swarm, listen_on, wait_for_listener via evento NewListenAddr, publish gossipsub, dial). 11/11 testes (9 unit + 2 integracao), clippy -D warnings exit 0, unsafe_code deny. SEM reivindicacao de malha multi-no nem P2P_OPERACIONAL: apenas nucleo testavel sem rede (convencao de honestidade 1052/1054). NOVA dep de rede: libp2p =0.56.0 (pinada, auditada) - Simplicity-2 com justificativa documentada.",
+  "decisoes_atendidas": {
+    "transporte_adotado": "libp2p 0.56.0 ADOTADO e PINADO (features ed25519, noise, tcp, dns, tokio, yamux, kad, gossipsub, identify, macros, serde) - auditoria empirica: MSRV 1.83.0 compilavel no rustc 1.94.0, nodo minimo executou em Windows",
+    "api_real_verificada": "API confirmada contra fonte vendorizada (libp2p-0.56.0/src/builder/*) e compilador: SwarmBuilder na raiz; with_tcp(tcp::Config, noise::Config::new, yamux::Config::default as fn); with_dns() sem args; gossipsub::Behaviour; kad::Behaviour + store::MemoryStore; identify::Behaviour + identify::Config::new(protocol, public_key); identity::Keypair.sign->Vec<u8>, PublicKey.verify(msg,sig); to_protobuf_encoding->Result<Vec<u8>,_>",
+    "sem_malha_multi_no": "NENHUMA reivindicacao de rede multi-no: o crate testa a construcao real da rede (build do Swarm com kad+gossipsub+identify), listen_on real (wait_for_listener aguarda NewListenAddr), assinatura/verificacao/antireplay de mensagens, round-trip protobuf da identidade - malha P2P e dial exercitado ficam para bloco seguinte",
+    "espec_v1_promovida": "docs/protocol/p2p_spec.md promovida de rascunho a v1.0 de decisao: secao 1 registra libp2p 0.56.0 adotado; secao 4 Kademlia decidido; secao 8 contrato com o bloco 1055",
+    "nucleo_honesto": "zero claims fabulados: sem score_Omega, sem P2P_OPERACIONAL, sem testes inventados; bloco_1055.json com contagem real 11/11; os metodos reivindicados no parecer rejeitado (bloco 1054) continuam ausentes da API real - registrados os nomes corretos",
+    "deps_mínimas": "nova dep unica de rede: libp2p =0.56.0 pinada (auditoria ficou nos ficheiros de bloco); serde/serde_json/tokio ja do workspace; unsafe_code deny"
+  },
+  "verificacao": {
+    "auditoria_msrv": "libp2p 0.56.0 rust-version 1.83.0 no crates.io (verificado via cargo info); rustc local 1.94.0 (4a4ef493e 2026-03-02); nodo minimo libp2p-audit compilado e executado (peer_id 12D3Koo...): condicao atendida",
+    "features": "features do meta-crate verificadas no payload JSON do crates.io (kad, gossipsub, identify, noise, tcp, dns, tokio, yamux, macros, ed25519, serde; aggregator 'full' existe mas nao usado)",
+    "cargo_test_p2p": "cargo test -p arkhe-p2p 11/11 exit 0 = 9 unit (identity::tests: generate_roundtrip_protobuf, peer_id_is_stable_for_keypair, sign_verify_roundtrip, wrong_key_cannot_verify, tampered_data_rejected; messages::tests: signed_message_verifies, tampered_payload_rejected, stale_message_rejected, future_timestamp_rejected) + 2 integracao (network_builds_and_listens - listen_on real via wait_for_listener/NewListenAddr; signed_transaction_roundtrip_across_identity)",
+    "clippy": "cargo clippy -p arkhe-p2p --tests --all-targets -- -D warnings exit 0",
+    "blink_bridge_intacto": "cargo test -p arkhe-blink-bridge continua 15+8=23/23 exit 0 - nenhuma regressao",
+    "lockfile": "Cargo.lock registra arkhe-p2p e libp2p 0.56.0 (pinado, checksum)"
+  },
+  "limitacao_honesta": "(1) Malha multi-no NAO exercitada: nenhum dial, nenhum par conectado, Kademlia/gossipsub construidos mas sem trafego real; o teste de rede so prova build do Swarm + listen_on real (evento NewListenAddr); (2) publish (gossipsub) implementado mas sem par remoto para validar; (3) a identidade e Ed25519 via libp2p (persistencia protobuf) - o mapeamento com I624 (key registry master/backup do arkhe-blink-bridge) NAO foi fechado neste bloco; (4) integracao gRPC/agente LLM e a troca do backend Blink simulado continuam fora de escopo (sem proto/cathedral.proto, sem agent/); (5) libp2p 0.56.0 adiciona ~340 pacotes transitorios ao lockfile - aceite com justificativa (Simplicity-2 mitigado por pin e auditoria documentada); (6) cargo check --workspace segue bloqueado pela condicao PRE-EXISTENTE hardy-bpv7/hardy-cbor MSRV 1.95 (nao deste crate). Nenhuma alteracao em crates de ancora, no CoherenceLedger (Fase 4) nem nos nucleos I500-I535.",
+  "plano": [
+    "Fechar mapeamento I624: registrar chaves Ed25519 (arkhe-p2p) no key registry do arkhe-blink-bridge e validar PeerId na verificacao ARKHE",
+    "Exercitar malha 2 nos em loopback (dial + connect + publish/subscribe gossipsub) com teste de integracao",
+    "Assinatura de mensagens com assinatura do emissor verificada antes do processamento (antireplay por timestamp)",
+    "Avaliar integracao gRPC e backend Blink real em bloco posterior, com proto e escopo definidos",
+    "Bloco 1056: malha P2P real ou reclassificacao por limites de escopo"
+  ],
+  "status": "NUCLEO_P2P_CONSTRUIDO_TRANSPORTE_DECIDIDO",
+  "selo": "CATEDRAL-OS-P2P-DECISAO-TRANSPORTE-NUCLEO-BLOCO-1055-2026-09-10"
+}

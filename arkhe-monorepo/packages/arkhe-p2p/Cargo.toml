@@ -1,0 +1,27 @@
+[package]
+name = "arkhe-p2p"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+license = "MIT OR Apache-2.0"
+description = "Camada P2P da Catedral (bloco 1055): identidade Ed25519, mensagens assinadas e rede libp2p 0.56.0 real (Kademlia + gossipsub + identify). Núcleo testável sem malha multi-nó."
+
+[dependencies]
+libp2p = { version = "=0.56.0", features = [
+    "ed25519",
+    "noise",
+    "tcp",
+    "dns",
+    "tokio",
+    "yamux",
+    "kad",
+    "gossipsub",
+    "identify",
+    "macros",
+    "serde",
+] }
+serde = { workspace = true }
+serde_json = "1"
+tokio = { workspace = true }
+
+[dev-dependencies]

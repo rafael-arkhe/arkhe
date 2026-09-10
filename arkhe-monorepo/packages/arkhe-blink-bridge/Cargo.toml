@@ -1,0 +1,33 @@
+[package]
+name = "arkhe-blink-bridge"
+version = "0.2.0"
+edition = "2021"
+description = "UnifiedBlinkBridge (bloco 1052): consolidacao tripla MEV (001-006) + ANTH (001-006) + ARKHE (I619/I622/I623/I624) numa ponte unica, self-contained, zero unsafe, zero deps externas novas (Simplicity-2). Bloco 1057: cofre I624 cripto-vinculado — chaves Ed25519 do arkhe-p2p (PeerId) registradas e verificaveis em assinatura."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Unica dependencia: digest SHA3-256 para o digest deterministico do lote
+# simulado (MEV-002/MEV-006). Ja pinada no workspace (convencao Ghost-1) —
+# nenhuma dependencia externa NOVA e introduzida (Simplicity-2).
+sha3 = { workspace = true }
+# Bloco 1057 (I624 cripto-vinculado): identidade Ed25519 (PeerId/assinatura) do
+# crate de rede real arkhe-p2p (libp2p 0.56.0 pinado, auditoria blocos 1054-1056).
+# Dep de caminho entre crates do MESMO workspace — nenhuma dependencia externa NOVA.
+# O cofre passa a guardar a identidade (chave) e a verificar PeerId + assinatura.
+arkhe-p2p = { path = "../arkhe-p2p" }
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+# Razao do design (devido rigor e honestidade — precedentes blocos 990/1004/1006/1011):
+#  - O plano original referia deps de caminho `arkhe-blink`, `arkhe-formal`,
+#    `arkhe-containment` e `arkhe-governance` — NENHUMA tem substrato real neste
+#    workspace (mesmo caso dos alvos fantasma v514.0, rejeitados por auditoria).
+#    Por isso o crate e SELF-CONTAINED: implementa as tres camadas em-modulo e
+#    nao declara nenhum crate ficticio.
+#  - Backend Blink simulado em memoria (sem rede): a ponte real de assinatura/
+#    submissao pertence ao substrato 972-ARKHE-BITCOIN (fora do escopo deste bloco).
+#  - API sincrona (sem tokio): nao ha executor necessario para um backend simulado.
+#  - O vinculo arkhe-p2p aqui e de TIPOS (Identity/P2PMessage) para o cofre I624 —
+#    a malha continua responsabilidade do crate de rede (blocos 1055/1056).

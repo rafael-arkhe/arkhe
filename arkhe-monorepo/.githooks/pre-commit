@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Pre-commit opcional (bloco 1057 ratificado) — porta o portao de namespace
+# para antes do commit. Ativar: git config core.hooksPath .githooks
+# Falha apenas em violacao real (ID novo sem substrato); IDs parecer-rejeitados
+# passam (sao referencia documental, nunca atestacao).
+
+set -uo pipefail
+
+cd "$(git rev-parse --show-toplevel)/arkhe-monorepo" || exit 1
+
+if bash tools/ci/check_invariants.sh; then
+    exit 0
+else
+    echo "COMMIT BLOQUEADO: violacao de namespace de invariantes (bloco 1057)."
+    echo "Nenhum ID novo pode ser referenciado sem realizacao testada em packages/."
+    exit 1
+fi

@@ -1,0 +1,25 @@
+{
+  "bloco": 1055,
+  "tipo": "ERRATA_RATIFICADA",
+  "data": "2026-09-09",
+  "parent_bloco": 1054,
+  "referencia": "bloco_1055.json",
+  "sha256_referencia": "sha256:870547C46B7445C82D3526CF7F6C25D1E44C4D3834986DEDEB160302D662F375",
+  "referencia_errata": "bloco_1055_errata.json",
+  "sha256_referencia_errata": "sha256:F8C36645CBF4EADF8D7351858CCDEECC201D8B6434B7BFC86BD5E09EDDE84EF7",
+  "revisao": {
+    "correcoes_ratificadas": [
+      {
+        "campo": "data",
+        "valor_original": "2026-09-10",
+        "valor_corrigido": "2026-09-09",
+        "fundamento": "Get-Date confirmou 2026-09-09; data forward-dating herdada da sessao anterior"
+      }
+    ],
+    "correcoes_rejeitadas": [],
+    "nota": "Errata e estritamente temporal. Nenhuma correcao semantica foi proposta."
+  },
+  "politica": "Loopseal-2 (append-only): bloco original preservado; errata ratificada e novo bloco.",
+  "status": "ERRATA_RATIFICADA",
+  "selo": "CATEDRAL-OS-ERRATA-RATIFICADA-BLOCO-1055-2026-09-09"
+}

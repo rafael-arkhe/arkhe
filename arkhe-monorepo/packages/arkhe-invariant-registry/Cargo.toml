@@ -1,0 +1,14 @@
+[package]
+name = "arkhe-invariant-registry"
+description = "Registry canonico de invariantes (bloco 1057 ratificado): IDs atestados apenas por realizacao testada; referencias sem substrato sao rejeitadas, nunca geram renomeacoes. Politica de namespace em docs/namespace_policy.md."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+keywords = ["arkhe", "invariants", "registry", "namespace"]
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[lints.rust]
+unsafe_code = "deny"

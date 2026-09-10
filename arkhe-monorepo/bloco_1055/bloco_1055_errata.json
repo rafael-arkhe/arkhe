@@ -1,0 +1,18 @@
+{
+  "bloco": 1055,
+  "tipo": "ERRATA",
+  "data": "2026-09-09",
+  "referencia": "bloco_1055.json",
+  "sha256_referencia": "sha256:870547C46B7445C82D3526CF7F6C25D1E44C4D3834986DEDEB160302D662F375",
+  "correcoes": [
+    {
+      "campo": "data",
+      "valor_original": "2026-09-10",
+      "valor_corrigido": "2026-09-09",
+      "motivo": "Data forward-dated registada em sessao anterior; relogio real confirmado via Get-Date (2026-09-09)"
+    }
+  ],
+  "politica": "Loopseal-2 (append-only): o registro bloco_1055.json NAO e reescrito; a errata e registada como registro novo que referencia o anterior.",
+  "status": "ERRATA_REGISTRADA",
+  "selo": "CATEDRAL-OS-ERRATA-BLOCO-1055-2026-09-09"
+}

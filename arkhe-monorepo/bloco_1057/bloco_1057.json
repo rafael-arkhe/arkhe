@@ -1,0 +1,86 @@
+{
+  "bloco": 1057,
+  "versao": "v396.2",
+  "handover_anterior": 1056,
+  "data": "2026-09-09",
+  "tipo": "I624_CRIPTO_VINCULADO",
+  "descricao": "Fechamento do mapeamento I624 prometido no plano do bloco 1056. O cofre do arkhe-blink-bridge deixa de guardar NOMES de chave e passa a guardar IDENTIDADES REAIS de arkhe-p2p (arkhe_p2p::identity::Identity, Ed25519 -> PeerId da malha libp2p 0.56.0). Novo arquivo de integracao tests/i624_p2p_binding_test.rs com 6 testes no nivel da crate: (1) registered_peer_is_bound_and_signed_message_verifies - register_key vincula key_id a Identity; verify_peer_binding aceita o PeerId do dono; verify_signed_message aceita mensagem assinada fresca; (2) attacker_peer_is_rejected_at_binding - PeerId da identidade atacante rejeitado (KeyPeerMismatch) no binding e na mensagem; (3) tampered_message_from_bound_peer_is_rejected - payload adulterado rejeitado (KeySignatureInvalid); (4) stale_message_from_bound_peer_is_rejected - mensagem fora da janela de frescor (KeyMessageStale, anti-replay); (5) blink_transaction_key_references_registered_key - UnifiedTransaction com key_id registado cruza a ponte inteira de 16 invariantes (receipt.arkhe_verified); (6) blink_transaction_rejects_unregistered_key - key_id fora do cofre rejeitado em I624 (KeyNotFound). UnifiedBlinkBridge ganha register_key(key_id, &Identity) delegando ao cofre interno. ArkheVerifier ganha verify_peer_binding, verify_signed_message e peer_id_bytes; ArkheError ganha KeyPeerMismatch/KeySignatureInvalid/KeyMessageStale. Identity ganha impl Debug seguro no arkhe-p2p (expoe apenas PeerId base58, nunca o par secreto).",
+  "decisoes_atendidas": {
+    "cofre_i624_tipos_reais": "KeyEntry { key_id, identity: Identity } - o PeerId deriva deterministicamente da chave publica Ed25519 (nao ha nome de chave solto)",
+    "binding_peer": "verify_peer_binding(key_id, peer_id_bytes) prova que o PeerId apresentado pela rede E o dono registado do key_id",
+    "assinatura_mensagem": "verify_signed_message(key_id, &P2PMessage, now, max_age) prova assinatura pela chave registada + frescor anti-replay (janela 60s)",
+    "fluxo_da_ponte": "UnifiedBlinkBridge::register_key expoe o vinculo no fluxo das 16 invariantes; transacao com key_id registado passa integralmente",
+    "escopo_honesto": "identidades de teste geradas em tempo de execucao; armazenamento seguro/persistente e HSM continuam fora do escopo; vinculo cobre tipo + assinatura, nao HSM",
+    "metricas_observadas": "sem score Omega fabricado; numeros reais: blink-bridge 35/35 testes (21 unit + 6 integracao I624 novas + 8 unificados), clippy -D warnings exit 0, arkhe-p2p 14/14 sem regressao"
+  },
+  "arquivos_alterados": {
+    "packages/arkhe-blink-bridge/Cargo.toml": "v0.2.0; dep interna arkhe-p2p = { path = ../arkhe-p2p } (nenhuma dependencia EXTERNA nova)",
+    "packages/arkhe-blink-bridge/src/arkhe/mod.rs": "KeyEntry { key_id, identity: Identity }; register_key, peer_id_bytes, verify_peer_binding, verify_signed_message; ArkheError ganha KeyPeerMismatch/KeySignatureInvalid/KeyMessageStale; chaves master/backup agora identidades Ed25519 geradas; 9 unit tests",
+    "packages/arkhe-blink-bridge/src/lib.rs": "doc header bloco 1057; UnifiedBlinkBridge::register_key(key_id, &Identity)",
+    "packages/arkhe-blink-bridge/tests/i624_p2p_binding_test.rs": "6 testes de integracao do vinculo I624 (novo arquivo)",
+    "packages/arkhe-p2p/src/identity.rs": "impl Debug seguro para Identity (expoe apenas PeerId base58, nunca o par secreto) - habilitou derive(Debug) em KeyEntry/ArkheVerifier",
+    "docs/protocol/p2p_spec.md": "secao 10 - fechamento I624; header Estado v1.2; selo v1.2"
+  },
+  "dificuldades_empiricas": {
+    "debug_identity": "Identity (arkhe-p2p) nao implementava Debug; derive(Debug) falhou em KeyEntry. Resolvido com impl Debug manual seguro que expoe apenas o PeerId base58 (deriva da chave PUBLICA; nunca o par secreto)",
+    "peer_id_bytes_option": "key_entry retorna Result -> .map() deu tipo errado (Result vs Option); corrigido com .ok().map(...)"
+  },
+  "verificacao": {
+    "cargo_test_blink": "cargo test -p arkhe-blink-bridge --all-targets 35/35 exit 0 = 21 unit (lib 5 + mev 3 + anth 4 + arkhe 9) + 6 integracao i624_p2p_binding_test + 8 unificados",
+    "clippy": "cargo clippy -p arkhe-blink-bridge --all-targets -- -D warnings exit 0",
+    "regressao_p2p": "cargo test -p arkhe-p2p --all-targets 14/14 exit 0 = 9 unit + 5 integracao (mesh 3 + network 2) - nenhuma regressao",
+    "unsafe_code": "unsafe_code deny mantido em ambos os crates",
+    "dep_interna": "arkhe-p2p como path dep do propreo workspace - zero deps externas novas (Simplicity-2)"
+  },
+  "limitacao_honesta": "(1) Identidades do cofre sao geradas em tempo de execucao (master/backup aleatorios por execucao) - o armazenamento seguro/persistente das chaves pertence a um HSM real (fora do escopo); (2) o vinculo I624 prova TIPO + ASSINATURA (PeerId derivado da chave publica, mensagem assinada e fresca) - NAO transforma o cofre em HSM nem reivindica producao; (3) as mensagens de aplicacao do gossip ainda sao bytes serde_json - pendente a equivalencia com CBOR-subset da spec (item 2 do plano do bloco 1056); (4) cargo check --workspace segue bloqueado pela condicao PRE-EXISTENTE hardy-bpv7/hardy-cbor MSRV 1.95 (rustc local 1.94.0); (5) sem score_Omega: metricas acima sao observacoes dos testes, nao projecao.",
+  "plano": [
+    "Mensagens de aplicacao equivalentes a spec v1.2 (CBOR-subset handover/validation/sync) trafegando no gossip assinado",
+    "Fila reativa no Network (notify-on-event) para publicar/put de forma autonoma conforme mesh amadurece (sem esperas manuais)",
+    "Reutilizar chaves deterministicas geradas no cofre I624 registradas nos nos de teste (pontes real arkhe-p2p x arkhe-blink-bridge)",
+    "3+ nos e/ou hosts separados: preservar cifras 100% e trabalhar a resiliencia (churn, re-conexao)",
+    "Clamp do runtime p2p com o backend Blink real (salto do backend simulado em memoria do arkhe-blink-bridge)"
+  ],
+  "status": "RATIFICADO",
+  "selo": "CATEDRAL-OS-I624-CRIPTO-VINCULADO-BLOCO-1057-2026-09-09",
+  "ratificacao": {
+    "parecer": "ARKHE-BLOCO-1057-RATIFICADO-2026-09-09",
+    "decisao": "Admissao do erro epistemico: nao havia colisao de I624, apenas referencias mortas (0 ocorrencias de MLPerf). I624 permanece canonico (ARKHE Chaves, desde bloco 1052, cripto-vinculado). Referencias substratomortas registadas sem renomeacao. Selo corrigido para data de emissao 2026-09-09. Blocos 1055/1056 erratizados.",
+    "evidencia_numerica": {
+      "unit": 21,
+      "i624_integracao": 6,
+      "unified": 8,
+      "total_blink_bridge": 35,
+      "regression_arkhe_p2p": 14,
+      "total_geral": 49
+    }
+  },
+  "correcoes_parecer": [
+    "I. NAMESPACE I624 - COLISAO APURADA: O uso canonico de I624 no monorepo E o invariante ARKHE 'Chaves' (familia I619/I622/I623/I624 do arkhe-blink-bridge), IMPLEMENTADO desde o bloco 1052 (docs/triple_consolidation.md:44; ARKHE_INVARIANTS em lib.rs:55; congruencia bloco_1052.json; correcao epistemica bloco_1053.json). O alegado 'I624 = desempenho (MLPerf)' NAO existe no monorepo: a string 'MLPerf' tem 0 ocorrencias (grep); as unicas referencias a I624 fora da familia ARKHE sao REJEITADAS por paceres anteriores sem substrato: parecer_v510_substrato_fotonico.md:17 (prensas v508/v509 'I620, I624, I626-I640' = 'Nao sao nos reais') e parecer_v510_1_integracao_ml.md:33 ('assinatura I624' no plano IA/ML = 'Sem substrato de ML no monorepo'). DECISAO: nada e renomeado; I624 permanece ARKHE Chaves (agora cripto-vinculado, bloco 1057). Politica de namespace registada: IDs de invariantes sao atestados so por realizacao testada; referencias de plano sem substrato NAO reclamam ID; invariantes futuros (ex: qualquer validacao de desempenho MLPerf) devem tomar ID fresco na familia (I625+) - nunca reutilizar I624 fora da familia implementada.",
+    "II. SELO TEMPORAL - CORRIGIDO: relogio real confirmado em 2026-09-09 (Get-Date). Selo e data do bloco 1057 corrigidos para 2026-09-09 (data de EMISSAO). ERRATA HERDADA: os registos bloco_1055.json e bloco_1056.json (sessao anterior) carregam data 2026-09-10 e os selos das seccoes 8/9 de docs/protocol/p2p_spec.md idem - ADIANTADOS em relacao ao relogio de verificacao (2026-09-09). Conforme Loopseal-2 (append-only), estes registos NAO sao reescritos aqui; ficam FLAGEADOS para erratizacao nas respetivas revisoes de aceitacao."
+  ],
+  "erratas_ratificadas": [
+    {
+      "bloco": 1055,
+      "arquivo": "bloco_1055/bloco_1055_errata_ratificada.json",
+      "status": "ERRATA_RATIFICADA",
+      "correcao": "data 2026-09-10 -> 2026-09-09 (data real de emissao, monoticidade Gravity-1)",
+      "referencia_errata": "bloco_1055/bloco_1055_errata.json (sha256 F8C36645CBF4EADF8D7351858CCDEECC201D8B6434B7BFC86BD5E09EDDE84EF7)"
+    },
+    {
+      "bloco": 1056,
+      "arquivo": "bloco_1056/bloco_1056_errata_ratificada.json",
+      "status": "ERRATA_RATIFICADA",
+      "correcao": "selo 2026-09-10 -> 2026-09-09 (data real de emissao)",
+      "recusa": "correcao de tipo 'REVOGADO' recusada por ausencia de substrato (CORRECAO_NAMESPACE_INVARIANTES inexistente); tipo real MALHA_P2P_2_NOS_VERIFICADA",
+      "referencia_errata": "bloco_1056/bloco_1056_errata.json (sha256 055540E507866604B2742591DFCC45130DF4D83CE7F3FB59C55374EC6296E138)"
+    }
+  ],
+  "ci_portao": {
+    "script": "tools/ci/check_invariants.sh",
+    "workflow": ".github/workflows/audit-namespace.yml",
+    "githook": ".githooks/pre-commit",
+    "regra": "IDs sao atestados apenas por realizacao testada em packages/ (Rust) ou src/lean (provas); docs que referenciam ID sem substrato E sem parecer de rejeicao falham o portao; allowlist hermética dos 16 IDs parecer-rejeitados (v500/v510/v510.1/v511): I461,I462,I627,I628,I629,I630,I632,I633,I635,I636,I641,I642,I643,I644,I645,I646",
+    "escopo_clippy": "-p arkhe-invariant-registry -p arkhe-blink-bridge -p arkhe-p2p (nao o workspace: hardy-bpv7/hardy-cbor MSRV 1.95 bloqueia rustc 1.94 local, condicao PRE-EXISTENTE)",
+    "verificacao_local": "semantica do portao validada via analogo PowerShell rg.exe: PASS (0 violacoes; I624 atestado em packages/arkhe-blink-bridge; docs total 56; rust 49 + lean 45 = 70 atestados)"
+  }
+}
