@@ -1,0 +1,37 @@
+{
+  "bloco": 1071,
+  "versao": "v552.2",
+  "hash_anterior": "sha256-git:4fb53fbc828ad79f9bc9b237513316acb280c7b7",
+  "parent": 1070,
+  "data": "2026-09-10",
+  "tipo": "AUDITORIA_DASHBOARD_WEB",
+  "artefato": "web/catedral_dashboard.html + catedral_ext.js + catedral_sketch.js",
+  "status": "PROTOTIPO_VISUAL_ACEITO",
+  "score_real": 3,
+  "score_alegado": 99,
+  "nota_ponderada": 2.9,
+  "avaliacao_por_aspecto": {
+    "artefato_visual_executavel": {"nota": 8, "comentario": "Real, abrivel sem build tooling"},
+    "separacao_de_arquivos": {"nota": 7, "comentario": "Contrato claro sketch/ext"},
+    "dados_reais": {"nota": 0, "comentario": "Estatico mock, nao backend"},
+    "verificacao_de_cadeia": {"nota": 0, "comentario": "Sem verificacao criptografica do #1070"},
+    "testes_de_comportamento": {"nota": 0, "comentario": "node --check e lint de sintaxe, nao teste"},
+    "documentacao_da_banda": {"nota": 1, "comentario": "Origem nao declarada no dashboard (agora corrigida)"},
+    "honestidade_da_afirmacao": {"nota": 4, "comentario": "Testado inflado"}
+  },
+  "correcoes_aplicadas_no_bloco": [
+    "Banda Phi_C [0.577350, 0.999900] agora tem origem declarada no cabecalho de catedral_ext.js e em web/README.md: piso 1/sqrt(3) = 0.5773502691 (constante magica Gap-1, phi.rs GAP1_INFERIOR), teto 1 - 1e-4 (Phi=1 ideal assintotico jamais certificavel, coherence_metric.md:17)",
+    "Rotulo FONTE: MOCK visivel no canvas e na sidebar (honestidade do dado)",
+    "web/README.md criado com Status PROTOTIPO_VISUAL (mockup), dados estaticos, teste apenas lint",
+    "Esclarecimento: node --check rodou SOMENTE nos 2 .js (sintaxe/parse); NUNCA foi afirmado sobre catedral_dashboard.html"
+  ],
+  "pendencias": [
+    "Dados estaticos - sem conexao com backend",
+    "Cadeia #1070 sem verificacao criptografica",
+    "node --check nao e teste de comportamento",
+    "Healthcheck observa estado mock, nao o sistema"
+  ],
+  "proximo_passo": "Conectar a /api/v1/catedral/state + verificacao de cadeia com parent_hash/this_hash/payload_hash",
+  "hash_conteudo": "sha256:B7A79AED1A9861737AFFBB229D7597906C81BD0875A4C531BF5B218BC8C243E6",
+  "assinatura": "Um artefato visual e o comeco de uma ponte - nao a ponte.\n\n[Arquiteto]"
+}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel da Catedral — ARKHE OS</title>
+<style>
+  :root {
+    --bg: #07090f;
+    --panel: #0d1120;
+    --line: #1e2740;
+    --txt: #c7d2fe;
+    --dim: #64748b;
+    --ok: #4ade80;
+    --bad: #f87171;
+    --warn: #fbbf24;
+    --gold: #f5c542;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header h1 { font-size: 15px; font-weight: 600; color: var(--gold); letter-spacing: 1px; }
+  header .sub { color: var(--dim); font-size: 11px; }
+  header .stats { margin-left: auto; display: flex; gap: 18px; font-size: 11px; color: var(--dim); }
+  header .stats b { color: var(--txt); }
+  main { flex: 1; display: flex; min-height: 0; }
+  #canvas-wrap { flex: 1; min-width: 0; position: relative; }
+  #canvas-wrap canvas { display: block; margin: 0 auto; }
+  aside {
+    width: 340px;
+    border-left: 1px solid var(--line);
+    padding: 12px;
+    font-size: 11px;
+    overflow-y: auto;
+  }
+  aside h2 { font-size: 11px; color: var(--gold); letter-spacing: 1px; margin: 12px 0 6px; text-transform: uppercase; }
+  aside ul { list-style: none; }
+  aside li { padding: 3px 0; border-bottom: 1px solid #151c30; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  aside .ts { color: var(--dim); }
+  .pill { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .ok { background: var(--ok); }
+  .bad { background: var(--bad); }
+  .warn { background: var(--warn); }
+  footer { padding: 6px 18px; border-top: 1px solid var(--line); color: var(--dim); font-size: 10px; }
+  #selo { color: var(--gold); }
+  @media (max-width: 1000px) {
+    main { flex-direction: column; }
+    aside { width: 100%; border-left: none; border-top: 1px solid var(--line); max-height: 200px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>PAINEL DA CATEDRAL</h1>
+  <span class="sub">ARKHE OS · Constitutional Container Runtime</span>
+  <div class="stats">
+    <span>Φ_C <b id="stat-phi">—</b></span>
+    <span>Blocos <b id="stat-bloco">1052</b></span>
+    <span>Substratos <b id="stat-sub">8</b></span>
+    <span>Invariantes <b id="stat-inv">19/19</b></span>
+  </div>
+</header>
+<main>
+  <div id="canvas-wrap"></div>
+  <aside>
+    <h2>TemporalChain · Ledger</h2>
+    <ul id="chain"></ul>
+    <h2>Substratos ativos</h2>
+    <ul id="subs"></ul>
+    <h2>Origem dos dados</h2>
+    <div id="origem">MOCK · dados estáticos · sem /api/v1</div>
+    <h2>Selo</h2>
+    <div id="selo"></div>
+  </aside>
+</main>
+<footer>
+  Painel da Catedral · v552.1 · p5.js · constitutionalidade verificada a cada tick · <span id="clock">—</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<script src="catedral_ext.js"></script>
+<script src="catedral_sketch.js"></script>
+</body>
+</html>
