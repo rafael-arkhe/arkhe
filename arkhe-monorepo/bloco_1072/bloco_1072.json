@@ -1,0 +1,57 @@
+{
+  "bloco": 1072,
+  "tipo": "AUDITORIA_DYNAWEB",
+  "data": "2026-09-10",
+  "hash_anterior": "sha256-git:0d9853f0ff65e23921e071cca1072a304ad7661a",
+  "handover_anterior": "bloco 1071 (AUDITORIA_DASHBOARD_WEB, PROTOTIPO_VISUAL_ACEITO)",
+  "status": "CONCLUIDO",
+
+  "verdade_binaria": {
+    "paper_dynaweb_arxiv_2601_22149": {
+      "status": "REAL",
+      "verificacao": "websearch arXiv abs/2601.22149 — submetido 2026-01-29, v2 2026-04-17, cs.CL",
+      "abstract_confirmado": "training web agents through interacting with a web world model ... random interleaving with real expert trajectories",
+      "referencia": "legitima"
+    },
+    "codigo_citado_na_auditoria": {
+      "status": "NAO_EXISTE_NO_MONOREPO",
+      "world_model_bridge.rs": "0 ocorrencias (rg packages src)",
+      "escape_detector.rs": "0 ocorrencias",
+      "dominant_changed": "0 ocorrencias",
+      "sample_interleaved": "0 ocorrencias",
+      "InvariantId": "0 ocorrencias",
+      "DefectLevel_Escaping": "nao existe — enum real e EscapeRegion (Safe/Warning/Boundary/Continuum/Outside)"
+    }
+  },
+
+  "diagnostico_rust_valido_mas_contra_fantasma": [
+    "moda vs front() — pratica correta",
+    "Arc<Mutex> -> Arc<RwLock> para read-heavy — pratica correta",
+    "unificacao de enums — pratica correta"
+  ],
+
+  "substrato_real_disponivel": {
+    "crate": "arkhe-safe-manifold",
+    "EscapeRegion": "src/escape_region.rs:12",
+    "variantes": ["Safe", "Warning", "Boundary", "Continuum", "Outside"],
+    "classify_escape": "safe_manifold.rs:351 — REAL, com testes (suite arkhe-safe-manifold)",
+    "hash_escape_region.rs": "ADE9A4705B90068D601AA0F32FECE70B8CF8791847F9A1762E20C3E86D2B11FC",
+    "hash_safe_manifold.rs": "E6E8B05E0AFD1D9832DB2C821C2305B3F90490086B4405CF29F8DC0513D50C54"
+  },
+
+  "doutrina_extraida": {
+    "fonte": "DynaWeb (arXiv:2601.22149)",
+    "principio": "interleaving de trajetorias reais com trajetorias imaginadas",
+    "aplicacao_proposta_des_1073": "dominant_invariant (moda) + sample_interleaved no arkhe-safe-manifold",
+    "natureza": "construcao nova — nao correcao"
+  },
+
+  "recusa_memorializada": {
+    "nao_registrado": "bloco 1059 IMPLEMENTADO",
+    "razao": "sexto ciclo de falsa seguranca — validar correcoes para codigo inexistente",
+    "precedente": "divida honesta — o sistema nao inventa estados que nao existem (I461/I462, bloco 990)"
+  },
+
+  "hash_conteudo": "sha256:242434975DADC156DC9013997983BD705131FD329D82BC17829804FB71A55F45",
+  "selo": "ARKHE-BLOCO-1072-AUDITORIA-DYNAWEB-2026-09-10"
+}
