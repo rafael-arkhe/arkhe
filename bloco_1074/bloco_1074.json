@@ -1,0 +1,74 @@
+{
+  "bloco": 1074,
+  "tipo": "SUBSTRATO_IMPLEMENTACAO_VAIP_AID",
+  "data": "2026-09-10",
+  "hash_anterior": "sha256-git:7e689f6a7f8242fb30659ecab64bffe772fdc382",
+  "handover_anterior": "bloco 1073 (SUBSTRATO_FRONTIER no arkhe-safe-manifold — 182 testes, nucleo SafeManifoldNucleus 11 teoremas, commit 7e689f6)",
+  "status": "CONCLUIDO",
+
+  "construcao": {
+    "crate_novo": "packages/arkhe-aid",
+    "referencia_normativa": "IETF draft-nyantakyi-vaip-agent-identity-01 (abril 2026, expira 2026-10-12, K. Nyantakyi/Vorim AI) — VAIP Agent Identity: Ed25519, SHA-256, escopos hierarquicos, trust score 0..100, audit assinado na fonte",
+    "escopos_implementados": {
+      "AID-001": "src/identity.rs — AgentIdentity Ed25519 (ed25519-dalek 2.2.0): keypair, fingerprint sha256, verify zero-panic (sem panic no path publico), sign estatico, is_expired, did_key multicodec 0xED01 + base58btc (bs58 0.5.1)",
+      "AID-002": "src/delegation.rs — Delegation atenuada: 7 escopos (Predicate 0, Capability 1, Operate 2, Read 3, Write 4, Transfer 5, Admin 6) com rank hierarquico, is_attenuated (possuir rank >= cobre os inferiores), is_strict_subset (antirreflexivo por remocao de autoridade), canonical_message \"fp|fp|[scopes]|issued|exp\" (canonicalizacao deterministica campo-a-campo, sem serde_json_canonicalizer)",
+      "AID-003": "src/audit.rs — SignedAuditEvent assinado na fonte (chave de quem age): compute_hash (campo-a-campo, exclui signature), follows() hash chain estrita (previous_hash == hash do anterior), canonical_message exige data na fronteira (q=p+1)",
+      "AID-010": "src/sod.rs — Separation of Duties: SodError::UnknownStep/NotAuthorized/DutyConflict, try_record rejeita (a) step fora do registro, (b) signer sem autoridade, (c) signer que ja executou outra etapa; is_complete quando toda etapa autorizada e executada"
+    },
+    "fora_de_escopo": "AID-004..AID-009 declarados NÃO SUBSTRATO no docstring de lib.rs (trust score, resolucao DID, rotacao, keys perdidas, oracle, bridge) — nada fabricado sobre eles",
+    "workspace": "Cargo.toml raiz — member \"packages/arkhe-aid\" inserido apos arkhe-p2p (comentario bloco 1074)",
+    "deps": "somente versoes ja presentes no Cargo.lock do workspace: ed25519-dalek 2.2.0, sha2 0.10.9, bs58 0.5.1, hex 0.4.3, chrono 0.4.45 (serde), rand 0.8.8, zeroize 1.9.0, serde; dev: anyhow. Nenhuma dependencia externa nova (Simplicity-2)"
+  },
+
+  "auditoria_vaip": {
+    "referencia_real": "IETF Internet-Draft confirmado por busca — draft-nyantakyi-vaip-agent-identity-01",
+    "fantasmas_recusados": [
+      "diretorios invariants/ e formal/ NAO existem no monorepo",
+      "Mathlib NAO instalado (probe no kernel: exit 1) — nucleo sem Mathlib, sem sorry",
+      "serde_json_canonicalizer fora do Cargo.lock e do cache offline — canonical message por serializacao deterministica campo-a-campo",
+      "BridgeError::DelegationViolation/BudgetExceeded/Escalated NAO existem (enum real do blink-bridge: Mev/Anth/Arkhe/SubmissionFailed) — blink-bridge NAO foi tocado",
+      "async/tokio majestado do plano — crate 100% sincrono como o workspace",
+      "bloco_1074 linkado a 7e689f6 (chain real), nao 'bloco 8/v556' do plano"
+    ]
+  },
+
+  "verificacao": {
+    "testes": "33 passed; 0 failed (30 unit lib + 3 tests/integration.rs)",
+    "clippy_strict": "cargo clippy -p arkhe-aid --all-targets -- -D warnings — exit 0, zero warnings",
+    "workspace": "cargo check -p arkhe-safe-manifold -p arkhe-blink-bridge -p arkhe-p2p — Finished sem erro (member novo nao regride nada)",
+    "unsafe": "unsafe_code = \"deny\" no crate"
+  },
+
+  "nucleo_lean": {
+    "arquivo": "src/lean/AgentIdentityNucleus.lean",
+    "kernel": "Lean 4 real (elan v4.33.1), exit 0 — SEM Mathlib, SEM sorry",
+    "teoremas": {
+      "AID-002_attenuated": "4 teoremas: attenuated (escopo posse cobre escopo menor por rank), attenuated_reflexive, attenuated_transitive, delegation_chain_no_widening (cadeia de delegacao nunca AMPLIA autoridade — att_wide negado a cada passo)",
+      "AID-003_fecho": "AuditEvent modelado como Item.body + Item.hash (ListView, Sep.size concat == 1), mem_fp_cons (Char a b UnicodeConstants.h worn? NAO: posicao), AuditLedger.append_event como lista com novo item; append_keeps_entries (monotonia — todo elo anterior permanece), append_only_never_loses (fecho transitivo por inducao na extensao, mem_append_left/right)",
+      "gotcha_kernel": "`extends` e keyword Lean (imediate: variavel renomeada para ext); rcases falha em membro sobre lista-append (eliminacao dependente) — resolvido com List.mem_append.mp forward; `lemma` nao compila (unexpected identifier), `theorem` compila"
+    },
+    "total": "6 teoremas verificados pelo kernel"
+  },
+
+  "honestidade": {
+    "escopo": "o Rust (arkhe-aid) implementa AID-001/02/03/10 sobre substrato real; o nucleo Lean prova SEMANTICA (atenuacao transitiva nao amplia; ledger audit e append-only) sobre modelo Lean do mesmo tipo de lista e funcoes de escopo/rank — sem FFI, sem claim de extensionalidade automatica",
+    "nao_fabricado": "nenhum campo/coluna de fantasma inserido em crates existentes; identidade de AGENT (VAIP) e distinta da identidade de peer (arkhe-p2p) e de DID secp256k1/SIWE (arkhe-did) — tres substratos separados, tres responsabilidades",
+    "honestidade_referencia": "AID-001 do VAIP exige SHA-256/VALID-ON-2026-10-12; escopo do bloco registra o que foi construido e o que fica de fora (AID-004..009)"
+  },
+
+  "hashes_artefatos": {
+    "packages/arkhe-aid/Cargo.toml": "sha256:8B270C581A926EBB8C9CFDC2979ED40C2594BF69FBD1F730C47E5916D9F71960",
+    "packages/arkhe-aid/src/lib.rs": "sha256:B30C47E558F75D7FAF5404E8BDAC73EC3AB6BF75832CD7C96A3FDC587E314DE4",
+    "packages/arkhe-aid/src/identity.rs": "sha256:52A9D63E6FDBB7E789C13EA64B530ABD60DBE8AE46F947EB94F72260E4CF071D",
+    "packages/arkhe-aid/src/delegation.rs": "sha256:FC4AB7CE2FFA27EA6D402871E61D9FB487456C23682924287E97A1A5BAE3DBE5",
+    "packages/arkhe-aid/src/audit.rs": "sha256:0E86E76225508DCEBF61382DD36FA650E1F5AACCAFAFC9786467E4280326DD72",
+    "packages/arkhe-aid/src/sod.rs": "sha256:27E65819B3ADEB2FDA884C8BDA5C9792245509A6B62D042777DC283236D4DC2C",
+    "packages/arkhe-aid/tests/integration.rs": "sha256:1C46B4DF7BF610731B1C7F6B529DC0898A872DB140D6859BF8FD78234F80C624",
+    "src/lean/AgentIdentityNucleus.lean": "sha256:6249624DAF9DCD7C7FDE705EEC6E0119D33761283F7C249D2283A8E0455E8AB1",
+    "Cargo.toml": "sha256:94B2470F9A727075F132D041977A7DDE8C3AC00655706292EBB59BEEC2FC6784"
+  },
+
+  "hash_conteudo": "sha256:1AE5596F09B16D2EB4828EB9C1CD6BAA1EDFD7FB1855A0B0EDB5C3F98AE7ABC4",
+  "metodo_hash_conteudo": "sha256 sobre a concatenacao ASCII (ordem fixa) dos 9 hashes SHA256: packages/arkhe-aid/Cargo.toml + src/lib.rs + src/identity.rs + src/delegation.rs + src/audit.rs + src/sod.rs + tests/integration.rs + src/lean/AgentIdentityNucleus.lean + Cargo.toml",
+  "selo": "ARKHE-BLOCO-1074-SUBSTRATO-VAIP-AID-2026-09-10"
+}

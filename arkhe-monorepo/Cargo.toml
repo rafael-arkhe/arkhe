@@ -101,6 +101,14 @@ members = [
     # e rede real Kademlia + gossipsub + identify. Núcleo testável sem malha
     # multi-nó (convenção de honestidade dos blocos 1052/1054).
     "packages/arkhe-p2p",
+    # ARKHE-AID — Agent Identity & Delegation (bloco 1074): identidade
+    # criptográfica Ed25519 (AID-001), delegação atenuada com sete escopos
+    # hierárquicos (AID-002), audit trail assinado na fonte com hash chain
+    # append-only (AID-003) e segregação de funções (AID-010). Âncora normativa:
+    # IETF draft-nyantakyi-vaip-agent-identity-01 (Vorim Agent Identity
+    # Protocol). Só deps já no lock do workspace (Simplicity-2); sem async.
+    # Núcleo Lean core em src/lean/AgentIdentityNucleus.lean.
+    "packages/arkhe-aid",
     # ARKHE-INVARIANT-REGISTRY — Registry canónico de invariantes (bloco 1057
     # ratificado): IDs atestados apenas por realização testada; referências sem
     # substrato são rejeitadas (nunca geram renomeações); I625+ ficam livres.

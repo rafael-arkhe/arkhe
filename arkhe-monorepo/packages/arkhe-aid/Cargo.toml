@@ -1,0 +1,30 @@
+[package]
+name = "arkhe-aid"
+version = "0.1.0"
+edition = "2021"
+description = "AID — Agent Identity & Delegation (bloco 1074, VAIP). Implementacao real da ontologia de identidade criptografica de agentes, ancorada no IETF Internet-Draft draft-nyantakyi-vaip-agent-identity-01 (Ed25519, sete escopos hierarquicos, trust score 0-100, audit assinado na fonte). Escopo deste bloco: AID-001 identidade, AID-002 delegacao atenuada, AID-003 evento assinado + hash chain, AID-010 segregacao de funcoes. Sem deps externas novas (Simplicity-2): reutiliza apenas crates ja no Cargo.lock do workspace."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Identidade Ed25519 — versao ja resolvida no Cargo.lock do workspace (via libp2p).
+ed25519-dalek = { version = "2.2.0", features = ["rand_core"] }
+# Fingerprint (AID-001) e hash do evento (AID-003) — SHA-256, mesma normativa do VAIP.
+sha2 = "0.10.9"
+# did:key (adocao W3C) — base58btc multibase (precedido por 'z').
+bs58 = "0.5.1"
+# Hex da representacao do fingerprint (documentacao legivel) e assinaturas pre-2.0.
+hex = "0.4.3"
+# Timestamps (AID-001/AID-002/AID-003).
+chrono = { version = "0.4.45", features = ["serde"] }
+# Serializacao estrutural deterministica (campos + tipos), sem JSON canonicalization dep.
+serde = { workspace = true }
+# RNG criptograficamente segura para geracao das chaves.
+rand = "0.8.8"
+# Zeroizacao da chave privada apos uso (dados de minimizacao — Ethics-2).
+zeroize = { workspace = true }
+
+[dev-dependencies]
+anyhow = "1"
+
+[lints.rust]
+unsafe_code = "deny"
