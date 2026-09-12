@@ -93,6 +93,27 @@
   "score_omega": null,
   "nota_score_omega": "Score Omega nao atribuido (precedente bloco 1052). O bloco regista evidencia, nao veredicto.",
 
+  "evidencia_ci": {
+    "run_ids": [
+      "34707348574",
+      "34707348636"
+    ],
+    "commit": "0c1ffd8",
+    "hashes": {
+      "workflow_ledger_golden_before": "sha256:7E4384B8FF36C6C527DFF6518DD99EB53A492C1768D698CB4EE7D32D8CC1AE8A",
+      "workflow_ledger_golden_after": "sha256:ECE3913E68FDDE20A1E0AC9B97256EBD8D45B84CE50BD759783768CF03A8BF7E"
+    },
+    "contrato_divida_v2": {
+      ".github/workflows/workspace-hygiene.yml": "sha256:E079BDF7D30386B3098575F93466772577BC037719F85AD1BA879E4875341EE5",
+      ".github/workspace-hygiene-expected.txt": "sha256:EF648914E2E827D6D06AB0056C77ADCA0F45FC162872F53F9BDFE5C385B8A8E2",
+      "tools/scripts/check_workspace_hygiene.py": "sha256:7B659033A200B91C25824878CB33AF565D42E3084C2D95712B39D8B6D29F673C"
+    },
+    "clarificacoes_auditoria_0c1ffd8": {
+      "I1": "18 pre-existentes @2266ac1 + 4 (epistemic/block-registry/xloop/orbital) = 22. O '19' do commit 83f3b72 era artefato de parse (linha 'ia-dtn, buzz' = dois membros numa linha, ambos ja commitados) - falso positivo.",
+      "I2": "4 crates em 3 blocos porque bloco 1076 agrega arkhe-xloop + arkhe-orbital (handover deste bloco)."
+    }
+  },
+
   "honestidade": {
     "escopo": "TESTED_LOCAL significa: compilou, 18/18 testes passaram, clippy 0, golden vectors capturados e fixados — tudo em x86_64-pc-windows-msvc/rustc 1.94.0. Nao cobre cross-platform",
     "deps_novas": "blake3 1.8.7 + constant_time_eq 0.4.2 (transitiva do blake3) adicionadas ao Cargo.lock; serde_json so como dev-dependency; sha2 removido do crate (nao usado no v0.3.3)",

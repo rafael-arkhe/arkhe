@@ -1,0 +1,33 @@
+# Divida conhecida de workspace — crates declarados em arkhe-monorepo/Cargo.toml
+# que existem no disco mas NAO estao commitados em git (git-commit debt).
+# Contrato do guard .github/workflows/workspace-hygiene.yml (bloco 1078):
+#   - se um crate deste ficheiro ficar commitado, REMOVE a linha (o guard passa);
+#   - se um crate declarado falhar e NAO estiver aqui, e REGRESSAO (o guard falha).
+# Decomposicao autoritativa (auditoria 0c1ffd8, I1): 18 pre-existentes @2266ac1 + 4 recentes.
+# Somatorio verificado: nesta lista = 22 linhas; membros commitados num total de 52-22=30.
+
+# --- 18 pre-existentes (declarados e ausentes desde 2266ac1) ---
+packages/arkhe-observability
+packages/arkhe-xy-simulator
+packages/arkhe-avalon-agc
+packages/arkhe-avalon-bridge
+packages/arkhe-topology
+packages/arkhe-reputation
+packages/arkhe-oam
+packages/arkhe-tokenization
+packages/arkhe-incentives
+packages/arkhe-did
+packages/arkhe-crystallography
+packages/arkhe-field
+packages/arkhe-ecdsa-mitm
+packages/arkhe-gap
+packages/arkhe-qhttp
+packages/arkhe-tzinor
+packages/arkhe-pott
+packages/arkhe-bitcoin
+
+# --- 4 recentes (blocos 1060/1075/1076) ---
+packages/arkhe-epistemic
+packages/arkhe-block-registry
+packages/arkhe-xloop
+packages/arkhe-orbital

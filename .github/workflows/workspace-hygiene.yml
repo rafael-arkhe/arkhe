@@ -1,11 +1,11 @@
 # .github/workflows/workspace-hygiene.yml — guard de integridade (bloco 1078, 2026-09-12)
-# Verifica em CHECKOUT LIMPO que todo membro declarado em arkhe-monorepo/Cargo.toml
-# existe como manifest commitado. cargo metadata falha (exit != 0) se um membro
-# declarado não tem Cargo.toml no checkout (exatamente a falha do CI run #1).
-# ESTADO ESPERADO HOJE: FALHA — 22 membros declarados NÃO estão commitados
-# (lista e causa em bloco_1077/erratum_standalone_workspace.json, erratum 2).
-# Este check transforma a dívida em invariante regressivo: qualquer novo membro
-# sem commit vermelha o CI até a dívida ser quitada crate-a-crate.
+# Contrato explícito (auditoria 0c1ffd8): .github/workspace-hygiene-expected.txt
+# lista os membros declarados em arkhe-monorepo/Cargo.toml que NAO estao
+# commitados (dívida conhecida). O checker falha SOMENTE em desvio do contrato:
+#   - membro ausente que nao consta no ficheiro  => regressao (vermelho)
+#   - membro do ficheiro que ja foi commitado    => exigencia de limpar a linha
+#   - dívida == contrato (estado atual: 22)      => verde, com a dívida visivel
+#   - ambos vazios                               => smoke cargo metadata, verde
 name: Workspace Hygiene (fresh checkout)
 
 on:
@@ -14,29 +14,22 @@ on:
       - "arkhe-monorepo/Cargo.toml"
       - "arkhe-monorepo/Cargo.lock"
       - ".github/workflows/workspace-hygiene.yml"
+      - ".github/workspace-hygiene-expected.txt"
+      - "tools/scripts/check_workspace_hygiene.py"
   pull_request:
     paths:
       - "arkhe-monorepo/Cargo.toml"
       - "arkhe-monorepo/Cargo.lock"
+      - ".github/workflows/workspace-hygiene.yml"
+      - ".github/workspace-hygiene-expected.txt"
+      - "tools/scripts/check_workspace_hygiene.py"
 
 jobs:
   members-exist:
-    name: Declared members must exist in committed tree
+    name: Declared members must match committed-tree contract
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: arkhe-monorepo
     steps:
       - uses: actions/checkout@v4
-
-      - name: cargo metadata on fresh checkout
+      - name: Workspace hygiene checker
         run: |
-          if cargo metadata --no-deps --format-version 1 > /dev/null 2>&1; then
-            echo "workspace ok: todos os membros declarados existem no checkout limpo"
-          else
-            echo "::error::workspace-hygiene: membro declarado ausente no checkout limpo"
-            echo "arkhe-monorepo/Cargo.toml declara membros sem commit em git (22, bloco 1077 erratum 2)."
-            echo "Lista: bloco_1077/erratum_standalone_workspace.json."
-            echo "Quitar a dívida (commitar os crates reais) para re-verdejar este check."
-            exit 1
-          fi
+          python3 tools/scripts/check_workspace_hygiene.py

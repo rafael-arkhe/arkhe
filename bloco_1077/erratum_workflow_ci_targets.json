@@ -67,5 +67,27 @@
     "o run 2 (34704105568) permanece como evidencia do bloco 1078 inalterada; este erratum registra a resolucao do que era 'investigacao pendente'"
   ],
 
+  "revisao2": {
+    "data": "2026-09-12",
+    "contexto": "Auditoria 0c1ffd8 (ARKHE-AUDIT-0C1FFD8-2026-09-12) exigiu que o guard distinguisse divida conhecida de regressao. Implementado contrato explicito (E1).",
+    "hashes": {
+      ".github/workflows/workspace-hygiene.yml": "sha256:E079BDF7D30386B3098575F93466772577BC037719F85AD1BA879E4875341EE5 (de B1B39424FDC76823D8B179BB3E10779ADABB3CBFE4ABAC0B04F5BF55C97F664C)",
+      ".github/workspace-hygiene-expected.txt": "sha256:EF648914E2E827D6D06AB0056C77ADCA0F45FC162872F53F9BDFE5C385B8A8E2 (novo)",
+      "tools/scripts/check_workspace_hygiene.py": "sha256:7B659033A200B91C25824878CB33AF565D42E3084C2D95712B39D8B6D29F673C (novo)"
+    },
+    "semantica": {
+      "missing == expected": "PASS verde — divida conhecida visivel no ficheiro",
+      "missing != expected": "FAIL vermelho com diff bidirecional (regressao e/ou linha obsoleta)",
+      "vazios": "smoke cargo metadata --no-deps adicional — verde"
+    },
+    "validacao_local": [
+      "baseline: missing=22==expected=22 -> exit 0, 'divida conhecida'",
+      "regressao simulada (expect sem arkhe-orbital) -> exit 1, ::error:: REGRESSAO",
+      "contrato obsoleto (expect com arkhe-buzz commitado) -> exit 1, diff bidirecional"
+    ],
+    "clarificacao_I1": "18 pre-existentes @2266ac1 + 4 recentes = 22. O '19' da mensagem do commit 83f3b72 era artefato de parse: a linha do manifest commitado em 2266ac1 continha dois membros numa so linha (\"packages/arkhe-ia-dtn\", \"packages/arkhe-buzz\"), ambos ja na arvore — falso positivo. Verificado com git ls-tree em 2266ac1 e HEAD.",
+    "clarificacao_I2": "4 crates (epistemic, block-registry, xloop, orbital) mapeados em 3 IDs (1060, 1075, 1076) porque o bloco 1076 agrega arkhe-xloop + arkhe-orbital (handover registado em bloco_1077.json)."
+  },
+
   "selo": "ARKHE-CORE-LEDGER-v0.3.3-CI-TARGETS-CORRIGENDUM-3-2026-09-12"
 }
