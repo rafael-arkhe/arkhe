@@ -99,5 +99,6 @@
     "divergencia_do_plano": "o rascunho v0.3.3 do documento usava blake3 sem confirmar resolucao offline; aqui resolveu (rede disponivel). O comentario do workspace raiz foi atualizado para refletir v0.3.3 (era v0.2.0/SHA-256)"
   },
 
-  "selo": "ARKHE-CORE-LEDGER-v0.3.3-TESTED_LOCAL-2026-09-12"
+  "selo": "ARKHE-CORE-LEDGER-v0.3.3-TESTED_LOCAL-2026-09-12",
+  "corrigendum": "erratum_workflow_gha.json — workflow GHA realocado para .github/workflows/ raiz do repo pos-commit (ce30c29; GHA nao descobre workflows em subdiretorios). hash do workflow corrigido: sha256:E2BB728E2CEFB36076EB8105D2D2A61145900F8848020483CF5EC32EFCE64F2F"
 }

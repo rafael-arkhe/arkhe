@@ -1,0 +1,24 @@
+{
+  "bloco": 1077,
+  "tipo": "ERRATUM_WORKFLOW_GHA",
+  "data": "2026-09-12",
+  "commit_original": "sha256-git:ce30c297395f48e65fff8f3d386236cc88ee92d3",
+  "motivo": "GitHub Actions so descobre workflows em .github/workflows/ na RAIZ do repositorio (convencao comprovada por safe-core-monorepo.yml, agent-vm.yml, web3-security.yml). O bloco 1077 criou o workflow sob arkhe-monorepo/.github/workflows/ -> GHA nunca o executaria (API de runs = 0). Paths de on.push tambem eram repo-root-relative errados (packages/... -> arkhe-monorepo/packages/...).",
+
+  "localizacao_original": "arkhe-monorepo/.github/workflows/ledger-golden.yml",
+  "localizacao_final": ".github/workflows/ledger-golden.yml",
+
+  "hash_original_conteudo": "sha256:B60443BD179E7F9353A08936D2C9B8782465A4AB100BC6B495A507854D342FBF",
+  "hash_final_conteudo": "sha256:E2BB728E2CEFB36076EB8105D2D2A61145900F8848020483CF5EC32EFCE64F2F",
+
+  "correcoes": [
+    "git mv para .github/workflows/ raiz do repo",
+    "on.push.paths repos-root-relative com prefixo arkhe-monorepo/",
+    "on.pull_request.paths idem",
+    "defaults.run.working-directory: arkhe-monorepo (padrao do safe-core-monorepo.yml)"
+  ],
+  "inalterado": "matrix de targets (x86_64-linux, aarch64-linux via cross, aarch64-darwin, x86_64-windows-msvc, aarch64_be big-endian continue-on-error); comandos cargo test --locked -p arkhe-core golden_vector; artefato platform_meta",
+
+  "status": "AGUARDA_CI",
+  "note": "bloco_1077.json mantem os hashes do commit original ce30c29 como selados; este erratum documenta a correcao pos-commit (que gera novo commit e novo push)."
+}

@@ -1,4 +1,6 @@
-# /arkhe-monorepo/.github/workflows/ledger-golden.yml — v0.3.3
+# /arkhe-monorepo/.github/workflows/ledger-golden.yml — v0.3.3 (corrigendum)
+# Realocado para .github/workflows/ raiz do repo (GitHub Actions só descobre workflows no root).
+# Relativo a arkhe-monorepo/, paths incluem prefixo arkhe-monorepo/.
 # Golden vectors cross-platform do ledger (Ghost-1 determinismo).
 # Se qualquer target divergir dos valores fixados em golden_vectors,
 # o PR é bloqueado antes do merge. Metadados (rustc + endianness) são
@@ -8,18 +10,21 @@ name: Ledger Golden Vectors
 on:
   push:
     paths:
-      - "packages/arkhe-core/src/ledger.rs"
-      - "packages/arkhe-core/tests/golden_vectors.rs"
-      - "packages/arkhe-core/Cargo.toml"
+      - "arkhe-monorepo/packages/arkhe-core/src/ledger.rs"
+      - "arkhe-monorepo/packages/arkhe-core/tests/golden_vectors.rs"
+      - "arkhe-monorepo/packages/arkhe-core/Cargo.toml"
       - ".github/workflows/ledger-golden.yml"
   pull_request:
     paths:
-      - "packages/arkhe-core/src/ledger.rs"
+      - "arkhe-monorepo/packages/arkhe-core/src/ledger.rs"
 
 jobs:
   golden:
     name: Golden vectors on ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: arkhe-monorepo
     strategy:
       fail-fast: true
       matrix:
