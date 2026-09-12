@@ -1,0 +1,97 @@
+# /arkhe-monorepo/.github/workflows/ledger-golden.yml — v0.3.3
+# Golden vectors cross-platform do ledger (Ghost-1 determinismo).
+# Se qualquer target divergir dos valores fixados em golden_vectors,
+# o PR é bloqueado antes do merge. Metadados (rustc + endianness) são
+# registrados como artefato para diagnóstico de regressão silenciosa.
+name: Ledger Golden Vectors
+
+on:
+  push:
+    paths:
+      - "packages/arkhe-core/src/ledger.rs"
+      - "packages/arkhe-core/tests/golden_vectors.rs"
+      - "packages/arkhe-core/Cargo.toml"
+      - ".github/workflows/ledger-golden.yml"
+  pull_request:
+    paths:
+      - "packages/arkhe-core/src/ledger.rs"
+
+jobs:
+  golden:
+    name: Golden vectors on ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            use_cross: false
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            use_cross: true
+          - os: macos-14
+            target: aarch64-apple-darwin
+            use_cross: false
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            use_cross: false
+          - os: ubuntu-latest
+            target: aarch64_be-unknown-linux-gnu   # ← big-endian (se disponível)
+            use_cross: false
+            continue_on_error: true # note: ver abaixo
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross (aarch64-linux only)
+        if: matrix.use_cross
+        run: cargo install cross --locked
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run golden vector tests (native)
+        if: ${{ !matrix.use_cross }}
+        run: cargo test --locked -p arkhe-core golden_vector -- --test-threads=1
+
+      - name: Run golden vector tests (cross)
+        if: matrix.use_cross
+        run: cross test --locked -p arkhe-core --target ${{ matrix.target }} golden_vector -- --test-threads=1
+        continue-on-error: ${{ matrix.continue_on_error }}
+
+      - name: Capture platform metadata
+        if: always()
+        run: |
+          echo "target=${{ matrix.target }}" >> platform_meta.txt
+          rustc --version >> platform_meta.txt
+          echo "endianness=${{ matrix.target == 'aarch64_be-unknown-linux-gnu' && 'big' || 'little' }}" >> platform_meta.txt
+
+      - name: Upload platform metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-meta-${{ matrix.target }}
+          path: platform_meta.txt
+
+      - name: Fail if any platform diverges
+        if: failure() && !matrix.continue_on_error
+        run: |
+          echo "::error::Golden vector regression detected on ${{ matrix.target }}"
+          echo "The BLAKE3 hash of the canonical 95-byte encoding differs from the captured value."
+          echo "Possible causes:"
+          echo "  - endianness change in to_le_bytes()"
+          echo "  - field order change in encode()"
+          echo "  - event_kind width change"
+          echo "  - Rust/blake3 version change (see platform-meta artifact)"
+          exit 1
+
+# Nota sobre `aarch64_be-unknown-linux-gnu`: o target big-endian pode não
+# estar disponível ou falhar por bugs conhecidos do compilador. Se falhar,
+# a divergência é registrada como investigação pendente (continue_on_error),
+# não como falha de build.

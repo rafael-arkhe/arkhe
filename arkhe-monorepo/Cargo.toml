@@ -1,5 +1,10 @@
 [workspace]
 resolver = "2"
+# arkhe-ia-dtn EXCLUÍDO da verificação do workspace (verificação 2026-09-11):
+# hardy-bpv7 0.6.0 (sua dep BPv7 real) exige rustc >= 1.95 (edition 2024);
+# hardy-bpv7 0.5.0 não compila no rustc 1.94 (E0283 vendor). Na toolchain 1.95+
+# é possível rodar `cargo test --manifest-path packages/arkhe-ia-dtn/Cargo.toml`.
+exclude = ["packages/arkhe-ia-dtn"]
 members = [
     # Core PQC + identity
     "packages/arkhe-pqc",
@@ -22,8 +27,8 @@ members = [
     "packages/arkhe-actuators",
     # Ionospheric ray tracing (Haselgrove / OT 75-76) — no_std, C4
     "packages/arkhe-haselgrove",
-    # DTN agent for deep-space data relay
-    "packages/arkhe-ia-dtn", "packages/arkhe-buzz",
+    # (arkhe-ia-dtn excluído — ver nota no topo de [workspace])
+    "packages/arkhe-buzz",
     # 491-AGI-CORTEX service stack
     "services/safe-core",
     # Telegraph ξM-field observability bridge (Chladni Cloud / Cathedral v26.5 dashboard)
@@ -114,6 +119,38 @@ members = [
     # substrato são rejeitadas (nunca geram renomeações); I625+ ficam livres.
     # Política em docs/namespace_policy.md.
     "packages/arkhe-invariant-registry",
+    # ARKHE-EPISTEMIC — Módulo epistémico: verificação aritmética A051193
+    # e ponte Lean (I645 EpistemicBarrier, bloco 1060).
+    "packages/arkhe-epistemic",
+    # ARKHE-BLOCK-REGISTRY — Registro canónico de blocos (bloco 1075,
+    # v582.0-exec): hash como hex string de 64 caracteres nos três artefactos
+    # (Rust/Python/PowerShell); SHA3-256 (Ghost-1) no lugar do BLAKE3 do plano
+    # (blake3 não resolve offline); deteção de NumberCollision, DuplicateHash,
+    # HashReuse, OrphanParent e cadeia estrita. Zero deps externas novas.
+    "packages/arkhe-block-registry",
+    # ARKHE-XLOOP — Equação de Kronos (ADR-002, 2026-09-12): o loop de execução
+    # como campo métrico. TemporalField (ds² = −c²dt² + τ_eff·dℓ², dilatação
+    # τ_eff, curvatura, tempo próprio) substitui as regras discretas do loop;
+    # ObjectiveField é a correção de Carlip (E_Δ = 0 degenera o campo — colapso
+    # requer divergência de objetivos). Determinístico, auditável, zero unsafe.
+    "packages/arkhe-xloop",
+    # ARKHE-ORBITAL — Consciência orbital (2026-09-12): padrões emergentes de
+    # Saturno como arquitetura de agentes — HexagonalCore (política estável com
+    # histerese + auditoria monotónica), DecagonalField (explore/exploit, período
+    # 32), LunarSwarm (especialistas determinísticos) e TitanicMigration
+    # (utilidade = capacidade × demanda, marés 100×). Zero deps externas novas.
+    "packages/arkhe-orbital",
+    # ARKHE-CORE — transição pura + atestação append-only (v0.3.3): State/Event/
+    # apply (camada 'compute') e Ledger (camada 'attest') — entry com layout
+    # canônico de 95 bytes (prev_hash | timestamp LE | state_hash | event_kind
+    # ASCII ≤ 23, zero-padded), event_kind validado por construção (campos
+    # privados + serde try_from, D2), compute_hash()/verify()/last_hash()
+    # fail-closed (D1/D4), append() valida antes de mutar (D3), BLAKE3 sobre
+    # bytes little-endian explícitos (sem floats, sem serde no hash). Golden
+    # vectors fixados (2026-09-12) + workflow ledger-golden.yml (CI
+    # cross-platform). Deps (Simplicity-2): serde/thiserror (workspace),
+    # blake3 1.8.7, hex 0.4.3; serde_json só como dev-dependency.
+    "packages/arkhe-core",
 ]
 
 [workspace.package]
@@ -129,8 +166,10 @@ thiserror = "1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 
-# Criptografia PQC verificada formalmente (libcrux)
-libcrux-ml-dsa = "0.0.4"
+# Criptografia PQC verificada formalmente (libcrux).
+# 0.0.10 fecha os adivisórios RUSTSEC-2026-0076/0077/0125 (ml-dsa),
+# RUSTSEC-2026-0074/0207/0208 (sha3) e RUSTSEC-2026-0212 (secrets).
+libcrux-ml-dsa = "0.0.10"
 
 # Derivação de chaves
 hkdf = "0.12"

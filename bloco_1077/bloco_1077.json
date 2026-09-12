@@ -1,0 +1,103 @@
+{
+  "bloco": 1077,
+  "tipo": "LEDGER_V0.3.3_EVIDENCE",
+  "crate": "arkhe-core",
+  "modulo": "ledger",
+  "versao": "0.3.3",
+  "data": "2026-09-12",
+  "hash_anterior": "sha256-git:2266ac111051bafd49a56960358869d8fac0fb2e",
+  "handover_anterior": "bloco 1076 (SUBSTRATO_KRONOS_XLOOP_CAMPO_METRICO — arkhe-xloop + arkhe-orbital, 45/45, clippy 0); hierarquia do ledger real termina em 2266ac1 (bloco 1074 VAIP-AID)",
+  "status": "TESTED_LOCAL",
+  "nota_numero_bloco": "o parecer propoe 'bloco 1088'; a hierarquia real do ledger termina em 1076 -> proximo e 1077. Divergencia registrada, numero real usado",
+
+  "contexto": {
+    "origem": "serie de documentos 'agi (5).txt' (auditorias de auditorias v0.3.0..v0.3.3 de arkhe-core::ledger). O artefato pre-existente era o ledger v0.2.0 (State/Event/apply, SHA-256, hashes String). Nenhuma execucao de cargo test existia antes deste bloco",
+    "decisao": "romper o padrao auditoria-de-auditoria: aplicar o patch consolidado v0.3.3 (D1..D4) ao codigo real e colar o log de cargo test (arrependimento do 'proximo documento sera o log')"
+  },
+
+  "correcoes_aplicadas": {
+    "C1": "verificacao de cadeia em testes unitarios (modulo em src/ledger.rs), sem integration test acessando campo privado",
+    "C2": "bloco de evidencia sem parent fabricado; parent_resolution via runtime Ledger::last_hash()",
+    "C3": "event_kind validado como ASCII e <= 23 bytes (era descrito mas nao validado; NFD/NFC divergiam)",
+    "C4": "golden vectors fixados como regressao real (hash_vector_capture -> hash_vector_regression, constantes + asserts)",
+    "C5": "append() valida antes de mutar (atomicidade)",
+    "D1": "compute_hash()/verify()/last_hash() fail-closed (Result), nunca panic em release",
+    "D2": "LedgerEntry com campos privados + construtor validado + #[serde(try_from = LedgerEntryRaw)] (valida em TODOS os caminhos de desserializacao)",
+    "D3": "append() valida ANTES de qualquer mutacao (atomicidade explicita, nao por acidente)",
+    "D4": "last_hash() documentado como fail-closed"
+  },
+
+  "design_choices": {
+    "D1": "compute_hash/verify/last_hash fail-closed",
+    "D2": "#[serde(try_from)] construtor validado",
+    "D3": "append() valida antes de mutar",
+    "D4": "layout canonico 95 bytes, BLAKE3 LE explicito"
+  },
+
+  "layout_canonico": {
+    "tamanho": 95,
+    "descricao": "[0..32] prev_hash | [32..40] timestamp u64 LE | [40..72] state_hash | [72..95] event_kind ASCII zero-padded (<= 23)",
+    "hash": "BLAKE3-256 sobre os 95 bytes (sem serde, sem floats)"
+  },
+
+  "verificacao_real": {
+    "rust_tests": "cargo test -p arkhe-core --locked — 18 passed, 0 failed; EXIT 0",
+    "composicao_teste": "10 ledger::tests + 3 ledger::golden_vectors + 5 lib::tests = 18 (verificado exatamente; o parecer apontou '10+4+5=19': a categoria inventada 'appearance' nao existe, golden sao 3 — soma correta e 10+3+5=18)",
+    "clippy_strict": "cargo clippy -p arkhe-core --locked --all-targets -- -D warnings — exit 0, zero warnings",
+    "unsafe": "unsafe_code = deny ([lints.rust]) — zero unsafe",
+    "golden_vectors": {
+      "VECTOR_1_HASH": "420248a91eebfbba994c6aede2f718d84fbf17a5fd7bb1167c51cfada3fab296",
+      "VECTOR_2_HASH": "17c80557cdba8530ac211350403559fe361d1b3e4d46aecb691ead96b249779b",
+      "VECTOR_3_CHAIN_HASH": "1a7d5422c55222a674caccff3fcafa9e3d4c6b13918213c046e8d7b8271b58fd"
+    },
+    "vector_definition": "ledger com 3 appends: LedgerEntry::new(1_700_000_000, [0x01;32], 'genesis') / new(1_700_000_001, [0x02;32], 'verify') / new(1_700_000_002, [0x03;32], 'commit'); h1/h2/h3 sao os retornos de append(); h3 == last_hash()"
+  },
+
+  "ambiente_local": {
+    "target": "x86_64-pc-windows-msvc",
+    "rustc": "1.94.0 (4a4ef493e 2026-03-02)",
+    "cargo": "1.94.0",
+    "os": "Windows (win32)"
+  },
+
+  "hashes_artefatos": {
+    "packages/arkhe-core/src/ledger.rs": "sha256:C336C41C6B19C11D3590D391A0A9BB00E438050DAE0309AEE9E2F1AD89F725EF",
+    "packages/arkhe-core/Cargo.toml": "sha256:7D2095071D859B8C96B09B7B38390F6BADE6E3D2FDBF63A56060A669B5DC4CD8",
+    "Cargo.lock": "sha256:329D9718E88CEB8AD53AFD30E30C6460F817A48A74BBBB86CA7AF9BD8CCC7734",
+    ".github/workflows/ledger-golden.yml": "sha256:B60443BD179E7F9353A08936D2C9B8782465A4AB100BC6B495A507854D342FBF",
+    "Cargo.toml": "sha256:138433DE9DC6D40CB8027BE16FD990CE02D75D0092D2337346E0B56CDF34C7EC"
+  },
+
+  "hash_conteudo": "sha256:A5B62F610D99ED5F86346066B01D2332E353C93F5416DEE86AECCE2E58564C3C",
+  "metodo_hash_conteudo": "sha256 sobre a concatenacao ASCII (sem separadores, ordem fixa acima) dos 5 hashes SHA256 de hashes_artefatos",
+
+  "golden_vectors_pendencias": [
+    "cross-platform CI (aarch64-unknown-linux-gnu via cross, aarch64-apple-darwin, x86_64-pc-windows-msvc re-execucao, aarch64_be big-endian continue-on-error) — workflow ledger-golden.yml criado mas NAO executado neste ambiente",
+    "confirmacao de que to_le_bytes() e a ordem de campos nao divergem em big-endian"
+  ],
+
+  "pendencias": [
+    "cross-platform CI (aarch64, macOS, Windows, big-endian) — workflow nao executado",
+    "commit + push do artefato (nada foi commitado neste bloco)",
+    "re-execucao do ledger-golden.yml na primeira push",
+    "auditoria grafica do ledger.rs por terceiro (o parecer pediu colar o diff)"
+  ],
+
+  "nao_fabricar": [
+    "nao declarar VERIFIED — apenas TESTED_LOCAL",
+    "nao declarar cross-platform — apenas x86_64-pc-windows-msvc",
+    "nao declarar commit — nada foi commitado",
+    "nao reconhecer o hash C336C41C para o ledger.rs ANTES de confirmar que a arvore de trabalho estava final (confirmado: hash capturado pos-edicao final)"
+  ],
+
+  "score_omega": null,
+  "nota_score_omega": "Score Omega nao atribuido (precedente bloco 1052). O bloco regista evidencia, nao veredicto.",
+
+  "honestidade": {
+    "escopo": "TESTED_LOCAL significa: compilou, 18/18 testes passaram, clippy 0, golden vectors capturados e fixados — tudo em x86_64-pc-windows-msvc/rustc 1.94.0. Nao cobre cross-platform",
+    "deps_novas": "blake3 1.8.7 + constant_time_eq 0.4.2 (transitiva do blake3) adicionadas ao Cargo.lock; serde_json so como dev-dependency; sha2 removido do crate (nao usado no v0.3.3)",
+    "divergencia_do_plano": "o rascunho v0.3.3 do documento usava blake3 sem confirmar resolucao offline; aqui resolveu (rede disponivel). O comentario do workspace raiz foi atualizado para refletir v0.3.3 (era v0.2.0/SHA-256)"
+  },
+
+  "selo": "ARKHE-CORE-LEDGER-v0.3.3-TESTED_LOCAL-2026-09-12"
+}
