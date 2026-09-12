@@ -1,0 +1,19 @@
+[package]
+name = "arkhe-block-registry"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE-BLOCK-REGISTRY — Registro canonico de blocos do ledger (bloco 1075, v582.0-exec). Formato canonico do hash como hex string de 64 caracteres, identico nos tres artefactos (Rust/Python/PowerShell). Hashing SHA3-256 (Ghost-1, dep do workspace) em vez de BLAKE3 do plano v582.0: blake3 nao resolve offline (constant_time_eq ^0.3 fora do cache). Zero deps externas novas (Simplicity-2)."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = "1.0"
+thiserror = { workspace = true }
+sha3 = { workspace = true }
+hex = "0.4.3"
+
+[dev-dependencies]
+tempfile = "3.14"
+
+[lints.rust]
+unsafe_code = "deny"

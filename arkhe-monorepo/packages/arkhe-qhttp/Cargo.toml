@@ -1,0 +1,20 @@
+[package]
+name = "arkhe-qhttp"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE-VSEPR Núcleo 3 — qhttp (Camada 4, Processamento de Sinais de Fase). Selo #5 (arXiv:2608.14387): UHSVT com condição única f(0)=0. Selo #3 (arXiv:2608.13781): correção da anomalia quiral λ2=0.9991+δ. Selo #4 (arXiv:2608.12445): classificação de anomalias com incerteza de fase controlada."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+arkhe-ecdsa-mitm = { path = "../arkhe-ecdsa-mitm" }
+arkhe-field = { path = "../arkhe-field" }
+arkhe-gap = { path = "../arkhe-gap" }
+arkhe-tzinor = { path = "../arkhe-tzinor" }
+k256 = { version = "0.13", features = ["ecdsa", "std"] }
+rand = "0.8"
+
+[lints.rust]
+unsafe_code = "deny"

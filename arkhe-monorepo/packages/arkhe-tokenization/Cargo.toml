@@ -1,0 +1,16 @@
+[package]
+name = "arkhe-tokenization"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE TOKENIZATION — pipeline de tokenização determinística de features (#12) com orçamento de entropia (Gap-2)"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+anyhow = "1"
+
+[lints.rust]
+unsafe_code = "deny"

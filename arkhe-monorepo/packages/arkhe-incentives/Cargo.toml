@@ -1,0 +1,16 @@
+[package]
+name = "arkhe-incentives"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE INCENTIVES — economia de nós de transporte (#13): fidelidade de contribuição, alocação de recompensas e sanções"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+anyhow = "1"
+
+[lints.rust]
+unsafe_code = "deny"

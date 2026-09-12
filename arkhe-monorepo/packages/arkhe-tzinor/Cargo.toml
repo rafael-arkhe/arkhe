@@ -1,0 +1,12 @@
+[package]
+name = "arkhe-tzinor"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE-VSEPR Núcleo 3 — Canal Tzinor (Quantum Switch ICO). Selo #1 (arXiv:2608.13997): iluminação quântica com fase desconhecida não supera heteródina; vantagem 6 dB apenas com fase conhecida. Selo #7 (arXiv:2608.14110): certificação de emaranhamento via interferometria de ordem causal amplia a região ruidosa detectável."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[lints.rust]
+unsafe_code = "deny"

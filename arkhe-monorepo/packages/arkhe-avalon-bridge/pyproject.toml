@@ -1,0 +1,13 @@
+[build-system]
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "arkhe-avalon-bridge"
+requires-python = ">=3.9"
+description = "AVALON v2.3 PyO3 bridge — AGC controller + Safe-Core coherence evidence."
+license = { text = "MIT OR Apache-2.0" }
+
+[tool.maturin]
+python-source = "python"
+module-name = "avalon_rf_bridge"

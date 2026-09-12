@@ -1,0 +1,23 @@
+[package]
+name = "arkhe-avalon-bridge"
+version = "0.1.0"
+edition = "2021"
+description = "AVALON v2.3 PyO3 bridge — exposes the AGC controller and Safe-Core evidence to Python (3.14). Feature-gated so the workspace builds without a CPython interpreter."
+license = "MIT OR Apache-2.0"
+
+[features]
+default = ["pyo3"]
+# The pyo3 feature requires a matching CPython + maturin to build the wheel.
+# Without it (no-default-features) the crate still type-checks the bridge.
+pyo3 = ["dep:pyo3"]
+
+[dependencies]
+arkhe-avalon-agc = { path = "../arkhe-avalon-agc", version = "0.1.0" }
+pyo3 = { version = "0.29", features = ["abi3-py39"], optional = true }
+
+[lints.rust]
+unsafe_code = "deny"
+
+[lib]
+name = "avalon_rf_bridge"
+crate-type = ["cdylib", "rlib"]

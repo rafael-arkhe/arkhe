@@ -1,0 +1,15 @@
+[package]
+name = "arkhe-topology"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE TOPOLOGY — invariantes topológicos: número de Skyrmion (#8), coerência φ (#7) e validação topológica via TDA para designs e motores (#3)"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+anyhow = "1"
+
+[lints.rust]
+unsafe_code = "deny"

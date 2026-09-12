@@ -1,0 +1,15 @@
+[package]
+name = "arkhe-crystallography"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE CRYSTALLOGRAPHY — densidade eletrônica (#6) via FFT e transformadas de difração para materiais"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+anyhow = "1"
+
+[lints.rust]
+unsafe_code = "deny"

@@ -1,0 +1,37 @@
+[package]
+name = "arkhe-bitcoin"
+version = "0.1.0"
+edition = "2021"
+description = "Geração de chaves e endereços Bitcoin para o ecossistema ARKHE — P2PKH, P2WPKH, P2TR (Taproot), WIF e proof-of-transit (PoTT) receipts opcionais."
+license = "MIT OR Apache-2.0"
+
+[features]
+default = []
+# Integração com o substrate 924-POTT-INTERPLANETARY-TRANSPORT (arkhe-pott).
+pott = ["dep:arkhe-pott"]
+
+[dependencies]
+# Curva secp256k1 (Rust toolchain, usado pelo ecossistema bitcoin oficial).
+# 0.29 alinha com o secp256k1 interno do bitcoin 0.32 (evita dois versões
+# incompatíveis no dependency graph: Secp256k1, XOnlyPublicKey etc.).
+secp256k1 = { version = "0.29", features = ["rand"] }
+# Tipos e serialização inerentes da rede Bitcoin (Address, Network, WIF via Base58Check).
+bitcoin = { version = "0.32" }
+rand = "0.8"
+sha2 = "0.10"
+serde = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+# CLI (bin `arkhe-bitcoin`) — interface para agentes / integração direta.
+clap = { version = "4", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"
+
+# Substrate 924 — PoTT receipts (opcional; activado pela feature `pott`).
+arkhe-pott = { path = "../arkhe-pott", optional = true }
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"

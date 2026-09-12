@@ -1,0 +1,21 @@
+[package]
+name = "arkhe-xy-simulator"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE XY Simulator (P1-P4) — Kuramoto / Langevin(KT) / chiral-DMI / pinned-defect phase-lattice models for the Cathedral V8.6 NxN skyrmion mesh"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+anyhow = "1"
+csv = "1"
+rayon = "1"
+
+[[bench]]
+name = "benchmark"
+harness = false
+
+[lints.rust]
+unsafe_code = "deny"

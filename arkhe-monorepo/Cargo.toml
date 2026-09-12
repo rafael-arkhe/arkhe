@@ -4,7 +4,7 @@ resolver = "2"
 # hardy-bpv7 0.6.0 (sua dep BPv7 real) exige rustc >= 1.95 (edition 2024);
 # hardy-bpv7 0.5.0 não compila no rustc 1.94 (E0283 vendor). Na toolchain 1.95+
 # é possível rodar `cargo test --manifest-path packages/arkhe-ia-dtn/Cargo.toml`.
-exclude = ["packages/arkhe-ia-dtn"]
+exclude = ["packages/arkhe-ia-dtn", "packages/arkhe-core"]
 members = [
     # Core PQC + identity
     "packages/arkhe-pqc",
@@ -140,17 +140,15 @@ members = [
     # 32), LunarSwarm (especialistas determinísticos) e TitanicMigration
     # (utilidade = capacidade × demanda, marés 100×). Zero deps externas novas.
     "packages/arkhe-orbital",
-    # ARKHE-CORE — transição pura + atestação append-only (v0.3.3): State/Event/
-    # apply (camada 'compute') e Ledger (camada 'attest') — entry com layout
-    # canônico de 95 bytes (prev_hash | timestamp LE | state_hash | event_kind
-    # ASCII ≤ 23, zero-padded), event_kind validado por construção (campos
-    # privados + serde try_from, D2), compute_hash()/verify()/last_hash()
-    # fail-closed (D1/D4), append() valida antes de mutar (D3), BLAKE3 sobre
-    # bytes little-endian explícitos (sem floats, sem serde no hash). Golden
-    # vectors fixados (2026-09-12) + workflow ledger-golden.yml (CI
-    # cross-platform). Deps (Simplicity-2): serde/thiserror (workspace),
-    # blake3 1.8.7, hex 0.4.3; serde_json só como dev-dependency.
-    "packages/arkhe-core",
+    # ARKHE-CORE — EXCLUÍDO deste workspace (erratum bloco 1077): workspace
+    # próprio standalone em packages/arkhe-core/Cargo.toml ([workspace] + deps
+    # inline), porque o workspace arkhe-monorepo commitado referencia 22 crates
+    # não commitados (18 pré-existentes + epistemic/block-registry/xloop/orbital)
+    # e cargo não resolve em CI. Rodar via --manifest-path:
+    #   cargo test --manifest-path packages/arkhe-core/Cargo.toml --locked
+    # Golden vectors fixados (2026-09-12) + workflow ledger-golden.yml.
+    # Deps (Simplicity-2): serde (derive)/thiserror inline, blake3 1.8.7,
+    # hex 0.4.3; serde_json só como dev-dependency.
 ]
 
 [workspace.package]

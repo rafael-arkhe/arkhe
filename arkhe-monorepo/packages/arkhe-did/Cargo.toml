@@ -1,0 +1,20 @@
+[package]
+name = "arkhe-did"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE DID — validação de identidade descentralizada (#14): SIWE EIP-4361 e mensagens EIP-712 sobre secp256k1"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+k256 = { version = "0.13", features = ["ecdsa", "std"] }
+sha3 = "0.10"
+hex = "0.4"
+
+[dev-dependencies]
+anyhow = "1"
+rand = "0.8"
+
+[lints.rust]
+unsafe_code = "deny"

@@ -1,0 +1,21 @@
+[package]
+name = "arkhe-avalon-agc"
+version = "0.1.0"
+edition = "2021"
+description = "AVALON distributed AGC controller (Kyiv/Joule-style RF gain control) — Arkhe OS. No_std core, minimal traits, attestable evidence."
+license = "MIT OR Apache-2.0"
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+serde = { workspace = true }
+sha3 = { workspace = true }
+
+[dev-dependencies]
+# Deterministic host tests only; no hardware required.
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"

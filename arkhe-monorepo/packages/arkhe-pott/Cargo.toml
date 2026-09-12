@@ -1,0 +1,25 @@
+[package]
+name = "arkhe-pott"
+version = "0.1.0"
+edition = "2021"
+description = "Proof-of-Transit Timestamping (PoTT) — hop-timed custody receipts for interplanetary Bitcoin over DTN (arXiv:2508.20591). Canonical CBOR wire format, splice-resistant hash chain, BIP-340 Schnorr receipts, PoTT-M2 verification, MTP anchoring and latency-aware Lightning margins."
+license = "MIT OR Apache-2.0"
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+# Payload/anti-splice digest (SHA-256 / double-SHA-256). no_std compatible.
+sha2 = { version = "0.10", default-features = false }
+# BIP-340 Schnorr signatures over secp256k1 (pure Rust, no C toolchain).
+# BIP-340 x-only public keys double as PoTT NodeID (32 bytes).
+k256 = { version = "0.13", default-features = false, features = ["arithmetic", "schnorr", "std"] }
+# Signature traits consumed by k256 (Signer / Verifier / Signature / SignerPrimitive).
+signature = { version = "2", default-features = false }
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"

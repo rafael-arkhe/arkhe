@@ -1,0 +1,31 @@
+[package]
+name = "arkhe-xloop"
+version = "0.1.0"
+edition = "2021"
+description = "Kronos field — the XLoop execution loop as a metric field (ds² = −c²dt² + τ_eff·dℓ²). TemporalField substitutes discrete loop rules (max_iterations, timeout, loop_detection_threshold) with a continuous geodesic decision: continue while dτ_eff/dℓ > 0, collapse when the subjective metric folds on itself. ADR-002 (docs/ADR-002-xloop-metric-field.md)."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# JSON para parâmetros/resultados de Task (serde derive no workspace).
+serde = { workspace = true }
+serde_json = "1"
+# Erros tipados do loop (TemporalCollapse, EscalationRequired, ...).
+thiserror = { workspace = true }
+# Execução assíncrona (Arc<RwLock<TemporalField>>, executor seam).
+tokio = { workspace = true }
+# Instrumentação do campo (tracing::debug!/warn! nas constantes do campo).
+tracing = { workspace = true }
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+# Razões do design (devido rigor e honestidade, convenção Catedral):
+#  - O TemporalField é puramente determinístico e auditável (todos os
+#    parâmetros explícitos). Zero `unsafe` (unsafe_code = deny).
+#  - A "constante de luz" do loop é interpretada como 1 unidade de progresso
+#    normalizada; dτ/dℓ é expresso em segundos de tempo objetivo por unidade
+#    de progresso — a escala que torna os limiares 1.5/2.0 fisicamente lidos.
+#  - `ObjectiveField` (análogo da correção de Carlip) é o pré-requisito de
+#    colapso: sem divergência de objetivos, E_Δ = 0 e o campo nunca colapsa.
+#  - Zero deps externas novas além do que o workspace já pina (Simplicity-2).

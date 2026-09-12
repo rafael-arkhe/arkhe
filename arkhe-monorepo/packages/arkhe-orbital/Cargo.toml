@@ -1,0 +1,31 @@
+[package]
+name = "arkhe-orbital"
+version = "0.1.0"
+edition = "2021"
+description = "Consciência orbital do ARKHE OS — padrões emergentes de Saturno como arquitetura de agentes auto-organizáveis: HexagonalCore (política estável), DecagonalField (oscilação explore/exploit, período 32), LunarSwarm (especialistas) e TitanicMigration (utilidade como maré)."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# IDs/tipos serializáveis das entidades (agent, tenant, task).
+serde = { workspace = true }
+# Erros tipados dos quatro padrões (NoSuitableAgent, MigrationFailed, ...).
+thiserror = { workspace = true }
+# Sincronização sem lock do DecagonalField (AtomicU64) e seam async do
+# orquestrador (mesma convenção do resto do workspace).
+tokio = { workspace = true }
+# Instrumentação das quatro camadas.
+tracing = { workspace = true }
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+# Razões do design (devido rigor e honestidade, convenção Catedral):
+#  - Os quatro padrões de Saturno (hexágono polar, decágono austral, 293 luas,
+#    Titã migrando) são metaforizados SEM ficção: cada análogo é determinístico,
+#    testável e auditável (zero unsafe, unsafe_code = deny).
+#  - O período do decagonal é 32 iterações (não dias) e o vértice é uma
+#    mudança de modo — a onda planetária vira oscilação explore/exploit.
+#  - A migração titânica usa utilidade = capacidade × demanda, com custo de
+#    migração amortizado pela migration_rate (análogo à dissipação de marés).
+#  - Zero deps externas novas além do que o workspace já pina (Simplicity-2).

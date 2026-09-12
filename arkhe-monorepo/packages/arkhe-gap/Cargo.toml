@@ -1,0 +1,12 @@
+[package]
+name = "arkhe-gap"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE-VSEPR Núcleo 3 — Gap de Proteção (Camada 3). Selo #2 (Robust Quantum Extremal Numbers, arXiv:2608.13907): defeito de maximal-mixing D_A, platô Qex(8,4)=56 (ε<1/5), limite Qex(9,4)≤120 (ε<1/17). Selo #6 (PRX 16, 031040): blindagem Coulombiana como controle ativo do gap C-Z, ângulo mágico TBG ~1.1°."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[lints.rust]
+unsafe_code = "deny"

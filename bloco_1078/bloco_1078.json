@@ -51,5 +51,8 @@
     "golden_vectors": ["420248A91EEBFBBA994C6AEDE2F718D84FBF17A5FD7BB1167C51CFADA3FAB296", "17C80557CDBA8530AC211350403559FE361D1B3E4D46AECB691EAD96B249779B", "1A7D5422C55222A674CACCFF3FCAFA9E3D4C6B13918213C046E8D7B8271B58FD"]
   },
 
-  "selo": "ARKHE-CORE-LEDGER-v0.3.3-CI-GOLDEN-2026-09-12"
+  "selo": "ARKHE-CORE-LEDGER-v0.3.3-CI-GOLDEN-2026-09-12",
+  "corrigendum": [
+    "DECISAO-MIS-TARGETED-2026-09-12 — protocolo MARCO_ZERO/Z1-Z9 (arcos arkhe-cavemem, arkhe-isolation, arkhe-cryogenic, arkhe-redactor-ast, arkhe-pattern-detector, arkhe-mcp; artefatos observation.rs, hybrid.rs::fts5_search, tests/z4_falsifier.rs, z1_falsifier.rs) marcado como MIS-TARGETED: verificacao exaustiva do ambiente (grep/glob sobre a raiz inteira do workspace) retornou 0 matches para os 6 crates e 0 matches para todos os arquivos-alvo; unica referencia a arkhe-isolation-kernel e ANALISE-REPOSITORIO-2026-07-04.md:30 declarando-o inexistente; catálogo de crates de ambos os monorepos (safe-core 55 dirs, arkhe-monorepo 66 dirs) nao contem nenhum deles. Nenhum artefato foi escrito e nenhum cargo check foi executado (fabricar substrato inexistente viola Ghost-1 e o precedente da auditoria 4.5.0/safe-core-ledger). Protocolo nao pode ser executado ate que um caminho real de repo/branch seja fornecido. Redireciona para E2: pre-validacao (cargo check) dos 22 crates-membro pendentes, todos confirmados em disco, com bifurcacao Arkhe vs third-party."
+  ]
 }

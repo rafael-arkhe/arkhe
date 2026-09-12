@@ -1,0 +1,18 @@
+[package]
+name = "arkhe-field"
+version = "0.1.0"
+edition = "2021"
+description = "ARKHE Field 1.0 — escala de 2370 MeV (X(2370)/BESIII, ICHEP 2026), correspondência VSEPR-Glueball, constantes JUNO (Nature 654, 2026), matriz de mistura entre camadas e completação do amalgam G3 (arXiv:2607.27256)."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+sha3 = "0.10"
+
+[dev-dependencies]
+arkhe-ecdsa-mitm = { path = "../arkhe-ecdsa-mitm" }
+k256 = { version = "0.13", features = ["ecdsa", "std"] }
+rand = "0.8"
+
+[lints.rust]
+unsafe_code = "deny"
