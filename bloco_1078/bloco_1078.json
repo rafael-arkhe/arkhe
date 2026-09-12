@@ -75,7 +75,8 @@
       "job": "Declared members must match committed-tree contract",
       "steps": ["actions/checkout@v4 ok", "Workspace hygiene checker ok"]
     },
-    "status": "E2_FECHADO_CI_VERDE"
+    "status": "E2_FECHADO_CI_VERDE",
+    "decisao_merge_2026-09-12": "Topologia do repo em inspecao pre-merge: origin/main (b8510ede) e a linhagem do app Buzz (fix(desktop) #2680, mobile composer #2730, release desktop 0.4.25 #2776, admin-web, NOSTR.md, VISION_*) — SEM ancestral comum com QC-0892 (git merge-base vazio, merge exigiria --allow-unrelated-histories). QC-0892 e a linhagem Arkhe OS (raiz 615b2e41), 70 commits a frente de main; local master (3f78251) reside DENTRO da linhagem Arkhe; working tree suja com changeset grande e nao relacionado (arkhe-buzz-bridge, safe-core-monorepo, .env.example, imagens, gcode); origin so tem refs QC-0892 e main. DECISAO (Arquiteto): NAO mergear — E2 permanece fechado CI-verde na branch QC-0892, sem cirurgia de topologia. Registro do roadblock merge nao executado."
   },
 
   "selo": "ARKHE-CORE-LEDGER-v0.3.3-CI-GOLDEN-2026-09-12",
