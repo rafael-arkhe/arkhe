@@ -1,10 +1,14 @@
-# /arkhe-monorepo/.github/workflows/ledger-golden.yml — v0.3.3 (corrigendum)
+# /arkhe-monorepo/.github/workflows/ledger-golden.yml — v0.3.3 (corrigendum 2)
 # Realocado para .github/workflows/ raiz do repo (GitHub Actions só descobre workflows no root).
 # Relativo a arkhe-monorepo/, paths incluem prefixo arkhe-monorepo/.
+# arkhe-core agora é workspace standalone (erratum bloco 1077): o workspace
+# arkhe-monorepo commitado referencia 22 crates não commitados e não resolve em
+# CI; os testes rodam via --manifest-path packages/arkhe-core/Cargo.toml com
+# Cargo.lock próprio do crate (--locked).
 # Golden vectors cross-platform do ledger (Ghost-1 determinismo).
 # Se qualquer target divergir dos valores fixados em golden_vectors,
-# o PR é bloqueado antes do merge. Metadados (rustc + endianness) são
-# registrados como artefato para diagnóstico de regressão silenciosa.
+# o PR é bloqueado antes do merge (aarch64_be usa continue-on-error).
+# Metadados (rustc + endianness) são registrados como artefato.
 name: Ledger Golden Vectors
 
 on:
@@ -13,6 +17,7 @@ on:
       - "arkhe-monorepo/packages/arkhe-core/src/ledger.rs"
       - "arkhe-monorepo/packages/arkhe-core/tests/golden_vectors.rs"
       - "arkhe-monorepo/packages/arkhe-core/Cargo.toml"
+      - "arkhe-monorepo/packages/arkhe-core/Cargo.lock"
       - ".github/workflows/ledger-golden.yml"
   pull_request:
     paths:
@@ -22,6 +27,7 @@ jobs:
   golden:
     name: Golden vectors on ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.continue_on_error || false }}
     defaults:
       run:
         working-directory: arkhe-monorepo
@@ -63,12 +69,11 @@ jobs:
 
       - name: Run golden vector tests (native)
         if: ${{ !matrix.use_cross }}
-        run: cargo test --locked -p arkhe-core golden_vector -- --test-threads=1
+        run: cargo test --locked --manifest-path packages/arkhe-core/Cargo.toml golden_vector -- --test-threads=1
 
       - name: Run golden vector tests (cross)
         if: matrix.use_cross
-        run: cross test --locked -p arkhe-core --target ${{ matrix.target }} golden_vector -- --test-threads=1
-        continue-on-error: ${{ matrix.continue_on_error }}
+        run: cross test --locked --manifest-path packages/arkhe-core/Cargo.toml --target ${{ matrix.target }} golden_vector -- --test-threads=1
 
       - name: Capture platform metadata
         if: always()
@@ -97,6 +102,8 @@ jobs:
           exit 1
 
 # Nota sobre `aarch64_be-unknown-linux-gnu`: o target big-endian pode não
-# estar disponível ou falhar por bugs conhecidos do compilador. Se falhar,
-# a divergência é registrada como investigação pendente (continue_on_error),
-# não como falha de build.
+# estar disponível ou falhar por bugs conhecidos do compilador (tier-3). A
+# continuação é em nível de JOB (continue-on-error na job, corrigendum 2): num
+# job continue-on-error o step "Fail if any platform diverges" não vermelha o
+# run — a divergência fica registrada nos artefatos platform_meta como
+# investigação pendente, não como falha de build.

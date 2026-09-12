@@ -1,0 +1,54 @@
+{
+  "bloco": 1077,
+  "tipo": "ERRATUM_STANDALONE_WORKSPACE",
+  "data": "2026-09-12",
+  "commit_base": "sha256-git:71a1b140dbad5631f9287183457624f38b1faa3e",
+  "ci_run_falha": "actions run 34701649633 (Ledger Golden Vectors, run #1, push 71a1b14) — failure: job x86_64-linux falhou no step 'Run golden vector tests (native)' em ~1s",
+
+  "causa_raiz": "o workspace arkhe-monorepo COMMITADO referencia 22 crates que nao existem na arvore commitada (19 ja em 2266ac1: observability, xy-simulator, avalon-agc, avalon-bridge, topology, reputation, oam, tokenization, incentives, did, crystallography, field, ecdsa-mitm, gap, qhttp, tzinor, pott, bitcoin, ia-dtn [+buzz parse]; +4 varridos pelo bloco 1077: epistemic, block-registry, xloop, orbital). Localmente 'funciona' porque os dirs existem na arvore de trabalho nao commitada; no checkout de CI nao existem -> cargo nao resolve o workspace e falha instantaneamente.",
+
+  "decisao": "aprovada pelo operador (Opcao A): arkhe-core vira workspace standalone proprio, independendo do workspace arkhe-monorepo (que so podera rodar em CI apos commits que tornem os members reais)",
+
+  "mudancas": {
+    "packages/arkhe-core/Cargo.toml": {
+      "de": "serde/thiserror = { workspace = true }; sem [workspace]",
+      "para": "[workspace] resolver=2 no proprio crate; deps inline serde={version=1,features=[derive]} e thiserror=1 (valores identicos ao [workspace.dependencies])",
+      "hash_de": "sha256:7D2095071D859B8C96B09B7B38390F6BADE6E3D2FDBF63A56060A669B5DC4CD8",
+      "hash_para": "sha256:313113F79CA26065F7F02CE3401C6D9B96F84147ECDD46291DAB508BB81FD96D"
+    },
+    "packages/arkhe-core/Cargo.lock": {
+      "de": "inexistente",
+      "para": "novo lockfile proprio do crate (24 packages; thiserror 1.0.69; blake3 1.8.7; serde 1.0.229; serde_json 1.0.151) — permite --locked nos 4 targets nativos/cross",
+      "hash_para": "sha256:5AC9EE2055AB387274443F70A27BC008C21DB1A0ACD991AC29814FC274DE7E64"
+    },
+    "arkhe-monorepo/Cargo.toml": {
+      "de": "\"packages/arkhe-core\" em members (erratum do bloco 1077)",
+      "para": "excluido via exclude = [\"packages/arkhe-ia-dtn\", \"packages/arkhe-core\"]; commentario documenta o standalone",
+      "hash_de": "sha256:138433DE9DC6D40CB8027BE16FD990CE02D75D0092D2337346E0B56CDF34C7EC",
+      "hash_para": "sha256:BD1A233178412E3A24DADB9C3FF18743D863EFD8FEBAE9F4ABB8C97A51F2F857"
+    },
+    ".github/workflows/ledger-golden.yml": {
+      "de": "cargo test -p arkhe-core (falha porque o workspace nao resolve)",
+      "para": "cargo test --locked --manifest-path packages/arkhe-core/Cargo.toml; cross idem; aarch64_be com continue-on-error no nivel de JOB (o tier-3 falha no step Install Rust, nao no teste); Cargo.lock do crate adicionado aos paths do trigger",
+      "hash_de": "sha256:E2BB728E2CEFB36076EB8105D2D2A61145900F8848020483CF5EC32EFCE64F2F",
+      "hash_para": "sha256:7E4384B8FF36C6C527DFF6518DD99EB53A492C1768D698CB4EE7D32D8CC1AE8A"
+    }
+  },
+
+  "validacao_local": {
+    "cargo test --locked --manifest-path packages/arkhe-core/Cargo.toml": "18 passed; 0 failed; exito",
+    "cargo clippy --locked --manifest-path packages/arkhe-core/Cargo.toml --all-targets -- -D warnings": "exit 0, zero warnings",
+    "comandos_ci_usados": "cargo/cross test --locked --manifest-path packages/arkhe-core/Cargo.toml golden_vector -- --test-threads=1",
+    "inalterado": "src/ledger.rs e src/lib.rs (hashes do bloco 1077 intocados); golden vectors VECTOR_1/2/3-CHAIN"
+  },
+
+  "efeito_colateral_honesto": [
+    "arkhe-core deixa de herdar [workspace.dependencies]; versoes inlineadas identicas, mas a fonte da verdade passa a ser o Cargo.toml do crate",
+    "cargo -p arkhe-core a partir da raiz arkhe-monorepo NAO resolve mais; usar --manifest-path (documentado no comentario do exclude)",
+    "o PROBLEMA dos 22 members fantasmas em arkhe-monorepo permanece para o futuro (blocos 1060/1075/1076/... precisam commitar seus crates); fora do escopo deste bloco",
+    "o vetor +4 (epistemic/block-registry/xloop/orbital) varrido pelo commit ce30c29 permanece no Cargo.toml commitado — agora irrelevante para a CI (arkhe-core segue standalone), mas o workspace arkhe-monorepo commitado continua nao-resolvivel até que os crates sejam commitados"
+  ],
+
+  "status": "AGUARDA_CI",
+  "selo": "ARKHE-CORE-LEDGER-v0.3.3-STANDALONE-WORKSPACE-2026-09-12"
+}

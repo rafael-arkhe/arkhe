@@ -2,12 +2,15 @@
 name = "arkhe-core"
 version = "0.3.3"
 edition = "2021"
-description = "arkhe-core — pure transition (State/Event/apply) + append-only hash-chained ledger (Ghost-1). v0.3.3: Ledger 95-byte canonical layout, event_kind ASCII <= 23 by construction (private fields + serde try_from, D2), compute_hash()/verify()/last_hash() fail-closed (D1/D4), append() validates before mutating (D3), blake3 over explicit little-endian bytes. Deps: serde/thiserror (workspace), blake3, hex; serde_json so dev-only."
+description = "arkhe-core — pure transition (State/Event/apply) + append-only hash-chained ledger (Ghost-1). v0.3.3: Ledger 95-byte canonical layout, event_kind ASCII <= 23 by construction (private fields + serde try_from, D2), compute_hash()/verify()/last_hash() fail-closed (D1/D4), append() validates before mutating (D3), blake3 over explicit little-endian bytes. Erratum (bloco 1077): workspace standalone proprio (o workspace arkhe-monorepo commitado referencia 22 crates nao commitados -> cargo nao resolve em CI); deps inline (serde derive/thiserror = mesmos valores do [workspace.dependencies]) em vez de { workspace = true }. Deps: serde/thiserror, blake3, hex; serde_json so dev-only."
 license = "MIT OR Apache-2.0"
 
+[workspace]
+resolver = "2"
+
 [dependencies]
-serde = { workspace = true }
-thiserror = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
 blake3 = "1"
 hex = "0.4.3"
 
