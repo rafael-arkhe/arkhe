@@ -1,0 +1,55 @@
+{
+  "bloco": 1078,
+  "tipo": "LEDGER_V0.3.3_CI_GOLDEN",
+  "status": "CI_GREEN",
+  "crate": "arkhe-core",
+  "modulo": "ledger",
+  "versao": "0.3.3",
+  "data": "2026-09-12",
+  "hash_anterior": "sha256-git:83f3b720c679e2ae9c07af4599a602ee07644a08",
+  "handover_anterior": "bloco 1077 (LEDGER_V0.3.3_EVIDENCE, TESTED_LOCAL, ce30c29) + erratum workflow re-alocacao (71a1b14) + erratum standalone workspace (83f3b72)",
+
+  "contexto": "CI cross-platform valida os golden vectors fixados no bloco 1077. Workflow ledger-golden.yml roda em 5 targets; 4 executaram os testes, 1 (big-endian tier-3) falhou no Install Rust com continue-on-error de JOB — o run ficou verde (ver pendencias).",
+
+  "ci_evidencia": {
+    "run_id": 34704105568,
+    "html_url": "https://github.com/rafael-arkhe/buzz/actions/runs/34704105568",
+    "evento": "push 83f3b72 (QC-0892)",
+    "conclusion_run": "success",
+    "golden_test_steps": {
+      "x86_64-unknown-linux-gnu (native)": "success",
+      "aarch64-unknown-linux-gnu (cross, cargo install cross)": "success",
+      "aarch64-apple-darwin (native)": "success",
+      "x86_64-pc-windows-msvc (native)": "success",
+      "aarch64_be-unknown-linux-gnu (big-endian tier-3)": "Install Rust failure — target nao instalavel no stable; job-level continue-on-error; golden test NAO executado; registrado como investigacao pendente"
+    }
+  },
+
+  "deltas_sobre_1077": {
+    "invocacao": "cargo/cross test --locked --manifest-path packages/arkhe-core/Cargo.toml golden_vector -- --test-threads=1 (workspace standalone, erratum 2)",
+    "cross_platform_confirmado": "golden vectors VECTOR_1/2/3-CHAIN PASS em 4 plataformas (x86_64-linux, aarch64-linux via cross, aarch64-darwin, x86_64-windows) — confirma que to_le_bytes() + layout de 95 bytes + BLAKE3 nao divergem entre little-endian/mac/windows",
+    "validacao_local_inalterada": "18/18 testes, clippy -D warnings 0 (x86_64-pc-windows-msvc, rustc 1.94.0)"
+  },
+
+  "pendencias": [
+    "big-endian (aarch64_be): NAO confirmado — target tier-3 indisponivel no stable; ficou como investigacao pendente (artefatos platform_meta registrados no run, mas nao extraiveis publicamente)",
+    "logs detalhados do CI exigem auth (endpoint logs 403); evidencias usadas: API publica de runs/jobs/steps",
+    "auditoria de terceiro dos logs (permanece para a cadeia de auditoria)"
+  ],
+
+  "nao_fabricar": [
+    "nao declarar RATIFICADO / VERIFIED por terceiro — CI verde observado diretamente pelas APIs publicas, nao por auditor independente",
+    "nao declarar big-endian confirmado — o teste big-endian nao rodou (falha no Install Rust)",
+    "nao citar versao do rustc de CI — os artefatos platform_meta exigem auth"
+  ],
+
+  "score_omega": null,
+  "nota_score_omega": "Score Omega nao atribuido (precedente bloco 1052). O bloco regista evidencia de CI, nao veredicto de auditoria.",
+
+  "hashes_intocados": {
+    "ledger.rs": "sha256:C336C41C6B19C11D3590D391A0A9BB00E438050DAE0309AEE9E2F1AD89F725EF",
+    "golden_vectors": ["420248A91EEBFBBA994C6AEDE2F718D84FBF17A5FD7BB1167C51CFADA3FAB296", "17C80557CDBA8530AC211350403559FE361D1B3E4D46AECB691EAD96B249779B", "1A7D5422C55222A674CACCFF3FCAFA9E3D4C6B13918213C046E8D7B8271B58FD"]
+  },
+
+  "selo": "ARKHE-CORE-LEDGER-v0.3.3-CI-GOLDEN-2026-09-12"
+}
