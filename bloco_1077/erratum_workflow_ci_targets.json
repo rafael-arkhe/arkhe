@@ -1,0 +1,71 @@
+{
+  "arquivo": "erratum_workflow_ci_targets.json",
+  "tipo": "ERRATUM_3_WORKFLOW_CI_TARGETS",
+  "bloco": 1077,
+  "referente_a": "ledger-golden.yml (bloco 1077) + bloco_1078 (CI GREEN)",
+  "data": "2026-09-12",
+  "hash_anterior": "sha256:7E4384B8FF36C6C527DFF6518DD99EB53A492C1768D698CB4EE7D32D8CC1AE8A",
+  "hash_novo_ledger_golden": "sha256:ECE3913E68FDDE20A1E0AC9B97256EBD8D45B84CE50BD759783768CF03A8BF7E",
+  "hash_novo_workspace_hygiene": "sha256:B1B39424FDC76823D8B179BB3E10779ADABB3CBFE4ABAC0B04F5BF55C97F664C",
+
+  "contexto": "Investigacao pos-CI GREEN (run 34704105568) dos dois itens pendentes do bloco 1078: (1) aarch64_be-unknown-linux-gnu falhou no step 'Install Rust'; (2) divida de 22 membros declarados sem commit. Diagnostico baseado em evidencia real, nao em hipotese.",
+
+  "evidencia_diagnostico": {
+    "aarch64_be": {
+      "bucket": "Tier-3 target indisponivel no stable",
+      "prova": "rustup target list (stable 1.94.0) nao lista nenhuma entrada aarch64_be*; o step Install Rust (dtolnay/rust-toolchain@stable targets:aarch64_be-unknown-linux-gnu) falha no rustup target add antes de qualquer teste",
+      "endianness_não_implicado": [
+        "ledger.rs:111 timestamp.to_le_bytes() explicito — layout independe do host",
+        "ledger.rs:114/122 as_bytes() somente sobre &str e referencias de hash (endian-safe)",
+        "ledger.rs:344 docstring registra endianness explicita no layout",
+        "BLAKE3 e deterministico; os 4 targets little-endian do run 2 passaram com os mesmos golden vectors"
+      ]
+    },
+    "membros_22": {
+      "prova": "declared=51 (arkhe-monorepo/Cargo.toml [workspace].members) vs committed=37 dirs no HEAD:22 734132d7a; missing = 18 pre-existentes (observability, xy-simulator, avalon-agc, avalon-bridge, topology, reputation, oam, tokenization, incentives, did, crystallography, field, ecdsa-mitm, gap, qhttp, tzinor, pott, bitcoin) + 4 recentes (epistemic 1060, block-registry 1075, xloop/orbital 1076)",
+      "correcao_de_taxonomia": "todos os 22 TEM Cargo.toml no disco local (committed_dir=0 anterior era bug de regex do analista, nao realidade do arvore). A divida e de COMMIT em git, nao de manifest ausente: cargo metadata local resolve; checkout limpo de CI falha"
+    }
+  },
+
+  "decisoes": {
+    "aarch64_be": "REMOVER de ledger-golden.yml matrix + comentario (decisao: 'Drop from matrix + comment'). Re-habilitar em promocao tier-2 ou via cargo-zigbuild/qemu. Run passa de 4/5 (1 skip por falha de toolchain) para 4/4 categorico",
+    "ws_membros": "Guard-only: novo .github/workflows/workspace-hygiene.yml verifica cargo metadata em checkout limpo. ESTADO ESPERADO: VERMELHO hoje (22 nao commitados) — transforma a divida em invariante regressivo; re-verdeja quando a divida for quitada crate-a-crate"
+  },
+
+  "mudancas": [
+    {
+      "artefato": ".github/workflows/ledger-golden.yml",
+      "hash_de": "7E4384B8FF36C6C527DFF6518DD99EB53A492C1768D698CB4EE7D32D8CC1AE8A",
+      "hash_para": "ECE3913E68FDDE20A1E0AC9B97256EBD8D45B84CE50BD759783768CF03A8BF7E",
+      "items": [
+        "header v0.3.3 corrigendum 3 + nota do drop de aarch64_be",
+        "removida entrada aarch64_be-unknown-linux-gnu do matrix (tier-3, nao instalavel no stable)",
+        "echo platform_meta endianness simplificado (todos os targets sao little-endian)",
+        "nota final reescrita: evidencia do diagnostico + caminho de re-habilitacao"
+      ]
+    },
+    {
+      "artefato": ".github/workflows/workspace-hygiene.yml",
+      "hash": "B1B39424FDC76823D8B179BB3E10779ADABB3CBFE4ABAC0B04F5BF55C97F664C",
+      "nova_criacao": true,
+      "items": [
+        "trigger: push/PR paths em arkhe-monorepo/Cargo.toml, Cargo.lock e o proprio workflow",
+        "job members-exist: cargo metadata --no-deps --format-version 1 em checkout limpo (working-directory arkhe-monorepo); exit != 0 => erro com mensagem apontando o erratum 2"
+      ]
+    }
+  ],
+
+  "validacao_local": {
+    "yaml": "yaml.safe_load ok nos dois workflows (python 3)",
+    "hash_captura": "Get-FileHash pos-edição; ledger-golden ECE3913E..., workspace-hygiene B1B39424...",
+    "esperado_ci": "ledger-golden run: 4/4 jobs success (x86_64-linux, aarch64-linux cross, aarch64-darwin, x86_64-windows); workspace-hygiene run: failure intencional (divida 22)"
+  },
+
+  "efeito_colateral_honesto": [
+    "a cobertura big-endian permanece como divida (nao testada), agora explícita no workflow e neste erratum — antes constava como continue-on-error silencioso no run verde",
+    "workspace-hygiene vai aparecer VERMELHO no status do repo enquanto os 22 crates nao forem commitados; e o sinal ehh intencional (regra, nao excecao)",
+    "o run 2 (34704105568) permanece como evidencia do bloco 1078 inalterada; este erratum registra a resolucao do que era 'investigacao pendente'"
+  ],
+
+  "selo": "ARKHE-CORE-LEDGER-v0.3.3-CI-TARGETS-CORRIGENDUM-3-2026-09-12"
+}

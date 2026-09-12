@@ -1,4 +1,4 @@
-# /arkhe-monorepo/.github/workflows/ledger-golden.yml — v0.3.3 (corrigendum 2)
+# .github/workflows/ledger-golden.yml — v0.3.3 (corrigendum 3)
 # Realocado para .github/workflows/ raiz do repo (GitHub Actions só descobre workflows no root).
 # Relativo a arkhe-monorepo/, paths incluem prefixo arkhe-monorepo/.
 # arkhe-core agora é workspace standalone (erratum bloco 1077): o workspace
@@ -7,8 +7,12 @@
 # Cargo.lock próprio do crate (--locked).
 # Golden vectors cross-platform do ledger (Ghost-1 determinismo).
 # Se qualquer target divergir dos valores fixados em golden_vectors,
-# o PR é bloqueado antes do merge (aarch64_be usa continue-on-error).
+# o PR é bloqueado antes do merge.
 # Metadados (rustc + endianness) são registrados como artefato.
+# Corrigendum 3 (bloco 1078, 2026-09-12): aarch64_be-unknown-linux-gnu
+# REMOVIDO do matrix — tier-3, não listado pelo rustup no stable 1.94.0
+# (verificado localmente; step "Install Rust" falhava antes de qualquer
+# teste). Re-habilitar em promoção tier-2 ou via zigbuild/qemu.
 name: Ledger Golden Vectors
 
 on:
@@ -47,10 +51,6 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             use_cross: false
-          - os: ubuntu-latest
-            target: aarch64_be-unknown-linux-gnu   # ← big-endian (se disponível)
-            use_cross: false
-            continue_on_error: true # note: ver abaixo
 
     steps:
       - uses: actions/checkout@v4
@@ -80,7 +80,7 @@ jobs:
         run: |
           echo "target=${{ matrix.target }}" >> platform_meta.txt
           rustc --version >> platform_meta.txt
-          echo "endianness=${{ matrix.target == 'aarch64_be-unknown-linux-gnu' && 'big' || 'little' }}" >> platform_meta.txt
+          echo "endianness=little" >> platform_meta.txt
 
       - name: Upload platform metadata
         if: always()
@@ -101,9 +101,13 @@ jobs:
           echo "  - Rust/blake3 version change (see platform-meta artifact)"
           exit 1
 
-# Nota sobre `aarch64_be-unknown-linux-gnu`: o target big-endian pode não
-# estar disponível ou falhar por bugs conhecidos do compilador (tier-3). A
-# continuação é em nível de JOB (continue-on-error na job, corrigendum 2): num
-# job continue-on-error o step "Fail if any platform diverges" não vermelha o
-# run — a divergência fica registrada nos artefatos platform_meta como
-# investigação pendente, não como falha de build.
+# Corrigendum 3 (bloco 1078, 2026-09-12): aarch64_be-unknown-linux-gnu
+# foi REMOVIDO do matrix. Evidência: `rustup target list` no stable 1.94.0
+# não contém nenhum aarch64_be — o target é tier-3 e não instalável no
+# stable; o job sempre falhava no step "Install Rust" antes de qualquer
+# teste. O layout de 95 bytes NÃO depende de endianness do host:
+# ledger.rs usa to_le_bytes() explícito (linha 111) e as_bytes() só sobre
+# &str/hashes; BLAKE3 é determinístico em little-endian. Re-habilitar em
+# promoção tier-2 ou via cargo-zigbuild/qemu (big-endian permanece como
+# dívida de cobertura, registrada no erratum).
+# Guard de integridade do workspace: .github/workflows/workspace-hygiene.yml

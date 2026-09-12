@@ -102,6 +102,7 @@
   "selo": "ARKHE-CORE-LEDGER-v0.3.3-TESTED_LOCAL-2026-09-12",
   "corrigendum": [
     "erratum_workflow_gha.json — workflow realocado para .github/workflows/ raiz (GHA so descobre workflows no root); paths com prefixo arkhe-monorepo/; hashes originais B60443BD -> E2BB728E",
-    "erratum_standalone_workspace.json — CI falhou (workspace commitado referencia 22 crates nao commitados); arkhe-core vira workspace proprio com deps inline + Cargo.lock proprio; manifest-path --locked; aarch64_be com job-level continue-on-error; hashes: Cargo.toml 7D2095..->313113F7; Cargo.lock novo 5AC9EE20; Cargo.toml raiz 138433DE->BD1A2331; workflow E2BB728E->7E4384B8"
+    "erratum_standalone_workspace.json — CI falhou (workspace commitado referencia 22 crates nao commitados); arkhe-core vira workspace proprio com deps inline + Cargo.lock proprio; manifest-path --locked; aarch64_be com job-level continue-on-error; hashes: Cargo.toml 7D2095..->313113F7; Cargo.lock novo 5AC9EE20; Cargo.toml raiz 138433DE->BD1A2331; workflow E2BB728E->7E4384B8",
+    "erratum_workflow_ci_targets.json — pos-bloco 1078: aarch64_be confirmado tier-3 (nao listado pelo rustup 1.94.0 stable; falha no Install Rust, nao em teste) e REMOVIDO do matrix (workflow ECE3913E..); novo guard workspace-hygiene.yml (B1B39424..) falha 'por design' ate a divida de 22 membros ser quitada; endianness NÃO implicada (to_le_bytes explicito, ledger.rs:111)"
   ]
 }
