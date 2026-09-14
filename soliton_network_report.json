@@ -1,0 +1,135 @@
+{
+  "simulation": "ARKHE_SOLITON_NETWORK_v4_1",
+  "timestamp": "2026-07-29T20:50:32.743423",
+  "constitutional_seal": {
+    "timestamp": "2026-07-29T20:50:12.529545",
+    "boundaries": [
+      "PHYSICAL_MEASUREMENT",
+      "QUANTUM_CORRELATION",
+      "TOPOLOGICAL"
+    ],
+    "consciousness_claim": false,
+    "metaphysical_claim": false,
+    "physical_measurement_only": true,
+    "seal_hash": "c77000818147c07e"
+  },
+  "parameters": {
+    "n_solitons": 50,
+    "coupling_strength": 0.15,
+    "n_steps": 500,
+    "dt": 0.01
+  },
+  "final_state": {
+    "global_coherence": 0.5752239173472448,
+    "global_phase": 3.058280039264171,
+    "spatial_correlation": 0.3011355525143623,
+    "total_energy": 1004.3255130046915,
+    "mean_width": 0.9948141330554185,
+    "mean_velocity": 0.49750338995247395,
+    "time": 4.999999999999938,
+    "n_solitons": 50
+  },
+  "condensation": "False",
+  "history_sample": [
+    {
+      "global_coherence": 0.16348451009666784,
+      "global_phase": -1.993037756110749,
+      "spatial_correlation": 0.03029917380316416,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.14793563231436022,
+      "time": 0.01,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.19919119543117117,
+      "global_phase": -1.4597991672053334,
+      "spatial_correlation": 0.04358467677690712,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.16130711821580104,
+      "time": 0.5100000000000002,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.23547924758708466,
+      "global_phase": -0.9259553164968134,
+      "spatial_correlation": 0.05920922759805145,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.18340339895003946,
+      "time": 1.0100000000000007,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.271112688858744,
+      "global_phase": -0.40107925096718566,
+      "spatial_correlation": 0.07667715393201283,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.2112728481398394,
+      "time": 1.5100000000000011,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.30731931888802805,
+      "global_phase": 0.11109933092154106,
+      "spatial_correlation": 0.09629709137229735,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.2438742728206015,
+      "time": 2.010000000000001,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.3457731143359717,
+      "global_phase": 0.611795173396385,
+      "spatial_correlation": 0.1188864036411731,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.28052175089644,
+      "time": 2.5099999999999905,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.38749768581362276,
+      "global_phase": 1.1041954067723319,
+      "spatial_correlation": 0.14542333609452057,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.32071522980968403,
+      "time": 3.00999999999998,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.43260755253747574,
+      "global_phase": 1.5924303783094227,
+      "spatial_correlation": 0.17678624557962247,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.36464119584401133,
+      "time": 3.509999999999969,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.4802641431585318,
+      "global_phase": 2.080746609845331,
+      "spatial_correlation": 0.213509501214328,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.41040228373739757,
+      "time": 4.009999999999959,
+      "n_solitons": 50
+    },
+    {
+      "global_coherence": 0.5287764222439643,
+      "global_phase": 2.5723333345942114,
+      "spatial_correlation": 0.2555156040528806,
+      "total_energy": 1004.3255130046915,
+      "mean_width": 0.9948141330554185,
+      "mean_velocity": 0.45761950979640437,
+      "time": 4.509999999999948,
+      "n_solitons": 50
+    }
+  ]
+}
