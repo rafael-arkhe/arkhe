@@ -1,0 +1,55 @@
+[package]
+name = "arkhe-tee"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "arkhe-tee — TDX/RTMR attestation primitives: quote metadata (MRTD/MR* + RTMR0-3 + report_data), domain-tagged report_data derivation, PCCS collateral acquisition with a TTL cache, RTMR extension driver, and a local provenance binding. Standalone workspace (own [workspace] table) because safe-core-monorepo's workspace does not resolve today: its committed `members` list names crates that do not exist on disk (arkhe-geometric-verifier, arkhe-security, arkhe-buzz-relay, arkhe-web-gateway, arkhe-mcp-server, arkhe-orcid, arkhe-change). Same erratum pattern as arkhe-monorepo/packages/arkhe-core. Uses dcap-qvl 0.6.3 (MIT). Deliberately does NOT depend on `tdx-quote` (AGPL-3.0-or-later). No line of this crate has been validated on TDX hardware."
+publish = false
+
+[workspace]
+resolver = "2"
+
+[dependencies]
+# Backend swap, observed experimentally (see README, "Dependency choice"):
+# dcap-qvl's default features include `ring`, whose build script compiles C and
+# assembly for the *target*. That builds fine natively on MSVC, but cross-checking
+# would need a cross C toolchain. `rustcrypto` is pure Rust, so the crate pins the
+# rustcrypto-only feature set. With `ring` unenabled, dcap-qvl's top-level
+# `verify::verify` resolves to the rustcrypto backend.
+dcap-qvl = { version = "0.6.3", default-features = false, features = [
+    "std",
+    "rustcrypto",
+    "default-x509",
+] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+blake3 = "1"
+sha2 = "0.10"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1", features = ["rt", "time", "net"] }
+
+[features]
+default = ["pccs"]
+# The live PCCS collateral client (`dcap_qvl::collateral::CollateralClient`).
+# This is the only thing in the dependency graph that pulls a TLS stack:
+# dcap-qvl's `report` feature -> reqwest -> rustls -> `aws-lc-sys`, a C library
+# that needs a target C compiler. Disabling this feature therefore yields a
+# cache-only, offline verifier that builds for any target with no C toolchain
+# (`cargo check --target x86_64-unknown-linux-gnu --no-default-features`), while
+# quote verification itself stays fully available.
+pccs = ["dcap-qvl/report"]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"
+
+[dev-dependencies]
+# Same crate instance dcap-qvl already resolves (scale 3.7.x), aliased to the
+# name it uses internally. Only used to encode synthetic quotes in tests.
+scale = { package = "parity-scale-codec", version = "3.7.5", features = ["std"] }
+
+[lints.rust]
+# The crate is unsafe-free except for the single ioctl call in `rtmr::platform`,
+# which carries a local `#[allow(unsafe_code)]` plus a justification comment.
+unsafe_code = "deny"
