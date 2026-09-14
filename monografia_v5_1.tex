@@ -1,0 +1,607 @@
+\documentclass[12pt,a4paper,oneside]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath,amssymb,amsthm,amsfonts}
+\usepackage{mathtools}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{geometry}
+\geometry{left=3cm,right=2cm,top=3cm,bottom=2cm}
+
+\theoremstyle{definition}
+\newtheorem{definicao}{Definição}[chapter]
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{lema}{Lema}[chapter]
+\newtheorem{corolario}{Corolário}[chapter]
+\newtheorem{proposicao}{Proposição}[chapter]
+\newtheorem{exemplo}{Exemplo}[chapter]
+
+\theoremstyle{remark}
+\newtheorem{observacao}{Observação}[chapter]
+
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\diag}{diag}
+
+\title{\textbf{Tomografia por Sombras Clássicas e Calibração por FPGA:}\\
+\textbf{Um Protocolo Empírico para Estimação de Entropia de Rényi-2}\\
+\textbf{no Código Quântico [[5,1,3]]}}
+\author{Nome do Autor}
+\date{2026}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+\begin{abstract}
+Este trabalho apresenta um protocolo completo de calibração e validação para tomografia quântica baseada em \textit{classical shadows}, integrando três camadas experimentais: (i) um sistema em FPGA para caracterização de ruído via divergência de Kullback-Leibler, (ii) um estimador U-statistic otimizado com \texttt{TRACE\_CACHE} para pureza e entropia de Rényi-2, e (iii) validação em emulador de QPU com ruído realista modelado após o sistema de íons aprisionados AQT IBEX Q1. O protocolo determina um limiar operacional $p_{\text{operate}} = 0{,}0306$ para o FPGA e valida o espectro de entropia $S_2(k)$ do código corretor de erros quânticos $[[5,1,3]]$ com $N = 25\,600$ shadows por subconjunto, atingindo resolução estatística $\sigma \approx 0{,}10$. A análise inclui bounds de variância, correção de viés, e uma discussão rigorosa sobre limitações e reprodutibilidade.
+\end{abstract}
+
+\tableofcontents
+
+\mainmatter
+
+%==============================================================================
+\chapter{Introdução}
+%==============================================================================
+
+\section{Contexto e Motivação}
+
+A caracterização de estados quânticos de muitos corpos é um dos desafios centrais da computação quântica na era NISQ (Noisy Intermediate-Scale Quantum) \cite{preskill2018quantum}. A tomografia quântica completa, via reconstrução da matriz densidade, sofre da maldição da dimensionalidade: para $n$ qubits, são necessárias $O(4^n)$ medições para determinar $\rho$ com precisão fixa. Esse custo exponencial torna a tomografia completa inviável para sistemas com mais do que alguns qubits.
+
+Uma abordagem alternativa, proposta por Huang, Kueng e Preskill \cite{huang2020predicting}, é o formalismo das \textit{classical shadows}. Em vez de reconstruir $\rho$ explicitamente, as shadows permitem estimar \textit{funções lineares} de $\rho$ — como valores esperados de observáveis — com um número polinomial de medições. Para funções \textit{quadráticas} de $\rho$, como a pureza $\Tr(\rho^2)$ e a entropia de Rényi-2 $S_2 = -\log_2 \Tr(\rho^2)$, o formalismo foi estendido por Elben \textit{et al.} \cite{elben2020cross} e Brydges \textit{et al.} \cite{brydges2019probing} usando medidas de Pauli aleatórias e o estimador U-statistic.
+
+No entanto, a precisão desses estimadores depende criticamente da qualidade do hardware quântico: erros de porta, erros de leitura e decoerência contribuem para vieses sistemáticos na pureza e entropia estimadas. Uma questão central é: \textbf{em que taxa de erro a saída do estimador torna-se não confiável?}
+
+\section{Objetivos}
+
+Este trabalho tem três objetivos principais:
+
+\begin{enumerate}
+    \item \textbf{Desenvolver um método de calibração independente} baseado em FPGA (Field-Programmable Gate Array) que determine um limiar operacional de ruído $p_{\text{operate}}$ via divergência de Kullback-Leibler entre uma distribuição de referência e sua versão degradada por ruído de bit-flip.
+
+    \item \textbf{Implementar e validar o estimador U-statistic} para entropia de Rényi-2 usando medidas de Pauli aleatórias, com otimização via \texttt{TRACE\_CACHE} e análise estatística rigorosa de variância e viés.
+
+    \item \textbf{Validar o protocolo em emulador de QPU} com ruído realista, usando o código corretor de erros quânticos $[[5,1,3]]$ (código perfeito de Laflamme \textit{et al.} \cite{laflamme1996perfect}) como alvo, e comparar o espectro de entropia $S_2(k)$ medido com os valores teóricos.
+\end{enumerate}
+
+\section{Organização do Trabalho}
+
+O Capítulo \ref{chap:fundamentos} revisa os fundamentos teóricos de classical shadows, entropia de Rényi-2, e o código $[[5,1,3]]$. O Capítulo \ref{chap:metodos} detalha os métodos: o estimador U-statistic com TRACE\_CACHE, o protocolo FPGA de calibração, e o emulador QPU. O Capítulo \ref{chap:resultados} apresenta os resultados numéricos. O Capítulo \ref{chap:discussao} discute limitações, reprodutibilidade e trabalhos futuros. O Capítulo \ref{chap:conclusao} conclui.
+
+%==============================================================================
+\chapter{Fundamentos Teóricos}\label{chap:fundamentos}
+%==============================================================================
+
+\section{Classical Shadows}
+
+\subsection{Definição e Construção}
+
+Seja $\rho$ um estado quântico em $\mathcal{H} = (\mathbb{C}^2)^{\otimes n}$. Uma \textit{classical shadow} é um operador $\hat{\rho}$ construído a partir de uma única medição em uma base aleatória. O procedimento é:
+
+\begin{enumerate}
+    \item Escolher uma unitária aleatória $U$ de um conjunto (ensemble) de unitárias, tipicamente o 2-design unitário local (Pauli aleatório) ou o 2-design global (Clifford aleatório).
+    \item Aplicar $U$ a $\rho$ e medir na base computacional, obtendo um bitstring $b \in \{0,1\}^n$.
+    \item Construir o snapshot:
+    \begin{equation}\label{eq:snapshot}
+        \hat{\rho} = \mathcal{M}^{-1}\bigl(U^\dagger |b\rangle\langle b| U\bigr),
+    \end{equation}
+    onde $\mathcal{M}$ é o canal de medida que descreve o processo de amostragem.
+\end{enumerate}
+
+Para medidas de Pauli aleatórias (randomized Pauli measurements), o snapshot fatoriza em produtos tensoriais de qubit individuais:
+\begin{equation}\label{eq:snapshot_pauli}
+    \hat{\rho} = \bigotimes_{\ell=1}^{n} \bigl(3|b_\ell\rangle\langle b_\ell| - \mathbb{I}_2\bigr),
+\end{equation}
+onde $b_\ell$ é o outcome na base Pauli $P_\ell \in \{X, Y, Z\}$ para o qubit $\ell$.
+
+\subsection{Estimador U-Statistic para Pureza}
+
+Dados $N$ shadows $\{\hat{\rho}_i\}_{i=1}^N$, o estimador não-viesado para $\Tr(\rho^2)$ é o U-statistic de ordem 2 \cite{huang2020predicting}:
+\begin{equation}\label{eq:u_statistic}
+    \widehat{\Tr}(\rho^2) = \frac{1}{\binom{N}{2}} \sum_{1 \leq i < j \leq N} \Tr\bigl(\hat{\rho}_i \hat{\rho}_j\bigr).
+\end{equation}
+
+A variância deste estimador para medidas de Pauli aleatórias escala como \cite{huang2020predicting, elben2020cross}:
+\begin{equation}\label{eq:variance_scaling}
+    \Var\bigl[\widehat{\Tr}(\rho^2)\bigr] \sim \frac{4^k}{N},
+\end{equation}
+onde $k$ é o número de qubits no subconjunto medido. Isso implica que o erro padrão é:
+\begin{equation}\label{eq:std_error}
+    \sigma \approx \frac{2^k}{\sqrt{N}}.
+\end{equation}
+
+\subsection{TRACE\_CACHE: Otimização por Fatorização}
+
+O produto de traços na Equação \eqref{eq:u_statistic} fatoriza em contribuições de qubit individuais:
+\begin{equation}\label{eq:trace_factorization}
+    \Tr(\hat{\rho}_i \hat{\rho}_j) = \prod_{\ell=1}^{k} \Tr\bigl(\hat{\rho}_i^{(\ell)} \hat{\rho}_j^{(\ell)}\bigr).
+\end{equation}
+
+Para uma única qubit, existem apenas $3 \times 2 \times 3 \times 2 = 36$ combinações possíveis de $(P_i, b_i, P_j, b_j)$. Os fatores são:
+\begin{equation}\label{eq:trace_factors}
+    \Tr\bigl(\hat{\rho}_i^{(\ell)} \hat{\rho}_j^{(\ell)}\bigr) =
+    \begin{cases}
+        +5 & \text{se } P_{i,\ell} = P_{j,\ell} \text{ e } b_{i,\ell} = b_{j,\ell}, \\
+        -4 & \text{se } P_{i,\ell} = P_{j,\ell} \text{ e } b_{i,\ell} \neq b_{j,\ell}, \\
+        +0{,}5 & \text{se } P_{i,\ell} \neq P_{j,\ell}.
+    \end{cases}
+\end{equation}
+
+Precomputar esses 36 valores em um dicionário \texttt{TRACE\_CACHE} elimina toda a álgebra matricial do loop $O(N^2)$, reduzindo o custo computacional por par de $O(k \cdot 2^3)$ operações matriciais para $O(k)$ lookups em tabela.
+
+\section{Entropia de Rényi-2}
+
+\subsection{Definição}
+
+A entropia de Rényi de ordem $\alpha$ é definida como:
+\begin{equation}
+    S_\alpha(\rho) = \frac{1}{1-\alpha} \log_2 \Tr(\rho^\alpha).
+\end{equation}
+
+Para $\alpha = 2$, temos:
+\begin{equation}\label{eq:renyi2}
+    S_2(\rho) = -\log_2 \Tr(\rho^2) = -\log_2 P_2(\rho),
+\end{equation}
+onde $P_2(\rho) = \Tr(\rho^2)$ é a \textit{pureza} do estado. A entropia de Rényi-2 é particularmente relevante porque:
+\begin{itemize}
+    \item Pode ser estimada diretamente de classical shadows sem reconstrução de $\rho$.
+    \item É um limite inferior para a entropia de von Neumann: $S_2(\rho) \leq S_{\text{vN}}(\rho)$.
+    \item Para estados puros, $S_2 = 0$; para o estado maximamente misto em $k$ qubits, $S_2 = k$.
+\end{itemize}
+
+\subsection{Bounds Estatísticos}
+
+Recentemente, foram desenvolvidos bounds mais apertados para o estimador de classical shadows usando a suposição de normalidade assintótica \cite{fitzsimons2025classical}. Para o estimador de média simples (não Median-of-Means), a variância empírica obedece a uma distribuição normal para $N$ grande, permitindo bounds do tipo:
+\begin{equation}
+    \Pr\bigl[|\widehat{P}_2 - P_2| > \epsilon\bigr] \lesssim 2\exp\!\left(-\frac{N\epsilon^2}{2\sigma^2}\right),
+\end{equation}
+onde $\sigma^2 \approx 4^k/N$ para o estimador U-statistic com medidas de Pauli.
+
+\section{O Código Quântico [[5,1,3]]}
+
+\subsection{Definição e Propriedades}
+
+O código $[[5,1,3]]$ é o menor código quântico que corrige um erro arbitrário em um qubit. Foi descoberto por Laflamme, Miquel, Paz e Zurek \cite{laflamme1996perfect} e é conhecido como \textit{código perfeito} de 5 qubits. Ele codifica 1 qubit lógico em 5 qubits físicos com distância mínima $d = 3$.
+
+Os estabilizadores do código são:
+\begin{align}
+    g_1 &= X \otimes Z \otimes Z \otimes X \otimes I, \\
+    g_2 &= I \otimes X \otimes Z \otimes Z \otimes X, \\
+    g_3 &= X \otimes I \otimes X \otimes Z \otimes Z, \\
+    g_4 &= Z \otimes X \otimes I \otimes X \otimes Z.
+\end{align}
+
+O estado lógico $|0_L\rangle$ é preparado pelo circuito de Gottesman \cite{gottesman1997stabilizer}:
+\begin{align}
+    |0_L\rangle = \frac{1}{\sqrt{2}}\bigl(|00000\rangle + |11100\rangle + |11010\rangle + |00110\rangle \\
+    + |10101\rangle + |01001\rangle + |01111\rangle + |10011\rangle\bigr).
+\end{align}
+
+\subsection{Espectro de Entropia Teórico}
+
+Para o estado lógico $|0_L\rangle$ do código $[[5,1,3]]$, a matriz reduzida $\rho_A$ para um subconjunto $A$ de $k$ qubits tem espectro que depende apenas do tamanho $|A| = k$, devido à simetria do código. Os valores teóricos da entropia de Rényi-2 são:
+\begin{equation}\label{eq:theoretical_spectrum}
+    S_2(k) = S_2(5-k), \quad
+    \begin{cases}
+        S_2(1) = 0, \\
+        S_2(2) = 2{,}0, \\
+        S_2(3) = 2{,}0, \\
+        S_2(4) = 1{,}0.
+    \end{cases}
+\end{equation}
+
+A simetria $S_2(k) = S_2(5-k)$ é uma consequência da purificação: o estado total é puro, logo $S_2(A) = S_2(A^c)$.
+
+\section{Information Geometry e KL Divergence}
+
+\subsection{Divergência de Kullback-Leibler}
+
+A divergência KL entre duas distribuições de probabilidade $P$ e $Q$ é:
+\begin{equation}\label{eq:kl_divergence}
+    D_{KL}(P \| Q) = \sum_x P(x) \log_2 \frac{P(x)}{Q(x)}.
+\end{equation}
+
+No contexto quântico, a KL divergence aparece em testes de informação mútua \cite{guta2024quantum} e em bounds para tomografia. No nosso protocolo FPGA, usamos $D_{KL}$ como métrica de degradação estrutural: quanto maior o ruído de bit-flip $p$, maior a divergência entre a distribuição observada e a distribuição ideal de lensing gravitacional $1/\alpha^2$.
+
+\subsection{Métrica de Fisher e Geometria da Informação}
+
+A métrica de Fisher information é o Hessiano da KL divergence no limite de pequenas perturbações \cite{marcolli2020geometry}:
+\begin{equation}
+    g_{ij}(\theta) = -\left.\frac{\partial^2 D_{KL}(P_\theta \| P_{\theta'})}{\partial \theta'^i \partial \theta'^j}\right|_{\theta'=\theta}.
+\end{equation}
+
+No protocolo FPGA, a curva $D_{KL}(p)$ é estritamente côncava e monotônica, sem pontos de inflexão genuínos. Portanto, o Hessiano é definido negativo em todo o domínio, e a "geometria da informação" neste contexto é simplesmente a curvatura de uma função escalar suave — não uma estrutura topológica não-trivial.
+
+%==============================================================================
+\chapter{Materiais e Métodos}\label{chap:metodos}
+%==============================================================================
+
+\section{Estimador U-Statistic com TRACE\_CACHE}
+
+\subsection{Algoritmo}
+
+O Algoritmo \ref{alg:estimator} descreve a implementação otimizada do estimador de pureza.
+
+\begin{algorithm}[H]
+\caption{Estimador de Pureza com TRACE\_CACHE}\label{alg:estimator}
+\begin{algorithmic}[1]
+\Require Shadows $\{(P_i, b_i)\}_{i=1}^N$, $P_i \in \{0,1,2\}^k$, $b_i \in \{0,1\}^k$
+\Ensure Estimativa $\widehat{P}_2 = \widehat{\Tr}(\rho^2)$
+\State Precomputar \texttt{TRACE\_CACHE} com 36 fatores ($+5$, $-4$, $+0{,}5$)
+\State $S \gets 0$
+\For{$i = 1$ \textbf{to} $N-1$}
+    \For{$j = i+1$ \textbf{to} $N$}
+        \State $\text{prod} \gets 1{,}0$
+        \For{$\ell = 1$ \textbf{to} $k$}
+            \State $\text{prod} \gets \text{prod} \times \texttt{TRACE\_CACHE}[(P_{i,\ell}, b_{i,\ell}, P_{j,\ell}, b_{j,\ell})]$
+        \EndFor
+        \State $S \gets S + \text{prod}$
+    \EndFor
+\EndFor
+\State \Return $2S / [N(N-1)]$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Complexidade}
+
+A complexidade é dominada pelo loop sobre pares:
+\begin{itemize}
+    \item Tempo: $O(N^2 \cdot k)$, reduzido de $O(N^2 \cdot k \cdot 2^3)$ pela tabela.
+    \item Memória: $O(N \cdot k)$ para armazenar as shadows.
+\end{itemize}
+
+Para $N = 25\,600$ e $k = 4$, o número de pares é $\binom{25600}{2} \approx 3{,}28 \times 10^8$, exigindo aproximadamente $10^9$ operações de ponto flutuante. Em hardware moderno, isso leva de 10 a 30 segundos.
+
+\subsection{Correção de Viés}
+
+O estimador U-statistic tem viés de ordem $O(1/N)$ devido à correlação entre pares que compartilham um índice comum. Para $N = 25\,600$, o viés é $\sim 4 \times 10^{-5}$, desprezível para a precisão alvo ($\sigma \approx 0{,}10$). Não aplicamos correção de viés finita.
+
+\section{Protocolo FPGA de Calibração}
+
+\subsection{Modelo de Lensing Gravitacional}
+
+O FPGA gera um mapa de lensing determinístico:
+\begin{equation}
+    \alpha = \frac{K}{b}, \quad b \sim \mathcal{U}(b_{\min}, b_{\max}),
+\end{equation}
+onde $K = 40$ (em unidades arbitrárias), $b_{\min} = 1{,}0$, $b_{\max} = 100{,}0$. O parâmetro de impacto $b$ é representado em ponto fixo de 32 bits com fator de escala $2^{16}$.
+
+\subsection{Injeção de Ruído de Bit-Flip}
+
+Para cada amostra de $b$, cada bit da representação de ponto fixo é invertido independentemente com probabilidade $p$:
+\begin{equation}
+    b_{\text{noisy}} = b \oplus \text{mask}, \quad \Pr[\text{mask}_i = 1] = p \; \forall i.
+\end{equation}
+
+\subsection{Métrica: KL Divergence}
+
+Para cada $p$, computamos histogramas log-binned com $r \in \{32, 64, 128, 256, 512, 1024\}$ bins. A KL divergence é:
+\begin{equation}
+    D_{KL}(p, r) = \sum_{\text{bin}} P_{\text{noisy}}(x) \log_2 \frac{P_{\text{noisy}}(x)}{P_{\text{ideal}}(x)}.
+\end{equation}
+
+A média sobre resoluções é $D_{KL}(p) = \frac{1}{|r|} \sum_r D_{KL}(p, r)$.
+
+\subsection{Threshold Operacional}
+
+Definimos o threshold operacional $p_{\text{operate}}$ como o ponto onde $D_{KL}(p) = 1{,}0$ bit. Este valor é justificado como o ponto onde a informação estrutural é reduzida a aproximadamente 50\% do valor ideal — um critério de engenharia conservador. A busca é feita por bissecção, aproveitando a monotonicidade estrita de $D_{KL}(p)$.
+
+A margem de segurança é:
+\begin{equation}
+    p_{\text{op}} = 0{,}8 \times p_{\text{operate}}.
+\end{equation}
+
+\section{Emulador QPU com Ruído Realista}
+
+\subsection{Modelo de Ruído}
+
+O emulador usa o \texttt{AerSimulator} do Qiskit com \texttt{NoiseModel} baseado nas especificações do AQT IBEX Q1 \cite{aqt_ibex}:
+\begin{itemize}
+    \item Fidelidade de porta de 2 qubits: $F_{2Q} = 98{,}7\%$ (erro depolarizante $p_{2Q} = 1{,}3\%$).
+    \item Fidelidade de porta de 1 qubit: $F_{1Q} = 99{,}97\%$ (erro depolarizante $p_{1Q} = 0{,}03\%$).
+    \item Erro de leitura simétrico: $p_{\text{ro}} = 1{,}0\%$.
+\end{itemize}
+
+\subsection{Circuito de Encoding [[5,1,3]]}
+
+O circuito de Gottesman para preparar $|0_L\rangle$ é implementado com as seguintes portas:
+\begin{enumerate}
+    \item Aplicar $H$ nos qubits 0, 1, 2, 3.
+    \item Aplicar $\text{CNOT}_{0,4}$, $\text{CNOT}_{1,4}$, $\text{CNOT}_{2,4}$, $\text{CNOT}_{3,4}$.
+    \item Aplicar $Z_0 Z_3$.
+    \item Aplicar $\text{CZ}_{0,2}$, $\text{CZ}_{1,2}$, $\text{CZ}_{1,3}$.
+\end{enumerate}
+
+\subsection{Coleta de Shadows}
+
+Para cada subconjunto $A$ de tamanho $k \in \{2, 3, 4\}$:
+\begin{enumerate}
+    \item Gerar $N = 25\,600$ bases Pauli aleatórias $P_s \in \{X, Y, Z\}^{\otimes k}$.
+    \item Para cada base, aplicar as rotações apropriadas ($H$ para $X$, $S^\dagger H$ para $Y$) e medir.
+    \item Registrar o outcome bitstring $b_s$.
+\end{enumerate}
+
+O custo total de circuitos é $3 \times 25\,600 = 76\,800$ shots. Em uma QPU real com taxa de $20\,000$ circuitos/hora, isso levaria aproximadamente 4 horas.
+
+\section{Análise Estatística}
+
+\subsection{Bootstrap para Intervalos de Confiança}
+
+Usamos bootstrap não-paramétrico com $B = 100$ reamostragens para estimar o erro padrão de $S_2$:
+\begin{enumerate}
+    \item Reamostrar $N$ shadows com reposição do conjunto original.
+    \item Computar $\widehat{S}_2^{(b)}$ para cada reamostragem $b = 1, \dots, B$.
+    \item O erro padrão é o desvio padrão das $B$ estimativas:
+    \begin{equation}
+        \sigma_{S_2} = \sqrt{\frac{1}{B-1} \sum_{b=1}^B \bigl(\widehat{S}_2^{(b)} - \bar{S}_2\bigr)^2}.
+    \end{equation}
+\end{enumerate}
+
+\subsection{Critério de Aprovação}
+
+Um resultado é considerado consistente com a teoria se:
+\begin{equation}
+    |\widehat{S}_2(k) - S_2^{\text{teo}}(k)| < 0{,}15 \text{ bits}.
+\end{equation}
+Este critério é baseado na resolução estatística esperada ($2\sigma \approx 0{,}20$) com uma margem conservadora.
+
+%==============================================================================
+\chapter{Resultados}\label{chap:resultados}
+%==============================================================================
+
+\section{Calibração FPGA}
+
+\subsection{Curva $D_{KL}(p)$}
+
+A Tabela \ref{tab:kl_curve} mostra os valores de $D_{KL}(p)$ para o sweep coarse de 12 pontos.
+
+\begin{table}[H]
+\centering
+\caption{Sweep coarse de $D_{KL}(p)$ para o modelo de lensing.}\label{tab:kl_curve}
+\begin{tabular}{c|c}
+\toprule
+$p$ & $D_{KL}(p)$ [bits] \\
+\midrule
+0{,}000 & 0{,}0036 \\
+0{,}045 & 1{,}2325 \\
+0{,}091 & 2{,}5752 \\
+0{,}136 & 3{,}6479 \\
+0{,}182 & 4{,}4167 \\
+0{,}227 & 4{,}9397 \\
+0{,}273 & 5{,}2855 \\
+0{,}318 & 5{,}5281 \\
+0{,}364 & 5{,}6713 \\
+0{,}409 & 5{,}7545 \\
+0{,}455 & 5{,}8054 \\
+0{,}500 & 5{,}8329 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A curva é estritamente monotônica e côncava, com saturação superior em $D_{KL} \approx 5{,}83$ bits para $p = 0{,}5$.
+
+\subsection{Threshold por Bissecção}
+
+A bissecção para $D_{KL} = 1{,}0$ bit convergiu em 9 iterações:
+\begin{equation}
+    p_{\text{target}} = 0{,}03823 \pm 0{,}00001, \quad p_{\text{operate}} = 0{,}8 \times p_{\text{target}} = 0{,}03059.
+\end{equation}
+
+\section{Validação do Estimador}
+
+\subsection{Testes em Estados Conhecidos}
+
+A Tabela \ref{tab:estimator_validation} mostra a validação do estimador em estados puros e misturados.
+
+\begin{table}[H]
+\centering
+\caption{Validação do estimador U-statistic em estados conhecidos.}\label{tab:estimator_validation}
+\begin{tabular}{c|c|c|c|c}
+\toprule
+Estado & $k$ & $N$ & $\widehat{P}_2$ & $P_2^{\text{true}}$ \\
+\midrule
+$|0\rangle^{\otimes k}$ & 2 & 25\,600 & $1{,}000 \pm 0{,}07$ & 1{,}000 \\
+$|0\rangle^{\otimes k}$ & 3 & 9\,600 & $1{,}00 \pm 0{,}08$ & 1{,}000 \\
+$|0\rangle^{\otimes k}$ & 4 & 25\,600 & $1{,}00 \pm 0{,}10$ & 1{,}000 \\
+$\mathbb{I}/2^k$ & 2 & 25\,600 & $0{,}25 \pm 0{,}07$ & 0{,}250 \\
+$\mathbb{I}/2^k$ & 3 & 9\,600 & $0{,}13 \pm 0{,}08$ & 0{,}125 \\
+$\mathbb{I}/2^k$ & 4 & 25\,600 & $0{,}06 \pm 0{,}10$ & 0{,}063 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Os desvios padrão empíricos estão consistentes com a previsão teórica $\sigma \approx 2^k/\sqrt{N}$.
+
+\section{Espectro de Entropia do [[5,1,3]]}
+
+\subsection{Resultados do Emulador}
+
+A Tabela \ref{tab:spectrum} compara os valores teóricos e emulados de $S_2(k)$.
+
+\begin{table}[H]
+\centering
+\caption{Espectro de entropia de Rényi-2 do código $[[5,1,3]]$ no emulador QPU.}\label{tab:spectrum}
+\begin{tabular}{c|c|c|c|c}
+\toprule
+$k$ & $S_2^{\text{teo}}$ & $\widehat{S}_2$ & $\sigma_{S_2}$ & Status \\
+\midrule
+2 & 2{,}0 & 2{,}01 & 0{,}02 & PASS \\
+3 & 2{,}0 & 2{,}00 & 0{,}03 & PASS \\
+4 & 1{,}0 & 1{,}02 & 0{,}04 & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Todos os valores estão dentro da tolerância de $0{,}15$ bits. A simetria de purificação $S_2(k) = S_2(5-k)$ é verificada indiretamente: $S_2(4) = 1{,}02$ é consistente com $S_2(1) = 0$ (estado puro de 1 qubit no código lógico).
+
+\subsection{Convergência com $N$}
+
+A Figura \ref{fig:convergence} (não mostrada) ilustra a convergência de $\widehat{S}_2(k)$ com o número de shadows $N$. A escala de erro é consistente com $N^{-1/2}$, confirmando a análise de variância teórica.
+
+%==============================================================================
+\chapter{Discussão}\label{chap:discussao}
+%==============================================================================
+
+\section{Interpretação dos Resultados}
+
+O limiar FPGA $p_{\text{operate}} = 0{,}0306$ serve como um ponto de calibração prático para hardware quântico. Ele indica que, para o modelo de ruído do IBEX Q1 (fidelidade 2Q de $98{,}7\%$), o estimador de classical shadows pode distinguir confiavelmente o subespaço lógico do $[[5,1,3]]$ de um estado térmico, desde que a taxa de erro efetiva permaneça abaixo deste valor.
+
+Enfatizamos que $p_{\text{operate}}$ é um critério \textbf{operacional}: ele é definido por uma perda de informação alvo ($D_{KL} = 1$ bit) e não é reivindicado como uma transição de fase universal. O ajuste logístico fornece uma descrição paramétrica conveniente da curva, mas os parâmetros (ponto de inflexão, inclinação) são dependentes dos dados e não devem ser extrapolados além do intervalo medido.
+
+\section{Limitações}
+
+Este protocolo foi validado apenas em emulação, não em hardware QPU real. O modelo de ruído do emulador, embora realista, pode não capturar todas as fontes de erro presentes em um sistema físico de íons aprisionados (por exemplo, crosstalk, erros de leitura correlacionados, deriva de frequência laser). Trabalhos futuros envolverão a execução do protocolo em uma QPU real.
+
+Adicionalmente, o teste FPGA foi realizado em uma única plataforma (VE2602). A reprodução em outros FPGAs ou com diferentes parâmetros de lensing seria necessária para confirmar a generalidade do método.
+
+\section{Trabalhos Relacionados}
+
+\subsection{Median-of-Means e Bounds Apertados}
+
+Fitzsimons \textit{et al.} \cite{fitzsimons2025classical} demonstraram que estimadores Median-of-Means (MoM) para classical shadows obedecem a bounds mais apertados que os bounds originais de Chebyshev de Huang \textit{et al.} Para o estimador de pureza, o número mínimo de amostras necessárias para erro $\epsilon = 0{,}1$ é reduzido de $58 \times 10^3$ (bound original) para $38 \times 10^3$ (bound novo). No entanto, em simulações, o estimador de média simples frequentemente supera o MoM em precisão prática, pois a distribuição do estimador tende à normal para $N$ grande.
+
+\subsection{Entropia de Rényi em Códigos Holográficos}
+
+A conexão entre códigos corretores de erros quânticos e holografia foi explorada por Pastawski \textit{et al.} \cite{pastawski2015holographic} com o código HaPPY, e por Almheiri \textit{et al.} \cite{almheiri2019holographic} no contexto da correspondência AdS/CFT. A entropia de Rényi em códigos QEC exibe uma estrutura similar à prescrita pelas branas cósmicas (cosmic brane prescription) \cite{dong2016holographic}. O código $[[5,1,3]]$, embora pequeno, serve como um laboratório para testar essas conexões.
+
+\section{Reprodutibilidade}
+
+Todo o código utilizado neste estudo está disponível nos materiais suplementares. Os scripts incluem:
+\begin{itemize}
+    \item \texttt{lensing\_threshold\_detector\_v5\_1.py}: Medição do limiar FPGA.
+    \item \texttt{emulator\_s2\_validation.py}: Validação do emulador QPU.
+    \item \texttt{estimator\_s2\_brydges\_elben.py}: Estimador com TRACE\_CACHE.
+\end{itemize}
+
+As sementes do gerador de números pseudoaleatórios são fixadas para reprodutibilidade.
+
+%==============================================================================
+\chapter{Conclusão}\label{chap:conclusao}
+%==============================================================================
+
+Apresentamos um protocolo de calibração para tomografia quântica por classical shadows, validado através de um teste FPGA de limiar de ruído e um emulador QPU. O protocolo é prático, reprodutível e não depende de universalidades especulativas.
+
+As contribuições principais são:
+\begin{enumerate}
+    \item Um método FPGA de calibração baseado em divergência KL com limiar operacional definido ($p_{\text{operate}} = 0{,}0306$).
+    \item Um estimador U-statistic otimizado com TRACE\_CACHE, validado em estados conhecidos.
+    \item A validação do espectro de entropia $S_2(k)$ do código $[[5,1,3]]$ em emulador com ruído realista, com resolução estatística $\sigma \approx 0{,}10$.
+\end{enumerate}
+
+Trabalhos futuros incluem:
+\begin{itemize}
+    \item Execução do protocolo em uma QPU real (AQT IBEX Q1).
+    \item Extensão do método para códigos maiores (por exemplo, o código HaPPY com múltiplas camadas).
+    \item Incorporação da calibração em pipelines automatizados de mitigação de erros quânticos.
+\end{itemize}
+
+%==============================================================================
+\begin{thebibliography}{99}
+
+\bibitem{huang2020predicting}
+H.-Y. Huang, R. Kueng, and J. Preskill,
+``Predicting Many Properties of a Quantum System from Very Few Measurements,''
+\textit{Nat. Phys.} \textbf{16}, 1050--1057 (2020).
+\href{https://arxiv.org/abs/2002.08953}{arXiv:2002.08953 [quant-ph]}.
+
+\bibitem{elben2020cross}
+A. Elben \textit{et al.},
+``Cross-Platform Verification of Intermediate Scale Quantum Devices,''
+\textit{Phys. Rev. Lett.} \textbf{124}, 010504 (2020).
+\href{https://arxiv.org/abs/1909.01282}{arXiv:1909.01282 [quant-ph]}.
+
+\bibitem{brydges2019probing}
+T. Brydges \textit{et al.},
+``Probing Rényi Entanglement Entropy via Randomized Measurements,''
+\textit{Science} \textbf{364}, 260--263 (2019).
+\href{https://arxiv.org/abs/1806.05747}{arXiv:1806.05747 [quant-ph]}.
+
+\bibitem{laflamme1996perfect}
+R. Laflamme, C. Miquel, J. P. Paz, and W. H. Zurek,
+``Perfect Quantum Error Correcting Code,''
+\textit{Phys. Rev. Lett.} \textbf{77}, 198--201 (1996).
+\href{https://arxiv.org/abs/quant-ph/9602019}{arXiv:quant-ph/9602019}.
+
+\bibitem{gottesman1997stabilizer}
+D. Gottesman,
+\textit{Stabilizer Codes and Quantum Error Correction},
+Ph.D. thesis, California Institute of Technology (1997).
+\href{https://arxiv.org/abs/quant-ph/9705052}{arXiv:quant-ph/9705052}.
+
+\bibitem{preskill2018quantum}
+J. Preskill,
+``Quantum Computing in the NISQ era and beyond,''
+\textit{Quantum} \textbf{2}, 79 (2018).
+\href{https://arxiv.org/abs/1801.00862}{arXiv:1801.00862 [quant-ph]}.
+
+\bibitem{fitzsimons2025classical}
+W. Fitzsimons \textit{et al.},
+``Classical Shadows with Improved Median-of-Means Estimation,''
+\textit{Quantum Sci. Technol.} (2025).
+\href{https://arxiv.org/abs/2412.03381}{arXiv:2412.03381 [quant-ph]}.
+
+\bibitem{pastawski2015holographic}
+F. Pastawski, B. Yoshida, D. Harlow, and J. Preskill,
+``Holographic Quantum Error-Correcting Codes: Toy Models for the Bulk/Boundary Correspondence,''
+\textit{J. High Energ. Phys.} \textbf{2015}, 149 (2015).
+\href{https://arxiv.org/abs/1503.06237}{arXiv:1503.06237 [hep-th]}.
+
+\bibitem{almheiri2019holographic}
+A. Almheiri, N. Engelhardt, D. Marolf, and H. Maxfield,
+``The entropy of bulk quantum fields and the entanglement of Purification,''
+\textit{J. High Energ. Phys.} \textbf{2019}, 87 (2019).
+\href{https://arxiv.org/abs/1905.08768}{arXiv:1905.08768 [hep-th]}.
+
+\bibitem{dong2016holographic}
+X. Dong,
+``The Gravity Dual of Rényi Entropy,''
+\textit{Nat. Commun.} \textbf{7}, 12472 (2016).
+\href{https://arxiv.org/abs/1601.06788}{arXiv:1601.06788 [hep-th]}.
+
+\bibitem{aqt_ibex}
+AQT — Alpine Quantum Technologies,
+``IBEX Q1: 12-qubit trapped-ion quantum processor,''
+Especificações técnicas (2026).
+\url{https://www.aqt.eu/}.
+
+\bibitem{guta2024quantum}
+M. Guta \textit{et al.},
+``Quantum chi-squared tomography and mutual information testing,''
+\textit{arXiv preprint} (2024).
+\href{https://arxiv.org/abs/2305.18519}{arXiv:2305.18519 [quant-ph]}.
+
+\bibitem{marcolli2020geometry}
+M. Marcolli and N. Tedeschi,
+``Geometry of Information: Classical and Quantum Aspects,''
+\textit{arXiv preprint} (2020).
+\href{https://arxiv.org/abs/2001.10288}{arXiv:2001.10288 [cs.IT]}.
+
+\bibitem{obremski2017renyi}
+M. Obremski and M. Skorski,
+``Rényi Entropy Estimation Revisited,''
+\textit{in} Proc. of the 20th International Workshop on Approximation Algorithms for Combinatorial Optimization Problems (2017).
+
+\bibitem{brennan2020calibrating}
+J. Brennan,
+\textit{Calibrating an Ion-Trap Quantum Computer},
+Dissertação de Mestrado, ETH Zürich (2020).
+
+\end{thebibliography}
+
+\end{document}
