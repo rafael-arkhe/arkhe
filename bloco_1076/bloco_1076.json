@@ -1,0 +1,69 @@
+{
+  "bloco": 1076,
+  "tipo": "SUBSTRATO_KRONOS_XLOOP_CAMPO_METRICO",
+  "versao_plano": "ADR-002 (proposta 2026-07-04; artefatos Kronos x4, implementados 2026-09-12)",
+  "data": "2026-09-12",
+  "hash_anterior": "sha256-git:2266ac111051bafd49a56960358869d8fac0fb2e",
+  "handover_anterior": "bloco 1075 (EXECUCAO_CORRECOES_TRES_ARTEFACTOS — arkhe-block-registry, verifiers Rust/Python/PowerShell); ledger termina em 2266ac1 (bloco 1074 VAIP-AID)",
+  "status": "CONCLUIDO",
+
+  "contexto_plano": {
+    "origem": "quatro artefatos entregues como texto (TemporalField Rust, critica de Carlip+Leggett, arquitetura orbital Saturno, ADR-002). O plano referia caminhos crates/arkhe-xloop e docs/ADR/ — inexistentes no monorepo (convencao real: packages/, docs por crate)",
+    "achado_do_rascunho": "o TemporalField entregue NAO passava nos proprios testes: (1) geodesic_decision(1000,5,10) que o teste esperava Continue calculava dtau/dell ~ 1338 > 2.0 (Collapse) — comparacao adimensional de ms contra progresso normalizado; (2) detect_loop contava a ocorrencia atual — a primeira assinatura de estado retornava curvature=1.0 e 'loop infinito' imediato. Ambos corrigidos abaixo",
+    "doutrina": "implementado sobre a equacao de Kronos (ds2 = -c2 dt2 + tau_eff dL2; continuar se d(tau_eff)/dL > 0) com a correcao de Carlip como pre-requisito de colapso (E_Delta = 0 degenera o campo)"
+  },
+
+  "decisao_canonica": {
+    "xloop": "o loop de execucao deixa de ser regras discretas (max_iterations, timeout, loop_detection_threshold) e vira uma geodesica num campo metrico continuo (TemporalField) — ADR-002 aceito em packages/arkhe-xloop/docs/ADR-002-xloop-metric-field.md",
+    "carlip": "colapso por gravidade temporal so ocorre com divergencia de objetivos (E_Delta != 0, analogo das massas rotantes de Carlip) — ObjectiveField::energy_divergence() = 1 - Sum(p_i^2) (Gini); objetivo unico => campo degenerado, o loop apenas termina",
+    "unidades": "d(tau)/dL expressado em segundos de tempo objetivo por unidade de progresso normalizada (proper_time convertido de ms), tornando os limiares 1.5/2.0 dimensionalmente legiveis"
+  },
+
+  "construcao": {
+    "packages/arkhe-xloop": "crate v0.1.0 — TemporalField (dilatacao tau_eff em [0.5,2.0]; Var_cog = 0.4*erro + 0.3*novidade + 0.3*latencia; EMA 0.9; curvatura = repeticoes ANTERIORES na janela de 32; proper_time = objective_ms * tau_eff * (1-curvatura); distance logaritmica; energy monotona; acumulo monotono de objective_ms/proper_time_ms — Gravity-1). GeodesicDecision Continue/Warning/Collapse{TerminateLoop, Fallback, Escalate}. ObjectiveField = correcao de Carlip (E_Delta = 1 - Sum p_i^2). XLoop (Arc<RwLock>, executor trait sync StepExecutor, signature = task|state_key, watchdog HARD_STEP_CAP_MULTIPLIER=4 como backstop discreto). 26 testes",
+    "packages/arkhe-orbital": "crate v0.1.0 — quatro padroes de Saturno: HexagonalCore (Router->PolicyEngine com histerese->Auditor append-only monotono->ExecutorLimits clamp), DecagonalField (tick AtomicU64 lock-free, periodo 32, explore no ultimo 1/4 = 8/32), LunarSwarm (selecao deterministica: capacidade*(1-load)*(0.3+0.7*afinidade) + bonus novidade no Explore; NoSpecialist/AllOverloaded/Empty; Conservative com teto de carga 0.6), TitanicMigration (U = capacidade*demanda; migra se benefit > cost/migration_rate; malha de tenants; AlreadyOptimal/TenantNotFound). OrbitalOrchestrator.route() combina as quatro. 19 testes",
+    "workspace": "Cargo.toml raiz — members packages/arkhe-xloop e packages/arkhe-orbital inseridos apos arkhe-block-registry"
+  },
+
+  "divergencia_honesta_do_plano": {
+    "caminho": "plano: crates/arkhe-xloop, crates/arkhe-orbital, docs/ADR/ADR-002. Real (convencao do monorepo, precedente ADR-001): packages/arkhe-xloop, packages/arkhe-orbital, packages/arkhe-xloop/docs/ADR-002-xloop-metric-field.md",
+    "unidades_da_geodesica": "formula do rascunho d(tau)/dL = objective_ms * tau_eff * (1-k) / L(e) — tau em ms contra L adimensional: para (1000,5,10) dava ~1338 >> 2.0 e o proprio teste do rascunho esperava Continue. Corrigido: tau convertido a segundos (/1000) => 1.34 => Continue. Os limiares 1.5/2.0 sao agora s/unidade-de-progresso (WARNING/COLLAPSE_THRESHOLD em constants)",
+    "curvatura_sem_falso_positivo": "rascunho contava a ocorrencia atual: first_state => curvature 1.0 => warn critico imediato. Real: contagem ANTES de inserir => primeira ocorrencia curvature 0; repeticoes 26/32 cruzam 0.8; oscilacao A/B satura em ~0.5 (warning, nunca aborta de forma prematura)",
+    "tempo_proprio_acumulado": "rascunho declarava proper_time_ms/objective_ms sem nunca acumular; update() agora acumula monotonicamente (latency_ms na iteracao) — invariancia Gravity-1 real",
+    "feature_flag": "plano previa feature flag temporal-field (canary 10/50/100). Superada: o crate e o campo; o backstop discreto (watchdog HARD_STEP_CAP_MULTIPLIER) cumpre a mitigacao de 'dilatacao excessiva nunca colapsa' e fica como regra de reserva, nao primaria",
+    "executor_async": "plano presumia executor async (step().await); contrato real StepExecutor e sincrono (Simplicity-2), com a latencia medida por iteracao alimentando o campo; XLoop permanece async no seam"
+  },
+
+  "verificacao_real": {
+    "rust_tests": "cargo test -p arkhe-xloop -p arkhe-orbital --offline — 45 passed (arkhe-xloop 26 unit+integracao, arkhe-orbital 19 unit+route), 0 failed; EXIT 0",
+    "clippy_strict": "cargo clippy -p arkhe-xloop -p arkhe-orbital --all-targets --offline -- -D warnings — exit 0, zero warnings (3 lints reais corrigidos: derivable_impls HexagonalCore::default, field-reassign-with-default no teste de proper_time, manual-is-multiple-of no executor de oscilacao)",
+    "unsafe": "unsafe_code = deny em ambos os crates ([lints.rust]) — zero unsafe",
+    "deps_novas": "zero dependencias externas novas: serde/serde_json/thiserror/tokio/tracing todos pinados no workspace (Simplicity-2)",
+    "honestidade_do_rascunho": "as duas inconsistencias quebragendas de teste do rascunho sao registradas em contexto_plano/achado_do_rascunho; nenhum output inventado, todos os numeros acima sao saidas capturadas na execucao deste bloco"
+  },
+
+  "honestidade": {
+    "escopo": "os quatro artefatos do plano foram IMPLEMENTADOS (nao existiam); as correcoes de engenharia que tornaram o codigo coerente com os proprios testes estao explicitadas",
+    "nao_fabricado": "45/45 testes reais, clippy 0, hashes reais dos 12 artefatos",
+    "calibracao": "constantes epsilon/k/B/EMA_ALPHA seguem ESTIMADas no plano (ADR-002 registra revisao em 2026-10-01); a equacao de Kronos e modelo inspirado (fenomenologia Leggett-class), nao teoria fisica testavel"
+  },
+
+  "hashes_artefatos": {
+    "packages/arkhe-xloop/Cargo.toml": "sha256:D18707A42882A3C935638D6AAC096C6CBCFB979E870212A0752BEF88839409CD",
+    "packages/arkhe-xloop/src/lib.rs": "sha256:FCD25AC60990D7C35CAD680C48E69013B3A52095545099FF9AD0880692922A74",
+    "packages/arkhe-xloop/src/temporal_field.rs": "sha256:2DF434399FE145E4AC4AD07922B0FB9E57B00558F298D0F6ECFBA6B45E799901",
+    "packages/arkhe-xloop/src/objective_field.rs": "sha256:EF448BFFDE294055588597AB08EF0B57B61FCF6950617DE2A98410F2565947F3",
+    "packages/arkhe-xloop/docs/ADR-002-xloop-metric-field.md": "sha256:1E67F4E0F4A47EB5DD07C6F97B3E4BA89DB3E5A044D88E66B8DF9F8DB6B9F7EE",
+    "packages/arkhe-orbital/Cargo.toml": "sha256:35D8FCDA69194A6E93A9C449556A08CD70BFCA18B4E67BF761156FDFDBD4D9BF",
+    "packages/arkhe-orbital/src/lib.rs": "sha256:E14447359A231D4F0A8185ABC64E63FFD03D0E1A02276F99013E1ADBC84B7A5D",
+    "packages/arkhe-orbital/src/hexagonal_core.rs": "sha256:E3EDB6AEFEE375F553B07712E71A11744B12B4F293D1C5317D08FDA85C920BB2",
+    "packages/arkhe-orbital/src/decagonal_field.rs": "sha256:697C6E3D1375AF0DD68A6428A3D789C7C454BA03153500466AB1384B6AB01F10",
+    "packages/arkhe-orbital/src/lunar_swarm.rs": "sha256:CF3E7DC109A8B2EBBE425713218B42869F501035F11376EAF06EF10ECD51E7C0",
+    "packages/arkhe-orbital/src/titanic_migration.rs": "sha256:9F41FFD660EDBBCDD0788BDCCFA6033D96924D8B63F1A517B041D461D8CA623E",
+    "Cargo.toml": "sha256:5F06EF22DE5ECA776F81ECC63F046CC0C19ABDBBAC10B37AFB9B0B440A2C59D5"
+  },
+
+  "hash_conteudo": "sha256:6B703B5045A21CE7249D51CD65BE1EB7BB044286616A0881B76D4CBFD7C6CE78",
+  "metodo_hash_conteudo": "sha256 sobre a concatenacao ASCII (sem separadores, ordem fixa acima) dos 12 hashes SHA256 de hashes_artefatos",
+  "selo": "ARKHE-BLOCO-1076-KRONOS-XLOOP-CAMPO-METRICO-2026-09-12"
+}

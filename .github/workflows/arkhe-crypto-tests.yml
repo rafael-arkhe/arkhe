@@ -1,0 +1,65 @@
+# .github/workflows/arkhe-crypto-tests.yml — ARKHE-CRYPTO-CODE-TESTABLE-2026-09-12
+# Realocado para .github/workflows/ raiz do repo (GitHub Actions so descobre
+# workflows no root — precedente erratum bloco 1077, commit 71a1b140).
+# Cobertura dos crates criptograficos auditares (plano bloco 1063):
+#   packages/arkhe-vss   — Feldman VSS (dealer honesto vs malicioso: verificacao
+#                           g^{s_i} = prod C_k^{i^k}, complaints, desqualificacao);
+#   packages/arkhe-pacts — BIP-322 prova temporalmente indexada (timestamp de
+#                           assinatura, compromisso irrevogavel, nao-transferivel);
+#   packages/arkhe-stark — STARK pos-quantico condicional a hash (SHA-256 128 bits
+#                           PQ vs SHAKE256 256 bits PQ, validacao de parametros);
+#   packages/arkhe-crypto — crate standalone com dkg (falha se disq > t ou
+#                           n - disq < t), hash (preimage n/2, collision n/3) e
+#                           gate bip322 (FeatureDisabled ate bdk_message_signer
+#                           0.2.0 / bdk_wallet 3.1.0 serem ratificados no
+#                           workspace; API real corrigida: verify_signed_proof).
+# Todas as deps (curve25519-dalek 4.1.3, rand 0.8, sha2 0.10, sha3 0.10,
+# thiserror 2.0.20, bitcoin 0.32.102) ja estao no Cargo.lock do workspace — sem
+# dependencias externas novas (Simplicity-2). Zero unsafe em cada crate (lints).
+# Selo: ARKHE-CRYPTO-CODE-TESTABLE-2026-09-12.
+name: ARKHE Crypto Tests
+
+on:
+  push:
+    paths:
+      - "arkhe-monorepo/packages/arkhe-vss/**"
+      - "arkhe-monorepo/packages/arkhe-pacts/**"
+      - "arkhe-monorepo/packages/arkhe-stark/**"
+      - "arkhe-monorepo/packages/arkhe-crypto/**"
+      - ".github/workflows/arkhe-crypto-tests.yml"
+  pull_request:
+    paths:
+      - "arkhe-monorepo/packages/arkhe-vss/**"
+      - "arkhe-monorepo/packages/arkhe-pacts/**"
+      - "arkhe-monorepo/packages/arkhe-stark/**"
+      - "arkhe-monorepo/packages/arkhe-crypto/**"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: arkhe-monorepo
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain Rust (stable + clippy)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cargo — testes Feldman VSS (honesto/malicioso, 3/3)
+        run: cargo test -p arkhe-vss --offline
+
+      - name: Cargo — testes PACTs (BIP-322, 4/4)
+        run: cargo test -p arkhe-pacts --offline
+
+      - name: Cargo — testes STARK PQ (4/4)
+        run: cargo test -p arkhe-stark --offline
+
+      - name: Cargo — testes arkhe-crypto (8/8: 4 dkg + 3 hash + 1 gate bip322 stub)
+        run: cargo test -p arkhe-crypto --offline
+
+      - name: Cargo — clippy all-targets (D warnings) nos quatro crates
+        run: cargo clippy -p arkhe-vss -p arkhe-pacts -p arkhe-stark -p arkhe-crypto --all-targets --offline -- -D warnings

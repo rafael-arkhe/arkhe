@@ -1,0 +1,71 @@
+{
+  "bloco": 1075,
+  "tipo": "EXECUCAO_CORRECOES_TRES_ARTEFACTOS",
+  "versao_plano": "v582.0",
+  "data": "2026-09-11",
+  "hash_anterior": "sha256-git:2266ac111051bafd49a56960358869d8fac0fb2e",
+  "handover_anterior": "bloco 1074 (SUBSTRATO_IMPLEMENTACAO_VAIP_AID — crate arkhe-aid, 33 testes, nucleo Lean AID 6 teoremas)",
+  "status": "CONCLUIDO",
+
+  "contexto_plano": {
+    "origem": "plano v582.0 'EXECUCAO DAS CORRECOES E CANONICALIZACAO DO HASH' recebido como texto (auditoria estatica previa, selo ARKHE-CORRECOES-TRES-ARTEFACTOS-2026-09-11)",
+    "achado_sobre_o_plano": "os tres artefactos auditados NAO existiam no monorepo — rg no workspace (excluindo node_modules/target/.git): 0 ocorrencias de scenario_collision / generate_test_blocks / HashReuse / BlockRegistry / compute_block_hash. A auditoria estatica descreveu um repositorio fantasma. Nao fabricado: os artefactos foram IMPLEMENTADOS aqui do zero, seguindo o contrato canonico do plano",
+    "ledger_do_plano_vs_real": "o plano ancorava no bloco 1094 (parent 1093); o ledger real termina em 1074. Este bloco e o 1075, parent 2266ac1"
+  },
+
+  "decisao_canonica": {
+    "hash": "hex string de 64 caracteres, identica nos tres artefactos (Rust/Python/PowerShell)",
+    "justificativa": "universal, legivel, interoperavel em JSON — o array binario de 32 inteiros e 3x maior e nao interoperavel"
+  },
+
+  "construcao": {
+    "crate_novo": "packages/arkhe-block-registry v0.1.0",
+    "src/lib.rs": "Hash([u8;32]) com serde custom hex (Serialize/Deserialize por string); BlockRecord {numero,tipo,hash,parent_hash?}; BlockRegistry (insert idempotente + NumberCollision + DuplicateHash + HashReuse + OrphanParent + verify_chain); compute_block_hash SHA3-256(numero_le4||tipo||parent); unsafe denied",
+    "src/bin/verify.rs": "verifier de diretorio de blocos — espelho do powershell (5 checks) + cadeia estrita (superset); exit 0/1/2/3; relatorio JSON com issues",
+    "tests/integration.rs": "3 testes: pipeline completo, roundtrip JSON canonico hex, colisoes/reuso/orfao via API",
+    "tools/generate_test_blocks.py": "gerador (3.9+); BUG CORRIGIDO: scenario_collision usa suffix '_b' — antes o 2o ficheiro sobrescrevia o 1o e a colisao sumia; 4 cenarios (valid/collision/orphan/invalid)",
+    "tools/verify-blocks.ps1": "verifier PS 5.1 (plano presumia 7.0); DETEÇÃO NOVA: HashReuse (Group-Object por hash) e DuplicateHash; + corrigido exit 2/3 (Write-Error+ErrorActionPreference=Stop nunca chegava ao exit — lancava excecao); relatorio JSON com issues (paridade Rust)",
+    "tools/tests/VerifyBlocks.Tests.ps1": "10 testes Pester 3.4 (7 do plano adaptados + exit 2 + bug-do-gerador + hash canonico + encadeamento)",
+    "workspace": "Cargo.toml raiz — member \"packages/arkhe-block-registry\" inserido apos arkhe-epistemic"
+  },
+
+  "divergencia_honesta_do_plano": {
+    "hasher": "SHA3-256 (dep sha3 do workspace, Ghost-1) em vez de BLAKE3 prescrito: blake3 NAO resolve offline — constant_time_eq ^0.3 fora do cache (so ha 0.1.5), blake3_derive fora do cache. Consequencia: zero deps externas novas (Simplicity-2). Python usa hashlib.sha3_256 (stdlib) — hashes IDENTICOS ao Rust",
+    "powershell_version": "plano: #requires Version 7.0; ambiente: Windows PowerShell 5.1 — verifier reescrito 5.1-compativel",
+    "pester": "plano: Pester 5 (Should -Be); ambiente: Pester 3.4.0 — testes com sintaxe v3 (Should Be), um unico Describe (v3 nao aninha), Join-Path com 2 args",
+    "pester_enableexit": "Pester 3.4 -EnableExit no PS 5.1 reporta exit 1 mesmo com 0 falhas (quirk conhecido) — a medida real e o sumario 'Passed: N Failed: 0'",
+    "carga_payload": "plano assinava compute_block_hash(numero,tipo,parent,payload); formato canonico JSON nao tem payload — assinatura simplificada para (numero,tipo,parent)"
+  },
+
+  "verificacao_real": {
+    "rust_tests": "cargo test -p arkhe-block-registry --offline — 15 passed (12 unit lib + 3 tests/integration.rs), 0 failed",
+    "clippy_strict": "cargo clippy -p arkhe-block-registry --all-targets --offline -- -D warnings — exit 0, zero warnings (2 lints reais corrigidos: needless_borrows_for_generic_args, unused_imports)",
+    "workspace_regressao": "cargo check -p arkhe-block-registry -p arkhe-aid -p arkhe-safe-manifold -p arkhe-field-stability --offline — Finished, exit 0",
+    "python_gerador": "exit 0; collision produz 2 ficheiros (bug corrigido demonstrado); valid 3 encadeados; orphan 2; invalid 1 malformado",
+    "powershell_verifier": "valid exit 0 (PASS); collision exit 1 (colisao + DuplicateHash); orphan exit 1; invalid exit 1; diretorio inexistente exit 2 (corrigido)",
+    "pester": "Invoke-Pester tools/tests/VerifyBlocks.Tests.ps1 — 10 passed, 0 failed, 0 skipped",
+    "interop_python_rust": "hash(1,'ROOT') Python 7f0bcc8c846e2dbb1ba336bb60a9c12f78e9ddd14f11322d7f4f1cb1d316f866 == hash exibido pelo verifier Rust no mesmo bloco — EQUIVALENCIA confirmada",
+    "interop_rust_python": "verifier Rust carrega JSONs gerados por Python: valid exit 0, collision exit 1, orphan exit 1, invalid exit 1"
+  },
+
+  "honestidade": {
+    "escopo": "as tres correcoes do plano foram implementadas DO ZERO (os artefactos nao existiam); a deteccao das incoerencias reais do plano e registrada em contexto_plano",
+    "nao_fabricado": "nenhum output de teste inventado; todos os numeros acima sao saidas reais capturadas na execucao deste bloco",
+    "doutrina": "a auditoria estatica estava correta nos PRINCIPIOS (bug python, inconsistenia array-vs-hex, limitacao do powershell) mas referia ficheiros inexistentes — o 'ex analisi veritas' so vale contra substrato real (I461/I462, bloco 990)"
+  },
+
+  "hashes_artefatos": {
+    "packages/arkhe-block-registry/Cargo.toml": "sha256:0B376087F4E73C1AEFE5845232EF9125AEC461759A0B731EF40A4DC974E05FA5",
+    "packages/arkhe-block-registry/src/lib.rs": "sha256:668E00D1E93FDAF3502CF85549A10848BC6FDE2E00F597810E7D79380D9CAC2F",
+    "packages/arkhe-block-registry/src/bin/verify.rs": "sha256:76266EBF21C399AE0F12873E2582BC99554FFA8BCCB2F0D03E0F160F30680436",
+    "packages/arkhe-block-registry/tests/integration.rs": "sha256:095279EC9B8F215A4B4E2D7FAA7AC97DE81BDEFDE2552457317247A0A50E5936",
+    "tools/generate_test_blocks.py": "sha256:7E96EC7A0FB8F81B95F687C02F3348C25CE498F3158B3448CD95A996FB606E11",
+    "tools/verify-blocks.ps1": "sha256:4036C798EBC7858BD8CBA5FB54C2801ABC69A8CC50547C959181684058AA53EC",
+    "tools/tests/VerifyBlocks.Tests.ps1": "sha256:202B40718915104E2883DE0475D425CC8AF4463C76320B92C847F2C9EB7A1652",
+    "Cargo.toml": "sha256:953B2D210F7745B83DB882F61620356955BADB8535F4A7A5B8DF7B01A1C7EC6C"
+  },
+
+  "hash_conteudo": "sha256:0CDFFA303790D5D921EF787588EB1C14B60C75B3B3410DDFDA3C8BCB71230AE5",
+  "metodo_hash_conteudo": "sha256 sobre a concatenacao ASCII (sem separadores, ordem fixa acima) dos 8 hashes SHA256 de hashes_artefatos",
+  "selo": "ARKHE-BLOCO-1075-CORRECOES-TRES-ARTEFACTOS-2026-09-11"
+}
