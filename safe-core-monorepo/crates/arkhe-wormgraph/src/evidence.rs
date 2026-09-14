@@ -7,13 +7,14 @@
 //! | | hash de uma entrada |
 //! |:---|:---|
 //! | `WormGraph` | `BLAKE3(domínio ∥ sequence ∥ prev_hash ∥ conteúdo)` |
-//! | `EvidenceChain` | `BLAKE3(prev_hash ∥ len(payload) ∥ payload)` |
+//! | `EvidenceChain` (`hash`) | `BLAKE3(prev_hash ∥ len(payload) ∥ payload)` |
+//! | `EvidenceChain` (`record_hash`) | `BLAKE3(domínio ∥ index ∥ timestamp ∥ prev_hash ∥ len(payload) ∥ payload)` |
 //!
 //! Por isso as duas **não** são comparáveis campo a campo pelo hash: o que se
-//! preserva aqui é o par `(hash, prev_hash)` que o `arkhe-evidence` calculou,
-//! gravado no `payload` do nó. O grafo passa a *carregar* a cadeia de
-//! evidências, e o cruzamento é feito sobre esses valores preservados — não
-//! sobre o `chain_hash` do wormgraph.
+//! preserva aqui é o terno `(hash, record_hash, prev_hash)` que o
+//! `arkhe-evidence` calculou, gravado no `payload` do nó. O grafo passa a
+//! *carregar* a cadeia de evidências, e o cruzamento é feito sobre esses
+//! valores preservados — não sobre o `chain_hash` do wormgraph.
 //!
 //! # O que a ponte entrega
 //!
@@ -24,24 +25,27 @@
 //!   ([`WormGraph::verify_chain`] e [`EvidenceChain::verify_chain`]) e depois
 //!   confere que o grafo de fato representa aquela cadeia.
 //!
-//! # O que o cruzamento pega que o `EvidenceChain` sozinho não pega
+//! # O que o cruzamento pega que as duas `verify_chain` isoladas não pegam
 //!
-//! O hash de um [`EvidenceRecord`] cobre `(prev_hash, payload)` — **não** cobre
-//! `index` nem `timestamp`, e [`EvidenceChain::verify_chain`] confere a posição
-//! pelo lugar que o registro ocupa, não pelo campo `index` que ele mesmo
-//! declara. Duas consequências, ambas deliberadas no `arkhe-evidence` e ambas
-//! cobertas por [`verify_against_chain`]:
+//! [`EvidenceChain::verify_chain`] cobre hoje o registro inteiro: o `hash` do
+//! catálogo *e* o `record_hash` aditivo, que liga `index` e `timestamp` ao
+//! conteúdo (ver o doc de topo do `arkhe-evidence`). O que nenhuma das duas
+//! verificações isoladas pega continua sendo um grafo e uma cadeia **ambos
+//! íntegros nos próprios termos, mas que descrevem dados diferentes** — o
+//! grafo foi construído a partir de outra cadeia (mesmos payloads, carimbos
+//! genuínos mas distintos) ou montado à mão com hashes coerentes. É esse caso
+//! que [`verify_against_chain`] detecta, comparando nó a nó.
 //!
-//! - Editar o `timestamp` de um registro deixa a cadeia de evidências
-//!   verificando (`Ok`) — e o cruzamento falha com
-//!   [`EvidenceBridgeError::TimestampMismatch`], porque o carimbo preservado no
-//!   nó continua sendo o antigo.
-//! - Editar o campo `index` de um registro idem — falha com
-//!   [`EvidenceBridgeError::RecordIndexMismatch`].
+//! Dois casos concretos, cobertos pelos testes:
 //!
-//! Isto é um ganho do cruzamento, não uma correção do `arkhe-evidence`: os dois
-//! campos são metadados de posicionamento, e a cadeia de evidências é explícita
-//! sobre não confiar neles.
+//! - Um `timestamp` que difira do preservado no nó falha com
+//!   [`EvidenceBridgeError::TimestampMismatch`] — inclusive quando a outra
+//!   cadeia é legítima e verifica por conta própria (carimbos deslocados).
+//! - Um campo `index` que não seja a posição do registro falha com
+//!   [`EvidenceBridgeError::RecordIndexMismatch`]. Este continua sendo valor
+//!   real do cruzamento: o `record_hash` liga `index` ao **conteúdo**, mas
+//!   não liga `index` à **posição**, então um `index` reescrito de forma
+//!   autoconsistente passa em `verify_chain` e só é pego aqui.
 //!
 //! # Modelo de execução — o `WormGraph` continua síncrono
 //!
@@ -105,14 +109,15 @@ fn index_of_node_id(id: &str) -> Option<u64> {
 /// O `payload` que um nó de evidência carrega.
 ///
 /// Só os campos escalares entram: `index`, `timestamp` (no próprio campo
-/// `timestamp` do [`Node`]), e os hashes que o `arkhe-evidence` calculou, em
-/// hex. O payload do registro **não** é copiado — ver a nota em
-/// [`build_from_evidence_chain`].
+/// `timestamp` do [`Node`]), e os hashes que o `arkhe-evidence` calculou —
+/// `hash`, `prev_hash` e `record_hash` —, em hex. O payload do registro **não**
+/// é copiado — ver a nota em [`build_from_evidence_chain`].
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 struct RecordPayload {
     index: u64,
     hash: String,
     prev_hash: String,
+    record_hash: String,
     payload_len: u64,
 }
 
@@ -201,8 +206,11 @@ pub enum EvidenceBridgeError {
 
     /// O índice auto-declarado pelo registro da cadeia não é a posição dele.
     ///
-    /// `EvidenceChain::verify_chain` **não** confere este campo (o hash de um
-    /// registro não cobre `index`), então esta é a única checagem que o pega.
+    /// `EvidenceChain::verify_chain` **não** confere esta propriedade: o
+    /// `record_hash` liga `index` ao conteúdo, mas nada liga `index` à
+    /// **posição** que o registro ocupa. Um `index` reescrito de forma
+    /// autoconsistente (com o `record_hash` recalculado) passa em
+    /// `verify_chain` e só é pego aqui.
     #[error("o registro na posição {position} declara index {index}")]
     RecordIndexMismatch {
         /// Posição em que o registro efetivamente está.
@@ -213,15 +221,17 @@ pub enum EvidenceBridgeError {
 
     /// O `timestamp` preservado no nó não é o `timestamp` do registro.
     ///
-    /// O hash de um registro também **não** cobre `timestamp`: uma cadeia com
-    /// um carimbo reescrito continua verificando. Aqui não.
+    /// Este é o caso de um grafo e uma cadeia ambos íntegros que descrevem
+    /// dados diferentes: uma cadeia legítima com carimbos distintos verifica
+    /// por conta própria (`record_hash` e tudo), e a divergência em relação ao
+    /// carimbo preservado no nó só aparece no cruzamento.
     #[error("o carimbo do índice {index} diverge: o nó preserva outro timestamp")]
     TimestampMismatch {
         /// Índice do registro.
         index: u64,
     },
 
-    /// O hash preservado no nó não é o hash do registro.
+    /// O hash preservado no nó não é o `hash` do registro.
     #[error("o hash do índice {index} diverge entre o nó e o registro")]
     HashMismatch {
         /// Índice do registro.
@@ -231,6 +241,18 @@ pub enum EvidenceBridgeError {
     /// O `prev_hash` preservado no nó não é o `prev_hash` do registro.
     #[error("o prev_hash do índice {index} diverge entre o nó e o registro")]
     PrevHashMismatch {
+        /// Índice do registro.
+        index: u64,
+    },
+
+    /// O `record_hash` preservado no nó não é o `record_hash` do registro.
+    ///
+    /// Redundante com [`EvidenceChain::verify_chain`], que já confere o
+    /// `record_hash` da cadeia, mas mantém o retrato do nó **completo**: um
+    /// grafo montado à mão que preserve todos os outros campos e minta só
+    /// neste é distinguido, em vez de passar por não haver o que comparar.
+    #[error("o record_hash do índice {index} diverge entre o nó e o registro")]
+    RecordHashMismatch {
         /// Índice do registro.
         index: u64,
     },
@@ -299,6 +321,7 @@ fn node_for(record: &EvidenceRecord) -> Node {
         "index": record.index,
         "hash": hash_to_hex(&record.hash),
         "prev_hash": hash_to_hex(&record.prev_hash),
+        "record_hash": hash_to_hex(&record.record_hash),
         "payload_len": record.payload.len(),
     }))
 }
@@ -481,6 +504,9 @@ pub async fn verify_against_chain(
         if payload.prev_hash != hash_to_hex(&record.prev_hash) {
             return Err(EvidenceBridgeError::PrevHashMismatch { index });
         }
+        if payload.record_hash != hash_to_hex(&record.record_hash) {
+            return Err(EvidenceBridgeError::RecordHashMismatch { index });
+        }
         if payload.payload_len != record.payload.len() as u64 {
             return Err(EvidenceBridgeError::PayloadLenMismatch { index });
         }
@@ -548,9 +574,14 @@ mod tests {
         chain
     }
 
-    /// Uma cadeia equivalente a `chain_of(3)`, mas com os carimbos deslocados.
-    /// Os hashes do `arkhe-evidence` **não** cobrem `timestamp`, então esta
-    /// cadeia tem exatamente os mesmos `hash`/`prev_hash` da original.
+    /// Uma cadeia equivalente a `chain_of(3)`, mas com os carimbos deslocados
+    /// — uma cadeia **legítima**, que verifica por conta própria.
+    ///
+    /// O `hash` do catálogo **não** cobre `timestamp`, então esta cadeia tem
+    /// exatamente os mesmos `hash`/`prev_hash` da original; o `record_hash`
+    /// aditivo, esse sim, diverge (ele cobre o carimbo). É essa diferença que
+    /// o cruzamento precisa flagrar quando compara o grafo da original com
+    /// esta cadeia.
     async fn chain_with_shifted_timestamps() -> EvidenceChain {
         let chain = EvidenceChain::new();
         for index in 0..3 {
@@ -564,6 +595,28 @@ mod tests {
     /// Monta um grafo à mão a partir de entradas, sem passar pelo construtor.
     fn hand_built(entries: Vec<WormEntry>) -> WormGraph {
         WormGraph::from_entries(entries)
+    }
+
+    /// Reencadeia as entradas do wormgraph (recalculando `sequence`,
+    /// `prev_hash` e `hash`) para que um grafo adulterado no conteúdo continue
+    /// **internamente íntegro** — assim é o cruzamento, e não o
+    /// `WormGraph::verify_chain`, que fica sob teste.
+    fn rechain(entries: Vec<WormEntry>) -> WormGraph {
+        let mut rebuilt = Vec::with_capacity(entries.len());
+        let mut prev_hash = GENESIS_HASH;
+        for entry in entries {
+            let sequence = rebuilt.len() as u64;
+            let hash = WormGraph::chain_hash(sequence, &prev_hash, &entry.entry)
+                .expect("o hash do wormgraph computa");
+            rebuilt.push(WormEntry {
+                sequence,
+                prev_hash,
+                hash,
+                entry: entry.entry,
+            });
+            prev_hash = hash;
+        }
+        hand_built(rebuilt)
     }
 
     // --- construção -------------------------------------------------------
@@ -624,6 +677,7 @@ mod tests {
             assert_eq!(node.payload["index"], index);
             assert_eq!(node.payload["hash"], hash_to_hex(&record.hash));
             assert_eq!(node.payload["prev_hash"], hash_to_hex(&record.prev_hash));
+            assert_eq!(node.payload["record_hash"], hash_to_hex(&record.record_hash));
             assert_eq!(node.payload["payload_len"], record.payload.len());
         }
 
@@ -785,6 +839,27 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn a_node_preserving_the_wrong_record_hash_is_caught() {
+        let chain = chain_of(2).await;
+        let graph = build_from_evidence_chain(&chain).await.expect("constrói");
+
+        // Reescreve só o `record_hash` preservado no nó 0 e reencadeia o
+        // wormgraph a partir daí, para que o grafo continue íntegro consigo
+        // mesmo — quem tem de pegar é o cruzamento.
+        let mut entries = graph.entries().to_vec();
+        if let Entry::Node(node) = &mut entries[0].entry {
+            node.payload["record_hash"] = serde_json::Value::String(hash_to_hex(&[0xCD; 32]));
+        }
+        let tampered = rechain(entries);
+
+        assert_eq!(tampered.verify_chain(), Ok(()));
+        assert_eq!(
+            verify_against_chain(&tampered, &chain).await,
+            Err(EvidenceBridgeError::RecordHashMismatch { index: 0 })
+        );
+    }
+
+    #[tokio::test]
     async fn a_hand_built_graph_whose_node_is_not_a_record_is_caught() {
         // Monta entradas com hashes wormgraph **coerentes** (via o
         // `chain_hash` público) mas com um `node_type` que não é o de um
@@ -859,7 +934,7 @@ mod tests {
     async fn a_node_declaring_the_wrong_index_is_caught() {
         let chain = chain_of(1).await;
         let node = Node::new(node_id_for(0), EVIDENCE_NODE_TYPE, 1).with_payload(
-            serde_json::json!({ "index": 7, "hash": "00", "prev_hash": "00", "payload_len": 0 }),
+            serde_json::json!({ "index": 7, "hash": "00", "prev_hash": "00", "record_hash": "00", "payload_len": 0 }),
         );
         let entry = Entry::Node(node);
         let hash =
