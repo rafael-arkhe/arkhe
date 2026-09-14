@@ -5,7 +5,16 @@ version.workspace = true
 edition.workspace = true
 [dependencies]
 arkhe-core = { path = "../arkhe-core" }
+# NOTE: no longer referenced by any source file in this crate. `audit_policy`
+# and `gdpr` used to import an `arkhe_identity::ArkheDid` that does not exist;
+# they now carry the DID as text. Kept so the dependency can be reused if a DID
+# type is added to `arkhe-identity` later.
 arkhe-identity = { path = "../arkhe-identity" }
 serde = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+# Used by the tests of `constitution` to prove that a round trip through the
+# machine-readable form preserves the canonical hash.
+serde_json = { workspace = true }
