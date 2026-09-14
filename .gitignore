@@ -79,3 +79,18 @@ build_484/
 # --- artefatos de fabricacao ---
 *.gcode
 *.stl
+
+# --- arvores de terceiros e snapshots baixados (triagem 2026-09-14) ---
+arkhe-monorepo/catedral_deps/
+aegis/
+llama.cpp/
+memory/archive/
+example-scripts/
+external_targets/
+models/
+optimization/
+kernel/arkhe-repository/
+workspace-b84e0aa8-129b-4ee7-8563-95c5fa285ef1/
+workspace-bd3c0df0-e017-49d7-b677-5bc59a094e5b/
+*.synctex*
+*.mp3
