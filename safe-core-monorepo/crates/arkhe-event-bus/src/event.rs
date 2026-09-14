@@ -12,14 +12,23 @@
 //! ‖ canonical payload JSON
 //! ```
 //!
-//! Canonical JSON here means: `serde_json::to_value` followed by
-//! `serde_json::to_vec`, which renders compact JSON with object keys in
-//! `serde_json`'s `Map` order — a `BTreeMap` by default, i.e. sorted. Two
-//! consequences, both deliberate:
+//! Canonical JSON here means: `serde_json::to_value`, followed by an explicit
+//! recursive rebuild that puts every object's keys in alphabetical order,
+//! followed by compact `serde_json::to_vec`. The ordering is made explicit
+//! because it must not depend on `serde_json`'s `Map` implementation: a
+//! `BTreeMap` by default, but an insertion-ordered `IndexMap` as soon as any
+//! crate in the build enables `serde_json/preserve_order` — which feature
+//! unification then applies to this crate too, silently leaking key insertion
+//! order into the signing bytes. Three consequences, all deliberate:
 //!
 //! * **Struct field order does not matter.** Meta is canonicalised through a
 //!   `Value`, so a future reordering of `EventMeta`'s fields cannot silently
 //!   invalidate existing signatures.
+//! * **Key insertion order does not matter, at any depth.** Objects nested
+//!   inside objects are sorted recursively; arrays keep their element order
+//!   (JSON arrays are ordered — sorting them would erase information). Two
+//!   payloads that differ only in the order their objects were built sign
+//!   identically.
 //! * **A published event and its JSON round trip sign identically.**
 //!   [`Event::to_json`] → [`Event::from_json`] preserves
 //!   [`Event::signing_bytes`] byte-for-byte, which the tests assert by comparing
@@ -36,6 +45,7 @@
 //! out of contract: the bus canonicalises, so the signature must cover the
 //! canonical form. Documented here rather than discovered in production.
 
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use serde_json::{Map, Value};
@@ -320,16 +330,40 @@ fn assemble_signing_bytes(canonical_meta: &[u8], canonical_payload: &[u8]) -> Ve
     bytes
 }
 
-/// Canonical JSON: `to_value` (which sorts object keys in `serde_json`'s
-/// default `Map`) followed by compact `to_vec`. See the module docs.
+/// Canonical JSON: `to_value`, an explicit recursive alphabetical key sort
+/// ([`sort_object_keys`]) so the result does not depend on `serde_json`'s
+/// `Map` implementation, then compact `to_vec`. See the module docs.
 fn canonical_json_bytes<T: serde::Serialize>(
     field: &'static str,
     value: &T,
 ) -> BusResult<Vec<u8>> {
     let as_value = serde_json::to_value(value)
         .map_err(|e| BusError::malformed(field, format!("cannot canonicalise as JSON: {e}")))?;
-    serde_json::to_vec(&as_value)
+    serde_json::to_vec(&sort_object_keys(&as_value))
         .map_err(|e| BusError::malformed(field, format!("cannot serialise canonical JSON: {e}")))
+}
+
+/// Rebuild `value` with the keys of every object, at any depth, in
+/// alphabetical order: collected into a `BTreeMap` and reinserted in that
+/// order, so the outcome is the same whether `serde_json`'s `Map` is its
+/// default `BTreeMap` or an insertion-ordered `IndexMap` (which is what
+/// `serde_json/preserve_order` — enabled by some dependencies and unified
+/// across the build — swaps in). Under the default `Map` this is a no-op:
+/// iteration is already sorted, so no byte of a canonical form changes.
+/// Arrays keep their element order (JSON arrays are ordered); scalars pass
+/// through unchanged.
+fn sort_object_keys(value: &Value) -> Value {
+    match value {
+        Value::Object(map) => Value::Object(
+            map.iter()
+                .map(|(key, member)| (key.clone(), sort_object_keys(member)))
+                .collect::<BTreeMap<_, _>>()
+                .into_iter()
+                .collect(),
+        ),
+        Value::Array(items) => Value::Array(items.iter().map(sort_object_keys).collect()),
+        scalar => scalar.clone(),
+    }
 }
 
 /// A required string member of `meta`.
@@ -501,6 +535,28 @@ mod tests {
     fn payload_key_order_does_not_affect_the_signing_bytes() {
         let one = Event::new(meta("evt_1"), json!({"a": 1, "b": 2})).expect("valid");
         let other = Event::new(meta("evt_1"), json!({"b": 2, "a": 1})).expect("valid");
+        assert_eq!(one.digest(), other.digest());
+    }
+
+    #[test]
+    fn nested_payload_key_order_does_not_affect_the_signing_bytes() {
+        // The recursive case: the key sort must reach objects nested inside
+        // objects (the flat case above only exercises the top level). This is
+        // what breaks when `serde_json/preserve_order` makes `Map` an
+        // insertion-ordered `IndexMap` — the explicit sort is what keeps the
+        // signing bytes independent of the `Map` implementation.
+        let one = Event::new(
+            meta("evt_n"),
+            json!({"outer": {"b": 2, "a": {"y": 1, "x": 2}}, "z": 1}),
+        )
+        .expect("valid");
+        let other = Event::new(
+            meta("evt_n"),
+            json!({"z": 1, "outer": {"a": {"x": 2, "y": 1}, "b": 2}}),
+        )
+        .expect("valid");
+        assert_eq!(one.canonical_payload(), other.canonical_payload());
+        assert_eq!(one.signing_bytes(), other.signing_bytes());
         assert_eq!(one.digest(), other.digest());
     }
 

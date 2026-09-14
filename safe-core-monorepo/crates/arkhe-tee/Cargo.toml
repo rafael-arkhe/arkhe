@@ -3,11 +3,10 @@ name = "arkhe-tee"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "arkhe-tee — TDX/RTMR attestation primitives: quote metadata (MRTD/MR* + RTMR0-3 + report_data), domain-tagged report_data derivation, PCCS collateral acquisition with a TTL cache, RTMR extension driver, and a local provenance binding. Standalone workspace (own [workspace] table) because safe-core-monorepo's workspace does not resolve today: its committed `members` list names crates that do not exist on disk (arkhe-geometric-verifier, arkhe-security, arkhe-buzz-relay, arkhe-web-gateway, arkhe-mcp-server, arkhe-orcid, arkhe-change). Same erratum pattern as arkhe-monorepo/packages/arkhe-core. Uses dcap-qvl 0.6.3 (MIT). Deliberately does NOT depend on `tdx-quote` (AGPL-3.0-or-later). No line of this crate has been validated on TDX hardware."
+description = "arkhe-tee — TDX/RTMR attestation primitives: quote metadata (MRTD/MR* + RTMR0-3 + report_data), domain-tagged report_data derivation, PCCS collateral acquisition with a TTL cache, RTMR extension driver, and a local provenance binding. A member of the safe-core-monorepo workspace; the standalone [workspace] table it once carried was vestigial (its premise — the root workspace does not resolve — is obsolete: the absent crates the root members list once named are commented out there). Same erratum pattern as arkhe-monorepo/packages/arkhe-core. Uses dcap-qvl 0.6.3 (MIT). Deliberately does NOT depend on `tdx-quote` (AGPL-3.0-or-later). No line of this crate has been validated on TDX hardware."
 publish = false
 
-[workspace]
-resolver = "2"
+# No own [workspace] table: registered in safe-core-monorepo's members (the root manifest resolves; the standalone table was vestigial).
 
 [dependencies]
 # Backend swap, observed experimentally (see README, "Dependency choice"):
