@@ -1,0 +1,45 @@
+/* Arkhe UI — ponto de entrada de estilos.
+   `@import "tailwindcss"` primeiro (define as camadas), tokens depois. */
+
+@import 'tailwindcss';
+@import '../tokens/arkhe-tokens.css';
+
+/* Os utilitários usados pelos componentes vivem em src/**. Declaramos a
+   raiz de varrimento explicitamente para não depender da auto-detecção. */
+@source '../';
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  [data-theme='light'] {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Foco visível global: nunca `outline: none` sem substituto. */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Respeita quem pediu menos movimento (WCAG 2.2 — 2.3.3). */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

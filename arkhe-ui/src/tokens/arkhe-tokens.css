@@ -1,0 +1,227 @@
+/* =====================================================================
+   Arkhe UI — arquitectura de tokens em DUAS CAMADAS
+   =====================================================================
+   Camada 1 (primitivos)  — `--palette-*`  valores brutos, sem significado
+                            de uso. Ninguém consome estes tokens directamente
+                            em componentes.
+   Camada 2 (semânticos)  — `--surface`, `--brand`, `--text-*`, `--status-*`.
+                            É a ÚNICA camada que os componentes consomem.
+
+   Regra de manutenção: um tema (claro/escuro) reatribui APENAS a camada
+   semântica. Os primitivos são partilhados pelos dois temas.
+
+   Dark-first: `:root` já entrega o tema escuro. O tema claro é opt-in via
+   `[data-theme='light']`.
+
+   A paleta Arkhe é PRÓPRIA DO PROJETO. Não é `zinc-*` do Tailwind nem
+   qualquer escala upstream: é declarada aqui e não depende de o Tailwind
+   existir. A ligação ao Tailwind acontece só no fim deste ficheiro, via
+   `@theme inline` (o Tailwind v4 dispensa `tailwind.config.js`).
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   CAMADA 1 — PRIMITIVOS (valores brutos)
+   --------------------------------------------------------------------- */
+:root {
+  /* Superfícies Arkhe (valores fixados na spec da Fase 1) */
+  --palette-arkhe-canvas: #09090b;
+  --palette-arkhe-panel: #18181b;
+  --palette-arkhe-control: #27272a;
+
+  /* Contornos Arkhe — alfa sobre o que estiver por baixo (decorativos) */
+  --palette-arkhe-border-default: rgba(255, 255, 255, 0.06);
+  --palette-arkhe-border-strong: rgba(255, 255, 255, 0.12);
+
+  /* Acentos — matiz saturada "escura" (para superfícies escuras) */
+  --palette-cyan-400: #22d3ee;
+  --palette-cyan-300: #67e8f9;
+  --palette-teal-400: #2dd4bf;
+  --palette-violet-400: #a78bfa;
+  --palette-amber-400: #fbbf24;
+  --palette-rose-400: #fb7185;
+
+  /* Acentos — a mesma matiz "profunda" (para superfícies claras) */
+  --palette-cyan-700: #0e7490;
+  --palette-cyan-800: #155e75;
+  --palette-teal-700: #0f766e;
+  --palette-violet-700: #6d28d9;
+  --palette-amber-800: #9a4a08;
+  --palette-rose-700: #be123c;
+  --palette-rose-800: #9f1239;
+
+  /* Neutros de texto */
+  --palette-neutral-0: #ffffff;
+  --palette-neutral-50: #fafafa;
+  --palette-neutral-300: #d4d4d8;
+  --palette-neutral-400: #a1a1aa;
+  --palette-neutral-450: #94949e;
+  --palette-neutral-600: #52525b;
+  --palette-neutral-700: #3f3f46;
+  --palette-neutral-800: #27272a;
+  --palette-neutral-850: #232327;
+  --palette-neutral-900: #18181b;
+  --palette-neutral-950: #09090b;
+
+  /* Tintas de estado (fundos sólidos e opacos — testáveis por contraste) */
+  --palette-tint-teal-dark: #0d2b28;
+  --palette-tint-amber-dark: #2a2110;
+  --palette-tint-neutral-dark: #232327;
+  --palette-tint-rose-dark: #2c1419;
+  --palette-tint-teal-light: #e6f7f4;
+  --palette-tint-amber-light: #fdf3d7;
+  --palette-tint-neutral-light: #f0f0f2;
+  --palette-tint-rose-light: #fde8ea;
+}
+
+/* ---------------------------------------------------------------------
+   CAMADA 2 — SEMÂNTICOS (tema escuro = default, dark-first)
+   --------------------------------------------------------------------- */
+:root {
+  /* Superfícies */
+  --surface: var(--palette-arkhe-canvas);
+  --panel: var(--palette-arkhe-panel);
+  --control: var(--palette-arkhe-control);
+  --control-strong: var(--palette-neutral-700);
+
+  /* Contornos */
+  --border-default: var(--palette-arkhe-border-default);
+  --border-strong: var(--palette-arkhe-border-strong);
+
+  /* Texto */
+  --text-primary: var(--palette-neutral-50);
+  --text-secondary: var(--palette-neutral-400);
+  --text-muted: var(--palette-neutral-450);
+
+  /* Acentos semânticos
+     cyan   → navegação / acção primária (marca)
+     teal   → skills
+     violet → sub-agentes
+     amber  → aviso / parcial
+     rose   → destrutivo / erro                                          */
+  --brand: var(--palette-cyan-400);
+  --brand-strong: var(--palette-cyan-300);
+  --on-brand: var(--palette-neutral-950);
+  --skill: var(--palette-teal-400);
+  --subagent: var(--palette-violet-400);
+  --warning: var(--palette-amber-400);
+  --danger: var(--palette-rose-400);
+  --danger-strong: var(--palette-rose-400);
+  --on-danger: var(--palette-neutral-950);
+  --focus-ring: var(--brand);
+
+  /* Estados (Badge) — par fundo/texto opaco e verificável */
+  --status-verified-bg: var(--palette-tint-teal-dark);
+  --status-verified-fg: var(--palette-teal-400);
+  --status-verified-border: var(--palette-tint-teal-dark);
+  --status-partial-bg: var(--palette-tint-amber-dark);
+  --status-partial-fg: var(--palette-amber-400);
+  --status-partial-border: var(--palette-tint-amber-dark);
+  --status-pending-bg: var(--palette-tint-neutral-dark);
+  --status-pending-fg: var(--palette-neutral-300);
+  --status-pending-border: var(--palette-tint-neutral-dark);
+  --status-error-bg: var(--palette-tint-rose-dark);
+  --status-error-fg: var(--palette-rose-400);
+  --status-error-border: var(--palette-tint-rose-dark);
+}
+
+/* ---------------------------------------------------------------------
+   CAMADA 2 — SEMÂNTICOS (tema claro: reatribui SÓ esta camada)
+   --------------------------------------------------------------------- */
+[data-theme='light'] {
+  --surface: var(--palette-neutral-50);
+  --panel: var(--palette-neutral-0);
+  --control: #f4f4f5;
+  --control-strong: #e4e4e7;
+
+  --border-default: rgba(9, 9, 11, 0.08);
+  --border-strong: rgba(9, 9, 11, 0.16);
+
+  --text-primary: var(--palette-neutral-950);
+  --text-secondary: var(--palette-neutral-700);
+  --text-muted: var(--palette-neutral-600);
+
+  --brand: var(--palette-cyan-700);
+  --brand-strong: var(--palette-cyan-800);
+  --on-brand: var(--palette-neutral-0);
+  --skill: var(--palette-teal-700);
+  --subagent: var(--palette-violet-700);
+  --warning: var(--palette-amber-800);
+  --danger: var(--palette-rose-700);
+  --danger-strong: var(--palette-rose-800);
+  --on-danger: var(--palette-neutral-0);
+  --focus-ring: var(--brand);
+
+  --status-verified-bg: var(--palette-tint-teal-light);
+  --status-verified-fg: var(--palette-teal-700);
+  --status-verified-border: var(--palette-tint-teal-light);
+  --status-partial-bg: var(--palette-tint-amber-light);
+  --status-partial-fg: var(--palette-amber-800);
+  --status-partial-border: var(--palette-tint-amber-light);
+  --status-pending-bg: var(--palette-tint-neutral-light);
+  --status-pending-fg: var(--palette-neutral-700);
+  --status-pending-border: var(--palette-tint-neutral-light);
+  --status-error-bg: var(--palette-tint-rose-light);
+  --status-error-fg: var(--palette-rose-700);
+  --status-error-border: var(--palette-tint-rose-light);
+}
+
+/* ---------------------------------------------------------------------
+   LIGAÇÃO AO TAILWIND v4 — `@theme inline`, sem `tailwind.config.js`
+   ---------------------------------------------------------------------
+   `inline` faz o Tailwind emitir `var(--surface)` no utilitário em vez de
+   copiar o valor: os utilitários passam a ACOMPANHAR a troca de tema.
+
+   Nota de nomenclatura: no Tailwind v4 o namespace `--text-*` é o de
+   font-size, por isso os tokens de cor de texto (`--text-primary`) são
+   projectados no namespace `--color-*` como `--color-fg*` — daí `text-fg`,
+   `text-fg-muted`, `text-fg-subtle`.
+   --------------------------------------------------------------------- */
+@theme inline {
+  /* superfícies */
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-control: var(--control);
+  --color-control-strong: var(--control-strong);
+
+  /* contornos */
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+
+  /* texto */
+  --color-fg: var(--text-primary);
+  --color-fg-muted: var(--text-secondary);
+  --color-fg-subtle: var(--text-muted);
+
+  /* acentos semânticos */
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-on-brand: var(--on-brand);
+  --color-skill: var(--skill);
+  --color-subagent: var(--subagent);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-strong: var(--danger-strong);
+  --color-on-danger: var(--on-danger);
+  --color-focus-ring: var(--focus-ring);
+
+  /* estados */
+  --color-status-verified-bg: var(--status-verified-bg);
+  --color-status-verified-fg: var(--status-verified-fg);
+  --color-status-partial-bg: var(--status-partial-bg);
+  --color-status-partial-fg: var(--status-partial-fg);
+  --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-pending-fg: var(--status-pending-fg);
+  --color-status-error-bg: var(--status-error-bg);
+  --color-status-error-fg: var(--status-error-fg);
+
+  /* tipografia — ABC Diatype é licenciada e NÃO está incluída (ver README).
+     A stack cai para a fonte de sistema até a licença ser adquirida. */
+  --font-sans: 'ABC Diatype', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo,
+    Consolas, monospace;
+
+  /* raios */
+  --radius-control: 0.375rem;
+  --radius-panel: 0.75rem;
+}

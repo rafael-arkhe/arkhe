@@ -1,0 +1,53 @@
+name: arkhe-ui CI
+
+on:
+  push:
+    paths:
+      - 'arkhe-ui/**'
+      - '.github/workflows/arkhe-ui-ci.yml'
+  pull_request:
+    paths:
+      - 'arkhe-ui/**'
+
+defaults:
+  run:
+    working-directory: arkhe-ui
+
+jobs:
+  verify:
+    name: typecheck · unit · a11y · e2e · visual
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 24.21.0
+          cache: 'npm'
+          cache-dependency-path: arkhe-ui/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Testes unitários + cobertura
+        run: npx vitest run --coverage
+
+      # Testes de stories via @storybook/addon-vitest — BLOQUEADO.
+      # `@storybook/addon-vitest@10.6.0` declara peer `vitest: ^3.0.0 || ^4.0.0`,
+      # incompatível com o pin `vitest@5.0.0` (npm install → ERESOLVE).
+      # Além disso exige `@vitest/browser` + browsers do Playwright.
+      # Reactivar quando o Storybook suportar vitest 5. Ver README.
+      #
+      # - name: Testes de stories (addon-vitest)
+      #   run: npx vitest run --project=storybook
+
+      - name: Instalar browsers do Playwright
+        run: npx playwright install --with-deps
+
+      - name: Testes e2e
+        run: npx playwright test
+
+      - name: Chromatic
+        run: npx chromatic --project-token=${{ secrets.CHROMATIC_TOKEN }}
