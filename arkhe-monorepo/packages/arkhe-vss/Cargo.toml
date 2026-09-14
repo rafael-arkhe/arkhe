@@ -1,0 +1,32 @@
+[package]
+name = "arkhe-vss"
+version = "0.1.0"
+edition = "2021"
+description = "Feldman Verifiable Secret Sharing (ARKHE-CRYPTO-CODE-TESTABLE-2026-09-12) — share verification g^{s_i} = prod C_k^{i^k}, complaint collection e desqualificacao de dealer malicioso (> t complaints). Base Ristretto (curve25519-dalek 4.1.3, features ristretto+rand_core) e rand 0.8, ambos ja no lock do workspace — zero dependencias externas novas (Simplicity-2). Zero unsafe."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Grupos Ristretto255 (curve25519-dalek 4.1.3). O modulo `ristretto` e' sempre
+# disponivel em 4.x (nao ha feature `ristretto`; nos 4.1.3 as features sao
+# alloc/default/digest/ff/group/legacy_compatibility/precomputed-tables/
+# rand_core/serde/zeroize). `rand_core` habilita Scalar::random. Todas sao
+# optional-features do crate — NAO alteram o conjunto de pacotes no Cargo.lock
+# (features nao entram no lock): resolucao offline, zero deps novas.
+curve25519-dalek = { version = "4.1.3", features = ["rand_core"] }
+# Entropia dos coeficientes (Gap-2). Versao ja usada por arkhe-bitcoin,
+# arkhe-hypergraph, arkhe-timechain, etc.
+rand = "0.8"
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+# Honestidade (precedentes blocos 990/1004/1006/1011):
+#  - O teste de reconstrução usa Lagrange em x = 0: a_0 = f(0) e o segredo. As
+#    shares sao f(1)..f(n), nunca f(0) — nenhuma share "vaza" o segredo.
+#  - O dealer malicioso e simulado por adulteracao de uma share; a verificacao
+#    g^{s_i} = prod C_k^{i^k} detecta a divergencia e gera complaints.
+#  - Verificabilidade do Feldman VSS E condicional a honestidade do dealer:
+#    este crate materializa a deteccao, nao a eliminacao da suposicao.

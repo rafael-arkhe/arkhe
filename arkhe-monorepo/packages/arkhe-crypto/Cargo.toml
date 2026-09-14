@@ -1,0 +1,25 @@
+[package]
+name = "arkhe-crypto"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85.0"
+license = "MIT OR Apache-2.0"
+
+[features]
+default = []
+bip322 = ["dep:bdk_message_signer", "dep:bdk_wallet"]
+
+[dependencies]
+thiserror = "2.0"
+bitcoin = "0.32.6"
+bdk_message_signer = { version = "0.2.0", optional = true }
+bdk_wallet = { version = "3.1.0", optional = true }
+
+[dev-dependencies]
+
+# Invariantes da Catedral: zero `unsafe` é propriedade estatutária em todo o
+# monorepo (Simplicity-2 / segurança); `missing_docs` mantém os itens públicos
+# documentados (as variantes de erro e os itens públicos têm docs).
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"

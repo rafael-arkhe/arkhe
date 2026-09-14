@@ -1,0 +1,27 @@
+[package]
+name = "arkhe-pacts"
+version = "0.1.0"
+edition = "2021"
+description = "PACTs commitment sobre BIP-322 (ARKHE-CRYPTO-CODE-TESTABLE-2026-09-12) — prova vinculada ao momento (timestamp), compromisso irrevogavel hash(salt || bip322_proof) e nao-transferivel. Deps sha2 0.10 e rand 0.8, ambos ja no lock do workspace — zero dependencias externas novas (Simplicity-2). Zero unsafe."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Digest do compromisso SHA-256 (mesmo digest base do BIP-322 to_spend/to_sign).
+sha2 = "0.10"
+# Sal aleatorio de 32 bytes do compromisso PACT (Gap-2). Versao ja usada
+# por arkhe-bitcoin, arkhe-hypergraph, arkhe-timechain, etc.
+rand = "0.8"
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+# Honestidade (precedentes blocos 990/1004/1006/1011):
+#  - A assinatura BIP-322 aqui e SIMULADA (bytes fixos). A verificacao real
+#    (bdk_message_signer / virtual transaction to_spend->to_sign) pertence ao
+#    substrato 972-ARKHE-BITCOIN e fica fora do escopo deste bloco.
+#  - O que este crate testa e a PROPRIEDADE do compromisso: vinculacao temporal,
+#    irrevogabilidade (hash imutavel) e nao-transferibilidade (endereços
+#    distintos -> hashes distintos) — nao a criptografia da assinatura.

@@ -1,0 +1,26 @@
+[package]
+name = "arkhe-stark"
+version = "0.1.0"
+edition = "2021"
+description = "STARKs pos-quanticos condicionais a hash function (ARKHE-CRYPTO-CODE-TESTABLE-2026-09-12) — SHA-256 (Grover: 128 bits PQ) vs SHAKE256 (FIPS 202: 256 bits PQ) e validacao de parametros de seguranca. Deps sha2 0.10 e sha3 0.10, ambos ja no lock do workspace — zero dependencias externas novas (Simplicity-2). Zero unsafe."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Backend SHA-256 dos STARKs (Merkle/FRI; resistencia PQ condicional).
+sha2 = "0.10"
+# SHAKE256 (FIPS 202) para a variante de 256 bits pos-quanticos.
+sha3 = "0.10"
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+# Honestidade (precedentes blocos 990/1004/1006/1011):
+#  - Este crate NAO implementa STARKs (sem FRI, sem IOP, sem proof system).
+#    Materializa SOLO a condicionalidade da resistencia pos-quantica a hash
+#    function e a validacao de parametros de seguranca — a fronteira do que o
+#    plano ratifica.
+#  - 128 bits PQ do SHA-256 E' secure-claim padrao (Grover) e nao prova deste
+#    crate; a escolha SHAKE256 para 256 bits segue o FIPS 202.
