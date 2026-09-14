@@ -15,13 +15,50 @@ use thiserror::Error;
 /// was built from. [`payload_len`](ProvenanceNode::payload_len) is enough to
 /// tell a truncated or padded payload apart when re-checking a graph
 /// against its chain later.
+///
+/// # Two hashes, carried but not re-derived
+///
+/// A node carries both hashes of the record it was projected from, and they
+/// mean here what they mean in `arkhe_evidence`: [`hash`](ProvenanceNode::hash)
+/// is the catalog's formula (FI-011/FI-017), the linkage that makes the log a
+/// chain; [`record_hash`](ProvenanceNode::record_hash) is the additive,
+/// domain-separated binding over `index`, `timestamp`, `prev_hash`, and the
+/// payload.
+///
+/// The node does **not** re-verify either one. It holds no payload (only
+/// [`payload_len`](ProvenanceNode::payload_len)), so it cannot recompute
+/// `record_hash`, and it keeps no predecessor beyond a hash. What carrying
+/// `record_hash` buys is *completeness and cross-checking*: a caller that
+/// still holds the `EvidenceChain` can match each node's `record_hash`
+/// against its `EvidenceRecord::record_hash` and see a mismatched or
+/// tampered projection — something the chain-less
+/// [`validate`] cannot see on its own. It is not self-verification, and is
+/// not sold as such.
+///
+/// `record_hash` deliberately does **not** carry `#[serde(default)]`. The
+/// `Serialize`/`Deserialize` derive is write-only today — nothing reads a
+/// `ProvenanceNode` back in — but should a payload ever be deserialised, a
+/// missing field must be an explicit error rather than a silently fabricated
+/// all-zero hash: explicit failure over a made-up value.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProvenanceNode {
     /// The record's position in the chain.
     pub index: u64,
 
-    /// The record's own hash, `BLAKE3(prev_hash ∥ len(payload) ∥ payload)`.
+    /// The record's own hash — the catalog formula (FI-011/FI-017),
+    /// `BLAKE3(prev_hash ∥ len(payload) ∥ payload)`. This is what the
+    /// `prev_hash` linkage runs over, so it is what makes the records a
+    /// chain.
     pub hash: ArkheHash,
+
+    /// The record's additive hash,
+    /// `BLAKE3(domain ∥ index ∥ timestamp ∥ prev_hash ∥ len(payload) ∥
+    /// payload)`, under the `arkhe-evidence/record-hash/v1` domain tag — so
+    /// it is never equal to [`hash`](ProvenanceNode::hash). It binds the
+    /// fields `hash` does not cover (`index`, `timestamp`). Carried from the
+    /// record as-is; the node cannot recompute it, since the payload is not
+    /// kept here (see the struct docs).
+    pub record_hash: ArkheHash,
 
     /// The hash this record links back to — its predecessor's
     /// [`hash`](ProvenanceNode::hash), or [`GENESIS_HASH`] for the first
@@ -169,6 +206,7 @@ pub async fn build_from_chain(
         graph.push_node(ProvenanceNode {
             index: record.index,
             hash: record.hash,
+            record_hash: record.record_hash,
             prev_hash: record.prev_hash,
             timestamp: record.timestamp,
             payload_len: record.payload.len(),
@@ -286,13 +324,15 @@ fn is_acyclic(node_count: usize, edges: &[ProvenanceEdge]) -> bool {
 mod tests {
     use super::*;
 
-    /// A node whose hash and prev_hash are, for test purposes, whatever
-    /// they are asked to be — used to assemble graphs the builder would
-    /// never produce.
-    fn node(index: u64, hash_byte: u8, prev_byte: u8) -> ProvenanceNode {
+    /// A node whose hash, prev_hash, and record_hash are, for test purposes,
+    /// whatever they are asked to be — used to assemble graphs the builder
+    /// would never produce. `record_byte` is separate from `hash_byte` so the
+    /// fixtures never conflate the two hashes.
+    fn node(index: u64, hash_byte: u8, prev_byte: u8, record_byte: u8) -> ProvenanceNode {
         ProvenanceNode {
             index,
             hash: [hash_byte; 32],
+            record_hash: [record_byte; 32],
             prev_hash: [prev_byte; 32],
             timestamp: index,
             payload_len: 8,
@@ -302,7 +342,7 @@ mod tests {
     /// A two-node graph with matching hashes and one edge between them.
     fn chained_pair() -> TypedGraph<ProvenanceNode, ProvenanceEdge> {
         TypedGraph::from_parts(
-            vec![node(0, 1, 0), node(1, 2, 1)],
+            vec![node(0, 1, 0, 9), node(1, 2, 1, 10)],
             vec![ProvenanceEdge {
                 from_index: 0,
                 to_index: 1,
@@ -361,7 +401,7 @@ mod tests {
     fn a_hand_built_graph_with_mismatched_prev_hash_is_rejected() {
         // Node 1 claims predecessor hash 9, but node 0's hash is 1.
         let graph = TypedGraph::from_parts(
-            vec![node(0, 1, 0), node(1, 2, 9)],
+            vec![node(0, 1, 0, 9), node(1, 2, 9, 11)],
             vec![ProvenanceEdge {
                 from_index: 0,
                 to_index: 1,
@@ -377,7 +417,7 @@ mod tests {
     #[test]
     fn a_first_node_not_linking_to_genesis_is_rejected() {
         let graph: TypedGraph<ProvenanceNode, ProvenanceEdge> =
-            TypedGraph::from_parts(vec![node(0, 1, 7)], Vec::new());
+            TypedGraph::from_parts(vec![node(0, 1, 7, 9)], Vec::new());
 
         assert_eq!(validate(&graph), Err(ProvenanceError::LinkBroken));
     }
@@ -385,7 +425,7 @@ mod tests {
     #[test]
     fn a_node_with_two_incoming_edges_is_rejected() {
         let graph = TypedGraph::from_parts(
-            vec![node(0, 1, 0), node(1, 2, 1), node(2, 3, 2)],
+            vec![node(0, 1, 0, 9), node(1, 2, 1, 10), node(2, 3, 2, 12)],
             vec![
                 ProvenanceEdge {
                     from_index: 0,
@@ -407,7 +447,7 @@ mod tests {
     #[test]
     fn an_edge_outside_the_graph_is_rejected() {
         let graph = TypedGraph::from_parts(
-            vec![node(0, 1, 0)],
+            vec![node(0, 1, 0, 9)],
             vec![ProvenanceEdge {
                 from_index: 0,
                 to_index: 5,
@@ -427,7 +467,7 @@ mod tests {
     #[test]
     fn a_misplaced_node_is_rejected() {
         let graph: TypedGraph<ProvenanceNode, ProvenanceEdge> =
-            TypedGraph::from_parts(vec![node(1, 1, 0)], Vec::new());
+            TypedGraph::from_parts(vec![node(1, 1, 0, 13)], Vec::new());
 
         assert_eq!(
             validate(&graph),
@@ -443,7 +483,7 @@ mod tests {
         // Two nodes whose hashes chain, but whose edges point at each
         // other — a cycle that no chain of records can produce.
         let graph = TypedGraph::from_parts(
-            vec![node(0, 1, 0), node(1, 2, 1)],
+            vec![node(0, 1, 0, 9), node(1, 2, 1, 10)],
             vec![
                 ProvenanceEdge {
                     from_index: 0,
@@ -484,5 +524,71 @@ mod tests {
                 to_index: 1,
             }]
         ));
+    }
+
+    #[tokio::test]
+    async fn build_from_chain_carries_each_records_record_hash() {
+        let chain = EvidenceChain::new();
+        chain.append(b"first".to_vec(), 100).await;
+        chain.append(b"second".to_vec(), 200).await;
+
+        let graph = build_from_chain(&chain).await.unwrap();
+
+        for position in 0..graph.node_count() {
+            let record = chain.record_at(position as u64).await.unwrap();
+            assert_eq!(
+                graph.node(position).unwrap().record_hash,
+                record.record_hash,
+                "node {position} did not carry the record's record_hash"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn a_nodes_record_hash_differs_from_its_catalog_hash() {
+        // The two hashes are domain-separated, so a node must not be
+        // carrying the same value twice under two names.
+        let chain = EvidenceChain::new();
+        chain.append(b"first".to_vec(), 100).await;
+        chain.append(b"second".to_vec(), 200).await;
+
+        let graph = build_from_chain(&chain).await.unwrap();
+
+        for position in 0..graph.node_count() {
+            let node = graph.node(position).unwrap();
+            assert_ne!(node.record_hash, node.hash);
+        }
+    }
+
+    #[tokio::test]
+    async fn a_wrong_record_hash_is_distinguished_only_by_crossing_against_the_chain() {
+        let chain = EvidenceChain::new();
+        chain.append(b"first".to_vec(), 100).await;
+        chain.append(b"second".to_vec(), 200).await;
+
+        let honest = build_from_chain(&chain).await.unwrap();
+
+        // Hand-assemble a graph identical except that node 1's record_hash is
+        // wrong. Every field `validate` looks at is untouched, so the graph
+        // still passes on its own terms...
+        let mut nodes = honest.nodes().to_vec();
+        nodes[1].record_hash = [0xEE; 32];
+        let tampered = TypedGraph::from_parts(nodes, honest.edges().to_vec());
+
+        assert_eq!(validate(&tampered), Ok(()));
+
+        // ...and only a caller that still holds the chain can tell, by
+        // crossing each node's record_hash against the record it came from.
+        // This crossing is the caller's to do with the public accessors; the
+        // graph cannot do it alone (it keeps no payload to recompute from).
+        let mut mismatches = Vec::new();
+        for (position, node) in tampered.nodes().iter().enumerate() {
+            let record = chain.record_at(position as u64).await.unwrap();
+            if node.record_hash != record.record_hash {
+                mismatches.push(node.index);
+            }
+        }
+
+        assert_eq!(mismatches, vec![1]);
     }
 }

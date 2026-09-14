@@ -65,7 +65,7 @@ that make a graph *valid* live in the modules that know what the nodes mean.
 cargo test -p arkhe-geometric-verifier
 ```
 
-37 unit tests, 6 integration tests over the public API, 7 doctests, and 7
+40 unit tests, 6 integration tests over the public API, 7 doctests, and 7
 tests in `tests/arkhe_agi_contract.rs`, which compiles the exact import block
 `arkhe-agi/src/coordinator.rs:18-23` uses and mirrors that coordinator's call
 sites — the check that the API really is the one the consumer needs, which
