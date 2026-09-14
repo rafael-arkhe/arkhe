@@ -51,3 +51,15 @@ tests/*/obj/
 
 # --- Lean toolchain (lake build artifacts) ---
 .lake/
+
+# --- ARKHE OS: arquivos seguros/identidade (nunca commitar) ---
+*.identity
+secrets/
+*.iccid.*
+
+# --- Exportacoes e artefatos grandes observados em 2026-09-14 ---
+conversations.json
+*.nc
+ixpe_data/
+*.env
+*.env
