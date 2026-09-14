@@ -60,3 +60,40 @@ Existe um kernel Rust pequeno (~1k linhas) possivelmente compilável, um conjunt
 | Amostra executada | 32 pass / 27 fail / 1 erro |
 | SDK Rust de 9 crates dos documentos | não existe em disco |
 | specs/tla/ (I9, I3) | não existe em disco |
+
+## Adendo — Correção da suíte de testes (mesmo dia)
+
+A coleta do pytest foi consertada: **1.762 testes coletados, zero erros de coleta** (antes: 1.508 coletados com 25 módulos quebrados).
+
+O que foi feito: criado o diretório `lib/` com 36 módulos (27 recuperados do archive por análise de imports dos testes, 5 recuperados de versões numeradas tipo `polynomial_arkhe_960.py`, 4 aliases); conftest.py atualizado para incluir `lib/` no sys.path; 5 testes que dependem de torch protegidos com `pytest.importorskip("torch")`; 11 testes movidos para `tests/quarantine/` porque importam módulos que não existem em lugar nenhum do repo (bindu, tanmatra, clarity_gate, arkhe_global, etc. — ver tests/quarantine/README.md); corrigidos erros de sintaxe reais em 6 módulos (f-strings com aspas aninhadas incompatíveis com Python < 3.12, strings com quebra de linha literal, BOM); test_post_cathedral_substrates.py estava truncado no meio de uma linha e foi fechado minimamente; pytest, aiohttp e scipy adicionados ao requirements.txt.
+
+Execução completa (em blocos, timeout de 5s por teste): aproximadamente **1.344 passaram, 171 falharam, ~102 erros de setup, 5 pulados**. Ou seja: a suíte agora coleta e roda, com ~76% de aprovação. Os erros de setup concentram-se em testes com dependência de ordem de import (ex.: test_orcid_onchain espera `substrate_251` no sys.path via efeito colateral de outro teste) — isso é a próxima dívida a atacar.
+
+Avisos: os arquivos `__pycache__/*.pyc` antigos dentro do repo não puderam ser removidos pelo sandbox e podem conter bytecode obsoleto — rode com `PYTHONPYCACHEPREFIX` apontando para fora do repo ou apague-os manualmente. Um teste (`test_cross_substrate.py::test_substrate_570_importable`) trava indefinidamente sem timeout — use `pytest-timeout`.
+
+## Adendo 2 — cargo check --workspace (mesmo dia)
+
+Executado com rustc/cargo 1.91.1 (pacotes Ubuntu extraídos localmente, já que rustup está bloqueado no sandbox), em cópia do workspace em /tmp, resolvendo dependências frescas do crates.io (sem Cargo.lock). Edition 2024 real, sem adaptações no código.
+
+**Resultado: 6 de 7 crates passam. O `arkhe-kernel` falha com 20 erros.**
+
+| Crate | Resultado |
+|---|---|
+| arkhe-safe-core-sdk (raiz) | ✅ passa |
+| arkhe-cli | ✅ passa |
+| arkhe-cmd (kernel/cmd/arkhe) | ✅ passa |
+| arkhe-python-bindings | ✅ passa |
+| arkhe-wasm-bindings | ✅ passa |
+| arkhe-sagemaker-proxy | ✅ passa |
+| **arkhe-kernel** | ❌ **20 erros** |
+
+Erros do arkhe-kernel, agrupados:
+
+1. **Módulos fantasma** (main.rs:27-28): `mod orbital_mesh;` e `mod watchdog;` declarados, mas os arquivos nunca foram escritos — não existem nem no repo nem no archive. Mesmo padrão dos testes Python quarentenados.
+2. **no_std num binário comum** (main.rs:15-16): `#![feature]` exige nightly (E0554); `Vec` não existe sem `extern crate alloc` (6 erros E0412/E0433); "unwinding panics are not supported without std" exige `panic = "abort"`. O main.rs foi escrito como kernel bare-metal, mas o Cargo.toml o trata como binário normal.
+3. **Dependência não declarada**: `use sha3` em 3 arquivos, mas `sha3` não está no `[dependencies]` do kernel/Cargo.toml.
+4. **Erros de tipo reais**: `AtomicU64: Clone` (temporal_chain.rs:25,28), `Copy` inválido em `GradientEntry` (qip_engine.rs:33), move de referência compartilhada (qart_engine.rs:67), tipo incompatível (qart_engine.rs:47), atributo unsafe sem `unsafe` (main.rs:87 — exigência da edition 2024).
+
+Correção estimada: os itens 1 e 3 são triviais (criar stubs dos módulos ou remover as declarações; adicionar sha3 ao Cargo.toml). O item 2 é uma decisão de design: ou o kernel é no_std de verdade (precisa de target e panic handler adequados) ou vira um binário std normal (remover os atributos). O item 4 é trabalho de correção normal, bem localizado.
+
+Observação: o `[[bench]] phi_c_compute` declarado no Cargo.toml da raiz aponta para `benches/phi_c_compute.rs`, que existe — ok. O Cargo.lock atual do repo não foi validado (a verificação regenerou o lock); rode `cargo check --locked` na sua máquina para validá-lo.

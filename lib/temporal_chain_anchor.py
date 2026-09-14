@@ -114,4 +114,4 @@ class TemporalChainAnchor:
 
     def generate_report(self) -> str:
         s = self.get_chain_summary()
-        re
+        return f"923-TEMPORAL-ANCHOR\nBlocks: {s['length']}\nAnchors: {s['anchors_count']}\nVerify Key: {s['verify_key'][:16]}..."
