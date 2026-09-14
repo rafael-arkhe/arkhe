@@ -63,3 +63,19 @@ conversations.json
 ixpe_data/
 *.env
 *.env
+
+# --- terceiros e arvores vendorizadas (triagem 2026-09-14) ---
+driver-core/
+scaling/
+third_party/
+
+# --- saida de build de contratos (Forge / Hardhat) ---
+*/out/
+*/cache/
+*/artifacts/
+*/broadcast/
+build_484/
+
+# --- artefatos de fabricacao ---
+*.gcode
+*.stl
