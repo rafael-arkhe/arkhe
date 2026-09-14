@@ -10,7 +10,13 @@ impl Default for ValidationDetector {
 impl ValidationDetector {
     pub fn new() -> Self {
         Self {
-            patterns: [r"verifiquei que .+", r"confirme que .+", r"valide que .+", r"assegure que .+"]
+            patterns: [
+                r"(?i)verifi(?:quei|cado|ca(?:mos)?) que .+",
+                r"(?i)confirm(?:ei|ado|e|amos) que .+",
+                r"(?i)valid(?:ei|ado|e|amos) que .+",
+                r"(?i)assegur(?:ei|ado|e|amos) que .+",
+                r"(?i)test(?:ei|ado|amos) (?:que|e) .+",
+            ]
                 .iter().filter_map(|p| Regex::new(p).ok()).collect(),
         }
     }

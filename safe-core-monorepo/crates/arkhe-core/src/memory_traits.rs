@@ -78,3 +78,39 @@ impl AgentMemory for InMemoryAgentMemory {
         results.into_iter().cloned().collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn entry(key: &str, value: &str, score: f32) -> MemoryEntry {
+        MemoryEntry {
+            key: key.to_string(),
+            value: value.to_string(),
+            score,
+            layer: MemoryLayer::Working,
+            timestamp: Utc::now(),
+        }
+    }
+
+    #[tokio::test]
+    async fn store_then_get_roundtrips() {
+        let mem = InMemoryAgentMemory::new();
+        mem.store(entry("k1", "hello world", 0.9)).await.unwrap();
+        let got = mem.get("k1").await.expect("present");
+        assert_eq!(got.value, "hello world");
+        assert!(mem.get("missing").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn search_filters_by_value_and_respects_limit() {
+        let mem = InMemoryAgentMemory::new();
+        mem.store(entry("a", "climate data east africa", 0.5)).await.unwrap();
+        mem.store(entry("b", "climate model output", 0.9)).await.unwrap();
+        mem.store(entry("c", "unrelated note", 0.1)).await.unwrap();
+        let hits = mem.search("climate", 10).await;
+        assert_eq!(hits.len(), 2);
+        assert!(hits[0].score >= hits[1].score);
+        assert_eq!(mem.search("climate", 1).await.len(), 1);
+    }
+}

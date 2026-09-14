@@ -42,3 +42,33 @@ cargo check --workspace     # requer rustc >= 1.85 (usei 1.91)
 ```
 
 Veredito: dos ~41 crates que o documento apresentava como "completos e verificados", **15 realmente compilam** após correções pontuais. É um núcleo real e aproveitável — o resto precisa do mesmo tratamento, um por um.
+
+## Atualização — 2026-07-13
+
+A contagem acima ("15 crates") está desatualizada: commits posteriores
+("Onda 1-4") já haviam elevado o workspace para ~30 membros antes desta
+sessão (arkhe-evidence, arkhe-network, arkhe-reasoning, arkhe-storage,
+arkhe-nostr-anchor, arkhe-blossom, arkhe-web-gateway, arkhe-agent-vm,
+arkhe-rsi/-core, arkhe-web3-security, arkhe-crypto-pqc, arkhe-pqc-core,
+entre outros) — nenhum desses foi reauditado aqui, apenas confirmado que
+`cargo build --workspace` continua limpo.
+
+Esta sessão adicionou dois membros novos, ambos com `cargo test` real e
+verificação manual (não apenas `cargo build`):
+
+- **`arkhe-geometric-verifier`** (FI-120–FI-125): GeometricVerifier +
+  4 grafos tipados (proveniência, ontologia, memória, invariantes).
+  30/30 testes passam. Ver `crates/arkhe-geometric-verifier/README.md`.
+- **`arkhe-mcp-server`**: servidor MCP real sobre stdio (rmcp v2.2.0,
+  resolvido do crates.io), expondo `AgiCoordinator` e `GeometricVerifier`
+  como tools. Testado manualmente com JSON-RPC real (`initialize`,
+  `process_turn`, `geometric_verify`, `stats`, `provenance_summary`) —
+  transcript real em `crates/arkhe-mcp-server/README.md`. Roda sobre
+  `AlwaysAllowVerifier`/`InMemoryAgentMemory`/`NullEngine` (stack de
+  dev/teste, sem LLM de produção por trás ainda).
+
+Total atual: **31 membros no workspace** (contagem exata de entradas
+`"crates/..."` no array `members` do `Cargo.toml` raiz). Uma reauditoria
+completa dos ~16 membros adicionados entre 2026-07-04 e esta sessão ainda
+não foi feita — este parágrafo documenta apenas o que foi verificado
+agora, não reafirma o que não foi reconferido.

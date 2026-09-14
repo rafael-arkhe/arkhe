@@ -89,3 +89,53 @@ impl ModelRegistry {
 impl Default for ModelRegistry {
     fn default() -> Self { Self::new() }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn entry(family: &str, name: &str, backend: BackendType) -> ModelEntry {
+        ModelEntry {
+            id: ModelId::new(family, name),
+            backend,
+            capabilities: ModelCapabilities::default(),
+            license: ModelLicense { name: "MIT".into(), commercial_use: true },
+            path: None,
+        }
+    }
+
+    #[test]
+    fn model_id_accessors_and_formatting() {
+        let m = ModelId::new("llama", "3-8b");
+        assert_eq!(m.family(), "llama");
+        assert_eq!(m.name(), "3-8b");
+        assert_eq!(m.as_str(), "llama/3-8b");
+        assert_eq!(format!("{m}"), "llama/3-8b");
+    }
+
+    #[test]
+    fn model_id_equality_and_hash_key() {
+        use std::collections::HashSet;
+        let a = ModelId::new("f", "n");
+        let b = ModelId::new("f", "n");
+        let c = ModelId::new("f", "other");
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+        let mut s = HashSet::new();
+        s.insert(a);
+        assert!(s.contains(&b));
+    }
+
+    #[test]
+    fn registry_register_get_and_filter_by_backend() {
+        let mut reg = ModelRegistry::new();
+        reg.register(entry("llama", "3-8b", BackendType::Candle));
+        reg.register(entry("mistral", "7b", BackendType::MistralRs));
+        assert_eq!(reg.list().len(), 2);
+        assert!(reg.get(&ModelId::new("llama", "3-8b")).is_some());
+        assert!(reg.get(&ModelId::new("nope", "x")).is_none());
+        let candle = reg.find_by_backend(BackendType::Candle);
+        assert_eq!(candle.len(), 1);
+        assert_eq!(candle[0].id.name(), "3-8b");
+    }
+}

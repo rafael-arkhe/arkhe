@@ -220,3 +220,32 @@ impl std::fmt::Display for FinishReason {
         }
     }
 }
+
+#[cfg(test)]
+mod token_usage_tests {
+    use super::*;
+
+    #[test]
+    fn new_sums_total() {
+        let u = TokenUsage::new(30, 12);
+        assert_eq!(u.total_tokens, 42);
+        assert!(!u.is_zero());
+    }
+
+    #[test]
+    fn default_is_zero_and_add_accumulates() {
+        let z = TokenUsage::default();
+        assert!(z.is_zero());
+        let a = TokenUsage::new(10, 5);
+        let b = TokenUsage::new(1, 2);
+        let s = a.add(&b);
+        assert_eq!(s.prompt_tokens, 11);
+        assert_eq!(s.completion_tokens, 7);
+        assert_eq!(s.total_tokens, 18);
+    }
+
+    #[test]
+    fn display_format_is_stable() {
+        assert_eq!(format!("{}", TokenUsage::new(3, 4)), "3+4=7");
+    }
+}

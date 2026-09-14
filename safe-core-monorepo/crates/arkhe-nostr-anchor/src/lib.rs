@@ -55,6 +55,9 @@ pub enum NostrAnchorError {
     /// `sig` does not verify against `id` under `pubkey`.
     #[error("signature does not verify")]
     SignatureInvalid,
+    /// The 32 secret-key bytes are not a valid secp256k1 scalar.
+    #[error("invalid secret key")]
+    InvalidSecretKey,
 }
 
 /// A real secp256k1/BIP-340 Nostr identity keypair.
@@ -66,6 +69,16 @@ impl NostrIdentity {
     /// Generates a fresh Nostr identity keypair.
     pub fn generate() -> Self {
         Self { signing_key: SigningKey::random(&mut rand::thread_rng()) }
+    }
+
+    /// Loads a persistent identity from 32 secret-key bytes (BIP-340 / x-only
+    /// secp256k1). Enables a stable signing identity across process runs (e.g.
+    /// a CI attestor key), rather than the ephemeral key [`generate`] returns.
+    /// The same bytes always yield the same [`pubkey_hex`].
+    pub fn from_bytes(secret: &[u8; 32]) -> Result<Self, NostrAnchorError> {
+        let signing_key =
+            SigningKey::from_bytes(secret).map_err(|_| NostrAnchorError::InvalidSecretKey)?;
+        Ok(Self { signing_key })
     }
 
     /// The 32-byte x-only public key, hex-encoded — the `pubkey` field of
@@ -106,6 +119,26 @@ pub struct NostrEvent {
     pub content: String,
     /// 64-byte BIP-340 Schnorr signature over `id`.
     pub sig: [u8; 64],
+}
+
+impl NostrEvent {
+    /// Serializes to the standard NIP-01 relay JSON object:
+    /// `{"id","pubkey","created_at","kind","tags","content","sig"}`, with
+    /// `id` and `sig` lowercase-hex. This is the exact shape a relay expects
+    /// in an `["EVENT", …]` message; publishing it is a separate transport
+    /// concern this crate deliberately does not implement.
+    pub fn to_nip01_json(&self) -> String {
+        let value = serde_json::json!({
+            "id": hex::encode(self.id),
+            "pubkey": self.pubkey,
+            "created_at": self.created_at,
+            "kind": self.kind,
+            "tags": self.tags,
+            "content": self.content,
+            "sig": hex::encode(self.sig),
+        });
+        serde_json::to_string(&value).expect("NostrEvent is plain data; serialization cannot fail")
+    }
 }
 
 #[derive(Serialize)]
@@ -219,6 +252,39 @@ mod tests {
         // hash, or signature invalid; either is a correct rejection).
         event.pubkey = identity_b.pubkey_hex();
         assert!(verify_root_event(&event).is_err());
+    }
+
+    #[test]
+    fn from_bytes_is_deterministic_and_signs_verifiably() {
+        let secret = [7u8; 32];
+        let a = NostrIdentity::from_bytes(&secret).unwrap();
+        let b = NostrIdentity::from_bytes(&secret).unwrap();
+        // Same bytes -> same identity.
+        assert_eq!(a.pubkey_hex(), b.pubkey_hex());
+        // And it produces real, verifiable events.
+        let event = a.sign_event(1_720_000_000, 30000, vec![], "hi".to_string());
+        assert!(verify_event(&event).is_ok());
+    }
+
+    #[test]
+    fn from_bytes_rejects_invalid_scalar() {
+        // All-zero bytes are not a valid secp256k1 secret key.
+        assert!(matches!(
+            NostrIdentity::from_bytes(&[0u8; 32]),
+            Err(NostrAnchorError::InvalidSecretKey)
+        ));
+    }
+
+    #[test]
+    fn nip01_json_has_hex_id_and_sig_and_roundtrips_id() {
+        let identity = NostrIdentity::generate();
+        let event = identity.sign_event(1_720_000_000, 30079, vec![vec!["d".into(), "x".into()]], "c".into());
+        let json = event.to_nip01_json();
+        let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed["id"].as_str().unwrap(), hex::encode(event.id));
+        assert_eq!(parsed["sig"].as_str().unwrap().len(), 128); // 64 bytes hex
+        assert_eq!(parsed["pubkey"].as_str().unwrap(), event.pubkey);
+        assert_eq!(parsed["kind"].as_u64().unwrap(), 30079);
     }
 
     #[test]

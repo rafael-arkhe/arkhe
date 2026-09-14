@@ -40,10 +40,10 @@ impl PromptInjectionDetector {
             // Many-shot patterns (C2.1.8)
             InjectionPattern { regex: Regex::new(r"(?i)(user|human|assistant):\s*.*\n(user|human|assistant):\s*.*\n").unwrap(), weight: 0.8, description: "many-shot exchange" },
             // Direct override attempts
-            InjectionPattern { regex: Regex::new(r"(?i)(ignore|disregard|forget|override)\s+(previous|all|above|prior)\s+(instructions?|directives?|rules?)").unwrap(), weight: 0.9, description: "instruction override" },
+            InjectionPattern { regex: Regex::new(r"(?i)(ignore|disregard|forget|override)\s+(?:all\s+|any\s+)?(?:previous\s+|above\s+|prior\s+|earlier\s+|the\s+)*(instructions?|directives?|rules?|prompts?)").unwrap(), weight: 0.9, description: "instruction override" },
             InjectionPattern { regex: Regex::new(r"(?i)(you are now|act as|pretend you are|pretend to be)\s+").unwrap(), weight: 0.85, description: "role play" },
             InjectionPattern { regex: Regex::new(r"(?i)(developer mode|debug mode|admin mode|unsafe mode)").unwrap(), weight: 0.9, description: "privilege escalation" },
-            InjectionPattern { regex: Regex::new(r"(?i)(system prompt:|developer instruction:|original instructions:)").unwrap(), weight: 0.95, description: "prompt leak extraction" },
+            InjectionPattern { regex: Regex::new(r"(?i)(system prompt|developer instruction|original instructions|reveal your prompt|show your prompt)").unwrap(), weight: 0.95, description: "prompt leak extraction" },
             // Encoding smuggling (C2.1.2)
             InjectionPattern { regex: Regex::new(r"(?i)\\[INST\]|\[\\/\*INST\*\\]").unwrap(), weight: 0.7, description: "special token encoding" },
             InjectionPattern { regex: Regex::new(r"(?i)\\<\|[^|]*\|>").unwrap(), weight: 0.7, description: "Llama special token" },
@@ -72,11 +72,24 @@ impl PromptInjectionDetector {
         let asst_count = text_lower.matches("assistant:").count();
         let exchanges = user_count.min(asst_count);
         if exchanges > 10 {
+            score += 1.0;
+            matches.push(format!("{} many-shot exchanges", exchanges));
+        } else if exchanges > 5 {
             score += 0.5;
             matches.push(format!("{} many-shot exchanges", exchanges));
         }
         if exchanges > 5 {
             warnings.push(format!("{} many-shot exchanges", exchanges));
+        }
+
+        // Heurística: falsa referência a contexto anterior (sinal fraco de injeção).
+        let weak_signals = [
+            "as i mentioned", "as we discussed", "as agreed", "as stated earlier",
+            "as mentioned earlier", "like i said", "as you know",
+        ];
+        if weak_signals.iter().any(|p| text_lower.contains(p)) {
+            score += 0.5;
+            matches.push("false prior-context reference".to_string());
         }
 
         // Heurística: self-descriptive content

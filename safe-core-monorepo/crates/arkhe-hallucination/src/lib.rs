@@ -75,12 +75,18 @@ impl HallucinationDetector {
         context: &str,
         _temperature: f32,
     ) -> HallucinationResult {
+        // Stopwords triviais não devem contar como sobreposição semântica.
+        const STOPWORDS: &[&str] = &[
+            "the", "a", "an", "is", "are", "was", "were", "be", "been", "of",
+            "to", "in", "on", "and", "or", "that", "it", "as", "for", "with",
+        ];
+        let is_content = |w: &&str| !STOPWORDS.contains(&w.to_lowercase().as_str());
         let response_words: std::collections::HashSet<&str> =
-            response.split_whitespace().collect();
+            response.split_whitespace().filter(is_content).collect();
         let context_words: std::collections::HashSet<&str> =
-            context.split_whitespace().collect();
+            context.split_whitespace().filter(is_content).collect();
 
-        // Overlap: quantas palavras da resposta aparecem no contexto
+        // Overlap: fração de palavras de conteúdo da resposta presentes no contexto.
         let overlap: f32 = response_words
             .intersection(&context_words)
             .count() as f32
@@ -137,5 +143,18 @@ mod tests {
             0.7,
         );
         assert!(result.is_hallucination);
+    }
+
+    #[test]
+    fn stopwords_alone_do_not_create_false_overlap() {
+        // Resposta que só compartilha stopwords com o contexto => alucinação.
+        let detector = HallucinationDetector::new(0.5);
+        let result = detector.detect(
+            "the cat is on the mat",
+            "a hash function is fast",
+            0.7,
+        );
+        assert!(result.is_hallucination);
+        assert!(result.confidence.score < 0.5);
     }
 }

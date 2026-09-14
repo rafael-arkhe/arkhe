@@ -97,3 +97,54 @@ impl Bom {
 }
 
 impl Default for Bom { fn default() -> Self { Self::new() } }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn comp(name: &str, hashes: Vec<HashEntry>) -> Component {
+        Component {
+            name: name.to_string(),
+            version: "1.0.0".to_string(),
+            component_type: ComponentType::Model,
+            purl: None,
+            hashes,
+            licenses: Vec::new(),
+            properties: HashMap::new(),
+        }
+    }
+
+    #[test]
+    fn new_bom_is_cyclonedx_and_empty() {
+        let b = Bom::new();
+        assert_eq!(b.bom_format, "CycloneDX");
+        assert_eq!(b.spec_version, "1.6");
+        assert!(b.serial_number.starts_with("urn:uuid:"));
+        assert!(b.components.is_empty());
+        assert_eq!(b.metadata.tools.len(), 1);
+    }
+
+    #[test]
+    fn verify_integrity_flags_components_without_hashes() {
+        let mut b = Bom::new();
+        b.add_component(comp("no-hash-model", vec![]));
+        b.add_component(comp(
+            "hashed-model",
+            vec![HashEntry { alg: "BLAKE3".into(), content: "abc123".into() }],
+        ));
+        let issues = b.verify_integrity();
+        assert_eq!(issues.len(), 1);
+        assert!(issues[0].contains("no-hash-model"));
+    }
+
+    #[test]
+    fn to_json_serializes_expected_shape() {
+        let mut b = Bom::new();
+        b.add_component(comp("m", vec![HashEntry { alg: "BLAKE3".into(), content: "x".into() }]));
+        let json = b.to_json().expect("serializes");
+        assert!(json.contains("\"bomFormat\""));
+        assert!(json.contains("CycloneDX"));
+        let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed["components"].as_array().unwrap().len(), 1);
+    }
+}
