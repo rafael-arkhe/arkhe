@@ -1,0 +1,33 @@
+========================================================================
+STRESS-TEST: does the interference term EVER separate from baseline?
+param-matched, same init per seed | steps=1500 seeds=[0, 1, 2, 3]
+========================================================================
+
+--- R0  MUL d=32, attention TRAINED (reference) ---
+    (d=32, markers=2, freeze_attn=False, params=7457)
+    baseline    : test MSE = 0.0174 +/- 0.0070   R^2 = 0.982 +/- 0.007
+    interference: test MSE = 0.0131 +/- 0.0060   R^2 = 0.987 +/- 0.007
+    => MSE change (interf vs base): +24.7%   [TIE (within noise)]
+
+--- Ra  MUL d=32, attention FROZEN at init ---
+    (d=32, markers=2, freeze_attn=True, params=7457)
+    baseline    : test MSE = 0.0273 +/- 0.0114   R^2 = 0.973 +/- 0.011
+    interference: test MSE = 0.0234 +/- 0.0087   R^2 = 0.976 +/- 0.010
+    => MSE change (interf vs base): +14.2%   [TIE (within noise)]
+
+--- Rb  MUL3 y=a_p*a_q*a_r, d=32, 3 markers, attention trained ---
+    (d=32, markers=3, freeze_attn=False, params=7457)
+    baseline    : test MSE = 0.1395 +/- 0.0494   R^2 = 0.864 +/- 0.044
+    interference: test MSE = 0.0664 +/- 0.0169   R^2 = 0.935 +/- 0.015
+    => MSE change (interf vs base): +52.4%   [interference BETTER]
+
+--- Rc  MUL d=8 (tight capacity), attention trained ---
+    (d=8, markers=2, freeze_attn=False, params=521)
+    baseline    : test MSE = 0.0538 +/- 0.0119   R^2 = 0.946 +/- 0.012
+    interference: test MSE = 0.0489 +/- 0.0127   R^2 = 0.951 +/- 0.012
+    => MSE change (interf vs base): +9.1%   [TIE (within noise)]
+
+========================================================================
+Read: 'interference BETTER' on any regime = a real, specific win.
+All TIE/baseline = the second-order term adds no measurable capability.
+========================================================================

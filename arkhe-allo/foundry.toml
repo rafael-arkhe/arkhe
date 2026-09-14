@@ -1,0 +1,11 @@
+[profile.default]
+src = "src"
+test = "test"
+out = "out"
+libs = []
+auto_detect_solc = false
+solc = "0.8.24"
+# Self-contained: OZ 5.x vendored under lib/ (no external node_modules / network).
+remappings = [
+    "@openzeppelin/=lib/@openzeppelin/",
+]

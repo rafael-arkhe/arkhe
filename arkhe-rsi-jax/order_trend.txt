@@ -1,0 +1,4 @@
+order | baseline MSE       | interference MSE   | reduction | separated?
+2-way | 0.0113 +/- 0.0080 | 0.0093 +/- 0.0058 | +17.1%    | no (overlap)
+3-way | 0.1031 +/- 0.0521 | 0.0659 +/- 0.0322 | +36.1%    | no (overlap)
+4-way | 0.8124 +/- 0.1661 | 0.8220 +/- 0.1918 | -1.2%    | no (overlap)

@@ -1,0 +1,19 @@
+# Standalone crate — not part of the repo-root workspace.
+[workspace]
+
+[package]
+name = "arkhe-soc-tlm"
+version = "0.1.0"
+edition = "2021"
+description = "Transaction-level golden model for the Arkhe SoC: AOTB payload, SRAM D/X, QPL, and the Smith-chart CORDIC (bit-matched to arkhe-soc-rtl)"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+ed25519-dalek = "2.2"
+sha2 = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[bin]]
+name = "arkhe-soc-bench"
+path = "src/main.rs"

@@ -1,0 +1,24 @@
+name = "llm_agi"
+defaultTargets = ["LLM", "AGI", "Percolation"]
+
+# Mathlib pinned to the release tag matching lean-toolchain (v4.32.0), so
+# `lake exe cache get` can fetch prebuilt oleans instead of building Mathlib
+# from source. These files formalize LLM/AGI geometry over ℝ (Mathlib reals),
+# so the algebraic theorems are genuinely provable — defs are `noncomputable`.
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.32.0"
+
+[[lean_lib]]
+name = "Boundary"
+
+[[lean_lib]]
+name = "LLM"
+
+[[lean_lib]]
+name = "AGI"
+
+[[lean_lib]]
+name = "Percolation"

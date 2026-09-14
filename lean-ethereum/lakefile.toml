@@ -1,0 +1,8 @@
+name = "ethereum_lean"
+defaultTargets = ["Ethereum"]
+
+# std-only: no Mathlib dependency, so `lake build` needs no network and
+# type-checks with just the pinned Lean toolchain (see lean-toolchain).
+
+[[lean_lib]]
+name = "Ethereum"

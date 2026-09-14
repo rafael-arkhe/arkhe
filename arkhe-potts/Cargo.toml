@@ -1,0 +1,11 @@
+[package]
+name = "arkhe-potts"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Potts-model energy, exact partition/probability, and MAP inference (exact brute-force oracle + Iterated Conditional Modes heuristic) with hard constraints. The EffieDes-style sequence design core, done for real: the energy actually depends on the configuration, and the heuristic is checked against exhaustive ground truth."
+
+# Detach from any parent workspace so this builds standalone.
+[workspace]
+
+[dependencies]
