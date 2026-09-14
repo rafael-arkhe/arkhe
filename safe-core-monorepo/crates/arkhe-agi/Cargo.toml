@@ -9,6 +9,9 @@ arkhe-core = { path = "../arkhe-core" }
 arkhe-inference = { path = "../arkhe-inference" }
 arkhe-session-evaluator = { path = "../arkhe-session-evaluator" }
 arkhe-reflector-agent = { path = "../arkhe-reflector-agent" }
+arkhe-geometric-verifier = { path = "../arkhe-geometric-verifier" }
+arkhe-evidence = { path = "../arkhe-evidence" }
+arkhe-orcid = { path = "../arkhe-orcid" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
@@ -17,6 +20,8 @@ tokio = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
+reqwest = { version = "0.13.4", default-features = false, features = ["json", "rustls"] }
 
 [dev-dependencies]
+mockito = "1.7.2"
 tokio = { workspace = true, features = ["full"] }

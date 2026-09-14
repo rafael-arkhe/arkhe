@@ -1,0 +1,21 @@
+[package]
+name = "arkhe-geometric-verifier"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "FI-120–FI-125 — canonicalize -> BLAKE3 -> invariant checks over a turn, plus the typed provenance and memory graphs built from it"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+arkhe-core = { path = "../arkhe-core" }
+arkhe-evidence = { path = "../arkhe-evidence" }
+serde = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+arkhe-orcid = { path = "../arkhe-orcid" }
+chrono = { workspace = true }
+mockito = "1.7.2"
+tokio = { workspace = true, features = ["rt", "macros", "sync"] }

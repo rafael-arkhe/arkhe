@@ -9,6 +9,9 @@
 //!   derivation of a usable symmetric key from the shared secret.
 //! - [`context`] — FI-004: context-bound signing (`sign(msg, context)`
 //!   where `context = hash(domain, timestamp, nonce, policy_version)`).
+//! - [`chk`] — Content-Hash Key (convergent) symmetric encryption
+//!   (BLAKE3 content-hash + HKDF-SHA256 + XChaCha20-Poly1305). Orthogonal to
+//!   the KEM/signature modules; enables content-addressed, deduplicable blobs.
 //!
 //! Uses the pure-Rust `fips204`/`fips203` crates (no C toolchain dependency),
 //! whose module names (`ml_dsa_65`, `ml_kem_1024`) match the FIPS-final
@@ -16,10 +19,12 @@
 
 #![deny(unsafe_code)]
 
+pub mod chk;
 pub mod context;
 pub mod kem;
 pub mod signature;
 
+pub use chk::{chk_decrypt, chk_encrypt, chk_verify, ChkEncrypted, ChkError};
 pub use context::{sign_with_context, verify_with_context, SigningContext};
 pub use kem::{
     encaps_key_from_bytes, generate_kem_keypair, kem_decapsulate, kem_encapsulate, KemError,
