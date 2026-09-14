@@ -1,0 +1,29 @@
+[Unit]
+Description=Catedral OS v304.0 — Orquestrador Principal
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=notify
+User=catedral
+Group=catedral
+WorkingDirectory=/opt/catedral-os
+ExecStart=/opt/catedral-os/venv/bin/python /opt/catedral-os/python/orquestrador_v304.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+WatchdogSec=30
+Environment=NODE_ID=no-alfa
+Environment=PEERS=no-beta,no-gama
+Environment=RUST_LOG=info
+Environment=PYTHONUNBUFFERED=1
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+ReadWritePaths=/var/lib/catedral /var/log/catedral
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

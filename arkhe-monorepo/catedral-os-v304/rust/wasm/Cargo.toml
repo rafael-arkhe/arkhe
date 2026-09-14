@@ -1,0 +1,15 @@
+[package]
+name = "catedral-wasm"
+version = "0.304.0"
+edition = "2021"
+description = "Catedral OS v304.0 — Sandbox WASM para contratos de coerência (I361)"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+wasmtime = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+wat = "1.0"

@@ -1,0 +1,22 @@
+[Unit]
+Description=Catedral OS v304.0 — Zeno Veto Daemon
+After=catedral-orquestrador.service
+Requires=catedral-orquestrador.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=catedral
+Group=catedral
+WorkingDirectory=/opt/catedral-os
+ExecStart=/opt/catedral-os/venv/bin/python -c "from daemons.zeno import ZenoDaemon; import asyncio; asyncio.run(ZenoDaemon().serve())"
+Restart=on-failure
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

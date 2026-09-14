@@ -1,0 +1,25 @@
+[Unit]
+Description=Catedral OS Orchestrator v304.0
+After=network.target
+Wants=network.target
+
+[Service]
+Type=notify
+User=arkhe
+Group=arkhe
+ExecStart=/arkhe/venv/bin/python3 /opt/catedral-os/python/orquestrador_v304.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+WatchdogSec=30
+Environment=RUST_LOG=info
+Environment=NODE_ID=1
+Environment=PEERS=2,3
+WorkingDirectory=/opt/catedral-os
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=catedral-orchestrator
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+[package]
+name = "catedral-zk"
+version = "0.304.0"
+edition = "2021"
+description = "Catedral OS v304.0 — Pool de provadores ZK com escalabilidade linear (I359)"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[features]
+default = ["sim"]
+sim = []
+nexus = []

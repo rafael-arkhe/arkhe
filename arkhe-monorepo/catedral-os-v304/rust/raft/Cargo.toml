@@ -1,0 +1,29 @@
+[package]
+name = "catedral-raft"
+version = "0.304.0"
+edition = "2021"
+description = "Catedral OS v304.0 — Núcleo de consenso Raft com persistência e snapshots"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+async-raft = "0.6"
+anyhow = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+sled = { workspace = true }
+flate2 = { workspace = true }
+
+[features]
+default = ["sled-backend"]
+sled-backend = []
+rocksdb-backend = ["dep:rocksdb"]
+
+[dependencies.rocksdb]
+workspace = true
+optional = true

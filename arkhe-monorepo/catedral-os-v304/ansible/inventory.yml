@@ -1,0 +1,19 @@
+---
+catedral:
+  hosts:
+    no-alfa:
+      ansible_host: 192.168.1.10
+      node_role: leader
+    no-beta:
+      ansible_host: 192.168.1.11
+      node_role: follower
+    no-gama:
+      ansible_host: 192.168.1.12
+      node_role: follower
+  vars:
+    ansible_user: catedral
+    ansible_python_interpreter: /opt/catedral-os/venv/bin/python3
+    catedral_version: "304.0"
+    catedral_install_dir: /opt/catedral-os
+    catedral_data_dir: /var/lib/catedral
+    catedral_log_dir: /var/log/catedral

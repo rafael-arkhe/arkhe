@@ -1,0 +1,20 @@
+[Unit]
+Description=Catedral OS Zeno Daemon
+After=catedral-orquestrador.service
+Wants=catedral-orquestrador.service
+
+[Service]
+Type=simple
+User=arkhe
+Group=arkhe
+ExecStart=/arkhe/venv/bin/python3 /opt/catedral-os/python/daemons/zeno.py
+Restart=on-failure
+RestartSec=3
+Environment=PYTHONPATH=/opt/catedral-os/python
+WorkingDirectory=/opt/catedral-os/python
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=catedral-zeno
+
+[Install]
+WantedBy=multi-user.target

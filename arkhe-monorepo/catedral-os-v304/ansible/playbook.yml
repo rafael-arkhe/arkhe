@@ -1,0 +1,111 @@
+---
+- name: Catedral OS v304.0 — Deploy
+  hosts: catedral
+  become: true
+  vars:
+    catedral_version: "304.0"
+    catedral_install_dir: /opt/catedral-os
+    catedral_data_dir: /var/lib/catedral
+    catedral_log_dir: /var/log/catedral
+    catedral_user: catedral
+    catedral_group: catedral
+
+  tasks:
+    - name: Create catedral user
+      user:
+        name: "{{ catedral_user }}"
+        system: true
+        shell: /bin/bash
+        home: "{{ catedral_install_dir }}"
+        create_home: false
+
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ catedral_user }}"
+        group: "{{ catedral_group }}"
+        mode: "0755"
+      loop:
+        - "{{ catedral_install_dir }}"
+        - "{{ catedral_install_dir }}/bin"
+        - "{{ catedral_install_dir }}/python"
+        - "{{ catedral_install_dir }}/python/daemons"
+        - "{{ catedral_install_dir }}/config"
+        - "{{ catedral_data_dir }}"
+        - "{{ catedral_log_dir }}"
+        - "{{ catedral_data_dir }}/raft"
+
+    - name: Create Python venv
+      command: python3 -m venv {{ catedral_install_dir }}/venv
+      args:
+        creates: "{{ catedral_install_dir }}/venv/bin/python"
+
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ catedral_install_dir }}/python/requirements.txt"
+        virtualenv: "{{ catedral_install_dir }}/venv"
+
+    - name: Copy orchestrator
+      copy:
+        src: "../python/orquestrador_v304.py"
+        dest: "{{ catedral_install_dir }}/python/orquestrador_v304.py"
+        owner: "{{ catedral_user }}"
+        mode: "0755"
+
+    - name: Copy daemons
+      copy:
+        src: "../python/daemons/{{ item }}"
+        dest: "{{ catedral_install_dir }}/python/daemons/{{ item }}"
+        owner: "{{ catedral_user }}"
+        mode: "0644"
+      loop:
+        - "__init__.py"
+        - "decisor.py"
+        - "zeno.py"
+        - "coherence.py"
+
+    - name: Copy configuration
+      copy:
+        src: "../config/production.yaml"
+        dest: "{{ catedral_install_dir }}/config/production.yaml"
+        owner: "{{ catedral_user }}"
+        mode: "0640"
+
+    - name: Copy systemd units
+      copy:
+        src: "../systemd/{{ item }}"
+        dest: "/etc/systemd/system/{{ item }}"
+        mode: "0644"
+      loop:
+        - "catedral-orquestrador.service"
+        - "catedral-decisor.service"
+        - "catedral-zeno.service"
+
+    - name: Reload systemd
+      systemd:
+        daemon_reload: true
+
+    - name: Enable and start services
+      systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop:
+        - catedral-orquestrador.service
+        - catedral-decisor.service
+        - catedral-zeno.service
+
+    - name: Verify health
+      uri:
+        url: "http://localhost:9090/metrics"
+        return_content: true
+      register: metrics_response
+      until: metrics_response.status == 200
+      retries: 5
+      delay: 2
+
+    - name: Run healthcheck
+      script: ../scripts/healthcheck.sh
+      register: healthcheck_result
+      changed_when: false

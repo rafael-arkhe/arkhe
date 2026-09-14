@@ -1,0 +1,28 @@
+[workspace]
+members = [
+    "raft",
+    "zk",
+    "hardware",
+    "wasm",
+]
+resolver = "2"
+default-members = ["raft", "zk", "hardware", "wasm"]
+
+[workspace.dependencies]
+tokio = { version = "1.37", features = ["full", "tracing", "signal"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+anyhow = "1.0"
+async-trait = "0.1"
+thiserror = "1.0"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+async-raft = "0.6.1"
+rocksdb = { version = "0.21", features = ["zstd"] }
+sled = "0.34"
+flate2 = "1.0"
+wasmtime = "19.0"
+reqwest = { version = "0.11", features = ["json"] }
+serialport = "4.3"
+btle = "0.1"

@@ -1,0 +1,30 @@
+[workspace]
+members = [
+    "raft",
+    "zk",
+    "hardware",
+    "wasm"
+]
+resolver = "2"
+
+[workspace.dependencies]
+tokio = { version = "1.37", features = ["full", "tracing"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+anyhow = "1.0"
+async-trait = "0.1"
+thiserror = "1.0"
+rocksdb = "0.21"
+flate2 = "1.0"
+nexus-zkvm = { git = "https://github.com/nexus-xyz/nexus-zkvm", branch = "main" }
+wasmtime = "19.0"
+reqwest = { version = "0.12", features = ["json"] }
+serialport = "4.3"
+btle = "0.5"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+futures = "0.3"
+parking_lot = "0.12"
+bytes = "1.6"
+rand = "0.8"

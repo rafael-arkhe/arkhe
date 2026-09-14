@@ -1,0 +1,54 @@
+catedral:
+  version: "v304.0"
+  cluster_name: "catedral-prod"
+
+  raft:
+    heartbeat_interval_ms: 500
+    election_timeout_min_ms: 1500
+    election_timeout_max_ms: 3000
+    snapshot_interval: 10000
+    max_log_entries: 100000
+
+  phi:
+    target: 0.992
+    lower_bound: 0.577350
+    upper_bound: 0.999900
+    decay_rate: 0.001
+
+  daemons:
+    decisor:
+      priority: 10
+      health_interval: 5
+    zeno:
+      priority: 20
+      health_interval: 10
+    coherence:
+      priority: 5
+      health_interval: 2
+
+  hardware:
+    photonic:
+      device: "/dev/ttyUSB0"
+      baud_rate: 115200
+      timeout_ms: 100
+    leo:
+      endpoint: "https://leo-api.catedral.org/phi"
+      token_env: "LEO_TOKEN"
+    svetoch:
+      address: "00:11:22:33:44:55"
+
+  zk:
+    worker_count: 4
+    queue_capacity: 256
+    proof_timeout_ms: 30000
+
+  wasm:
+    fuel_limit: 1000000
+    max_contracts: 64
+
+  metrics:
+    port: 9090
+
+  health_interval_seconds: 5
+  watchdog_interval_seconds: 30
+  config_path: "/opt/catedral-os/config/production.yaml"

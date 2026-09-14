@@ -1,0 +1,38 @@
+catedral:
+  version: "304.0"
+  node_id: "no-alfa"
+  peers:
+    - "no-beta"
+    - "no-gama"
+
+raft:
+  snapshot_interval: 10000
+  db_path: "/var/lib/catedral/raft"
+
+zk:
+  max_workers: 4
+  proof_timeout_ms: 5000
+
+hardware:
+  sensors:
+    - name: "photonic-chip"
+      type: "serial"
+      device_path: "/dev/ttyUSB0"
+      baud_rate: 115200
+    - name: "leo-satellite"
+      type: "api"
+      endpoint: "https://satellite.arkhe.space/api/phi"
+      token: "${LEO_API_TOKEN}"
+    - name: "svetoch"
+      type: "bluetooth"
+      address: "AA:BB:CC:DD:EE:FF"
+
+wasm:
+  max_memory_bytes: 67108864
+  max_execution_steps: 1000000
+  fuel_limit: 10000000
+
+health_interval_seconds: 5
+watchdog_interval_seconds: 10
+metrics_port: 9090
+config_path: "/opt/catedral-os/config/production.yaml"

@@ -1,0 +1,25 @@
+[package]
+name = "catedral-hardware"
+version = "0.304.0"
+edition = "2021"
+description = "Catedral OS v304.0 — Hardware Abstraction Layer (HAL) e drivers de sensores de Φ"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { workspace = true }
+serialport = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+
+[features]
+default = ["sim-svetoch"]
+sim-svetoch = []
+svetoch-ble = ["dep:btle"]
+
+[dependencies.btle]
+workspace = true
+optional = true

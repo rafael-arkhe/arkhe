@@ -1,0 +1,66 @@
+---
+- name: Catedral OS v304.0 — Production Deployment
+  hosts: catedral_nodes
+  become: true
+  vars:
+    catedral_version: "v304.0"
+    catedral_install_dir: "/opt/catedral-os"
+    catedral_data_dir: "/var/lib/catedral"
+    catedral_log_dir: "/var/log/catedral"
+    catedral_user: "arkhe"
+    catedral_group: "arkhe"
+
+  tasks:
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ catedral_user }}"
+        group: "{{ catedral_group }}"
+        mode: '0755'
+      loop:
+        - "{{ catedral_install_dir }}"
+        - "{{ catedral_data_dir }}"
+        - "{{ catedral_data_dir }}/raft"
+        - "{{ catedral_log_dir }}"
+        - "{{ catedral_install_dir }}/config"
+
+    - name: Deploy configuration
+      ansible.builtin.template:
+        src: templates/production.yaml.j2
+        dest: "{{ catedral_install_dir }}/config/production.yaml"
+        owner: "{{ catedral_user }}"
+        mode: '0640'
+      notify: Reload orchestrator
+
+    - name: Deploy systemd services
+      ansible.builtin.template:
+        src: "templates/{{ item }}.j2"
+        dest: "/etc/systemd/system/{{ item }}"
+        mode: '0644'
+      loop:
+        - catedral-orquestrador.service
+        - catedral-decisor.service
+        - catedral-zeno.service
+      notify: Reload systemd
+
+    - name: Enable and start services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+        daemon_reload: true
+      loop:
+        - catedral-orquestrador.service
+        - catedral-decisor.service
+        - catedral-zeno.service
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Reload orchestrator
+      ansible.builtin.systemd:
+        name: catedral-orquestrador.service
+        state: reloaded
