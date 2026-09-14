@@ -1,0 +1,38 @@
+[package]
+name = "arkhe-event-bus"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "arkhe-event-bus — Phase 1 (in-memory) typed publish/subscribe bus for the Arkhe Trust Infrastructure. Implements the §5.2 EventBus / Publisher / Subscriber contract of the canonical Arkhe paper (DOI 10.5281/zenodo.21383201): typed topics, mandatory EventMeta carrying event_id + trace_id + causation_id + correlation_id and a schema version on every event, and malformed events are unpublishable (publish validates and rejects; it is never silent). Carries the bus-side halves of threat mitigations T-12 (per-event signatures verified by the bus) and T-13 (monotonic sequence numbers, Merkle roots, signed events, checkpoint fencing). No cryptographic backend is embedded: the verifier is a pluggable trait, because this crate ships no key material and no Ed25519 implementation. Standalone workspace (own [workspace] table) because safe-core-monorepo's committed `members` list names seven crates that do not exist on disk (arkhe-geometric-verifier, arkhe-security, arkhe-buzz-relay, arkhe-web-gateway, arkhe-mcp-server, arkhe-orcid, arkhe-change), so `cargo metadata` fails at the root. Same erratum pattern as safe-core-monorepo/crates/arkhe-tee and arkhe-monorepo/packages/arkhe-core. Nothing outside this directory is touched. No line of this crate has been exercised under load, on a network, or against a real signing key."
+publish = false
+
+[workspace]
+resolver = "2"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["sync"] }
+thiserror = "1"
+# Observed, not assumed: with blake3's default features its build script compiles
+# C/assembly for the SIMD paths through the `cc` crate — a fresh `target/` grew
+# `blake3_avx2_x86-64_windows_msvc.o`, `blake3_sse2_sse41_avx2_assembly.lib` and
+# friends. That makes every build of this crate, and every CI runner touching it,
+# depend on a C toolchain for no reason a library should impose. `pure` selects
+# blake3's portable Rust implementation; the algorithm and the digests are
+# unchanged (only the implementation is), which the Merkle-root and digest tests
+# would catch if it were otherwise. Same reasoning as `arkhe-tee`'s pinned
+# `rustcrypto` backend instead of `ring`. To get the assembly back, drop
+# `default-features = false, features = ["pure"]` and accept the `cc` dependency.
+blake3 = { version = "1", default-features = false, features = ["std", "pure"] }
+hex = "0.4"
+
+[dev-dependencies]
+# `sync` for `broadcast`, `rt` + `macros` for `#[tokio::test]`. Cargo unifies
+# features, so the library itself only ever needs `sync`.
+tokio = { version = "1", features = ["sync", "rt", "macros"] }
+
+[lints.rust]
+# Mirrors `#![forbid(unsafe_code)]` in `src/lib.rs`; there is no unsafe block
+# anywhere in this crate and none is permitted.
+unsafe_code = "forbid"
