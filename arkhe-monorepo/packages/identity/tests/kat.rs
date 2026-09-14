@@ -80,7 +80,7 @@ fn kat_zeroize_on_drop() {
     let seed = arkhe_identity::mnemonic::ArkheMnemonic::from_phrase(
         "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ).unwrap().to_seed("test");
-    let ptr = seed.as_bytes().as_ptr();
+    let _ptr = seed.as_bytes().as_ptr();
     drop(seed);
     // Under miri, this verifies that ZeroizeOnDrop zeroes the memory
 }

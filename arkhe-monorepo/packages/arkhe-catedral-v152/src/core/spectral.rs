@@ -77,7 +77,7 @@ pub fn organize_in_shells(spectrum: &[f64]) -> BTreeMap<usize, Vec<f64>> {
     for (idx, &val) in spectrum.iter().enumerate() {
         shells
             .entry(handover_level(idx + 1))
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(val);
     }
     shells

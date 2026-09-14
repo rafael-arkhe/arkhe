@@ -4,16 +4,16 @@
 //! formalizations. Everything is implemented with **zero external dependencies**
 //! so the crate builds fully offline:
 //!
-//!   * `SFTParticle`      — partícula mínima (m, q) com r_spin, λ, ν_C, r_S,
-//!                          área de captura C_A e área de Planck A_P;
-//!   * `HolographicLedger` — ledger holográfico *append-only* (no-overwrite):
-//!                          escrever um modo nunca apaga modos gravados; cada
-//!                          entrada tem um CID simulado (hash FNV-1a local);
-//!   * `SFTBuzzAgent`      — agente Buzz que publica kinds 30002/30003 apenas
-//!                          quando a S-Measure supera o limiar adaptativo;
-//!   * `EscapeRisk`        — os 5 níveis de risco espelho do `checkEscape` Lean;
-//!   * `adaptive_threshold`— F(n) = c/n, análogo determinístico do SAC/EXP3;
-//!   * `safe_execute`      — execução à prova de pânico com rollback do ledger.
+//! - `SFTParticle` — partícula mínima (m, q) com r_spin, λ, ν_C, r_S,
+//!   área de captura C_A e área de Planck A_P;
+//! - `HolographicLedger` — ledger holográfico *append-only* (no-overwrite):
+//!   escrever um modo nunca apaga modos gravados; cada entrada tem um CID
+//!   simulado (hash FNV-1a local);
+//! - `SFTBuzzAgent` — agente Buzz que publica kinds 30002/30003 apenas
+//!   quando a S-Measure supera o limiar adaptativo;
+//! - `EscapeRisk` — os 5 níveis de risco espelho do `checkEscape` Lean;
+//! - `adaptive_threshold` — F(n) = c/n, análogo determinístico do SAC/EXP3;
+//! - `safe_execute` — execução à prova de pânico com rollback do ledger.
 //!
 //! v1.0: offline, `#![deny(warnings)]`-compatible, sem `unsafe`.
 

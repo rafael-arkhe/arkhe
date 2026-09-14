@@ -133,36 +133,39 @@ pub fn validate_event_firewall(
     event.verify().map_err(|e| anyhow::anyhow!("event signature invalid: {e}"))?;
 
     let target_zone_str = event
-        .tags()
+        .tags
         .iter()
-        .find(|t| t.as_vec().first().map(|s| s.as_str()) == Some("target_zone"))
-        .and_then(|t| t.as_vec().get(1).map(|s| s.to_string()))
+        .find(|t| t.kind() == "target_zone")
+        .and_then(|t| t.content())
+        .map(|s| s.to_string())
         .unwrap_or_else(|| Zone::Z2_Continuous.as_str().to_string());
 
     let target_zone = Zone::from_str(&target_zone_str)
         .map_err(|e| anyhow::anyhow!("invalid target_zone: {target_zone_str}: {e}"))?;
 
     let edge_type_str = event
-        .tags()
+        .tags
         .iter()
-        .find(|t| t.as_vec().first().map(|s| s.as_str()) == Some("edge_type"))
-        .and_then(|t| t.as_vec().get(1).map(|s| s.to_string()))
+        .find(|t| t.kind() == "edge_type")
+        .and_then(|t| t.content())
+        .map(|s| s.to_string())
         .unwrap_or_else(|| EdgeType::DependsOn.as_str().to_string());
 
     let edge = EdgeType::from_str(&edge_type_str)
         .map_err(|e| anyhow::anyhow!("invalid edge_type: {edge_type_str}: {e}"))?;
 
-    if event.kind() != event_kind {
+    if event.kind != event_kind {
         bail!("event kind mismatch");
     }
 
     if edge == EdgeType::TranslatesToPrimitive {
-        let expected = sha3_256_hex(event.content().as_bytes());
+        let expected = sha3_256_hex(event.content.as_bytes());
         let claimed = event
-            .tags()
+            .tags
             .iter()
-            .find(|t| t.as_vec().first().map(|s| s.as_str()) == Some("translation_digest"))
-            .and_then(|t| t.as_vec().get(1).map(|s| s.to_string()))
+            .find(|t| t.kind() == "translation_digest")
+            .and_then(|t| t.content())
+            .map(|s| s.to_string())
             .ok_or_else(|| anyhow::anyhow!("TRANSLATES_TO_PRIMITIVE requires translation_digest tag"))?;
         if claimed != expected {
             bail!("translation_digest does not match event content (firewall binding broken)");

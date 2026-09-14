@@ -21,16 +21,18 @@ pub const KIND_FIREWALL_AUDIT: u16 = 30078; // NIP-51 read state (audit trail)
 pub const KIND_ORCH_OR_STATE: u16 = 30315; // NIP-01 user status (OrchOR state)
 
 pub struct BuzzBridge {
-    client: Client,
-    keys: Keys,
-    relay_url: String,
+    pub(crate) client: Client,
+    pub(crate) keys: Keys,
+    pub(crate) relay_url: String,
 }
 
 impl BuzzBridge {
     pub fn new(secret_key: &str, relay_url: &str) -> Result<Self> {
         let keys = Keys::parse(secret_key)
             .map_err(|e| anyhow!("invalid secret key: {e}"))?;
-        let client = Client::new(&keys);
+        let client = Client::builder()
+            .authenticator(SignerAuthenticator::new(keys.clone()))
+            .build();
         Ok(Self {
             client,
             keys,
@@ -47,90 +49,21 @@ impl BuzzBridge {
             .add_relay(&self.relay_url)
             .await
             .context("failed to add relay")?;
-        // Start the NIP-42 AUTH listener BEFORE connecting so it is subscribed
-        // to the notification channel when the relay sends its challenge, and
-        // wait (with timeout) for the auth handshake to complete. Relays that
-        // don't require auth never challenge, so we treat that as success.
-        let auth = self.authenticate().await?;
+        // nostr-sdk 0.45 answers NIP-42 AUTH challenges automatically via the
+        // `SignerAuthenticator` installed in `Self::new`.
         self.client.connect().await;
-        let _ = tokio::time::timeout(Duration::from_secs(10), auth)
-            .await
-            .unwrap_or(Ok(Ok(())));
         Ok(())
     }
 
-    /// Handle NIP-42 relay authentication.
-    ///
-    /// nostr-sdk 0.31 does not automatically answer `AUTH` challenges, so we
-    /// listen for the relay's `["AUTH", <challenge>]` message and reply with a
-    /// signed kind-22242 event. This is required by relays that demand write
-    /// authentication (e.g. the Buzz relay). The returned future resolves when
-    /// the handshake completes (or after a timeout).
-    pub async fn authenticate(&self) -> Result<tokio::sync::oneshot::Receiver<Result<()>>> {
-        let client = self.client.clone();
-        let keys = self.keys.clone();
-        let relay_url: Url = self
-            .relay_url
-            .parse()
-            .map_err(|e| anyhow!("invalid relay URL: {e}"))?;
-
-        let (done_tx, done_rx) = tokio::sync::oneshot::channel::<Result<()>>();
-        let relay_url_for_task = relay_url.clone();
-        let done_tx_for_task = std::sync::Arc::new(tokio::sync::Mutex::new(Some(done_tx)));
-        let keys_for_task = keys.clone();
-
-        tokio::spawn(async move {
-            let client_for_handler = client.clone();
-            let _ = client
-                .handle_notifications(move |notification| {
-                    let client = client_for_handler.clone();
-                    let keys = keys_for_task.clone();
-                    let relay_url = relay_url_for_task.clone();
-                    let done_tx = done_tx_for_task.clone();
-                    async move {
-                        if let RelayPoolNotification::Message {
-                            relay_url: relay,
-                            message: RelayMessage::Auth { challenge },
-                        } = notification
-                        {
-                            if relay == relay_url {
-                                let builder = EventBuilder::auth(challenge, relay.clone());
-                                let result = match builder.to_event(&keys) {
-                                    Ok(event) => match client.relay(relay).await {
-                                        Ok(relay) => relay
-                                            .send_msg(
-                                                ClientMessage::auth(event),
-                                                RelaySendOptions::default(),
-                                            )
-                                            .await
-                                            .map(|_| ())
-                                            .map_err(|e| anyhow!("failed to send AUTH: {e}")),
-                                        Err(e) => Err(anyhow!("relay lookup failed: {e}")),
-                                    },
-                                    Err(e) => Err(anyhow!("failed to sign AUTH: {e}")),
-                                };
-                                eprintln!("[auth] AUTH result: {:?}", result.is_ok());
-                                if let Some(tx) = done_tx.lock().await.take() {
-                                    let _ = tx.send(result);
-                                }
-                            }
-                        }
-                        Ok(false)
-                    }
-                })
-                .await;
-        });
-
-        Ok(done_rx)
-    }
-
     pub async fn publish_event(&self, kind: u16, content: &str, tags: Vec<Tag>) -> Result<EventId> {
-        let event = EventBuilder::new(Kind::Custom(kind), content, tags)
-            .to_event(&self.keys)
+        let event = EventBuilder::new(Kind::Custom(kind), content)
+            .tags(tags)
+            .finalize(&self.keys)
             .map_err(|e| anyhow!("failed to build event: {e}"))?;
         self.client
-            .send_event(event)
+            .send_event(&event)
             .await
+            .map(|output| output.value)
             .map_err(|e| anyhow!("failed to send event: {e}"))
     }
 
@@ -143,10 +76,10 @@ impl BuzzBridge {
             // (pubkey, kind, d). Without a unique `d` tag the relay collapses
             // every frame into a single addressable slot; `d = <session>:<seq>`
             // keeps each fountain frame independently stored and queryable.
-            Tag::custom(TagKind::from("d"), [format!("{session}:{seq}").as_str()]),
-            Tag::custom(TagKind::from("experiment"), [experiment_id]),
-            Tag::custom(TagKind::from("type"), ["aft_frame"]),
-            Tag::custom(TagKind::from("session_id"), [session.as_str()]),
+            Tag::custom("d", [format!("{session}:{seq}").as_str()]),
+            Tag::custom("experiment", [experiment_id]),
+            Tag::custom("type", ["aft_frame"]),
+            Tag::custom("session_id", [session.as_str()]),
         ];
         self.publish_event(KIND_AFT_FRAME, &content, tags).await
     }
@@ -158,20 +91,20 @@ impl BuzzBridge {
             .limit(500);
         let events = self
             .client
-            .get_events_of(vec![filter], Some(Duration::from_secs(10)))
+            .fetch_events(filter)
+            .timeout(Duration::from_secs(10))
             .await
             .map_err(|e| anyhow!("failed to fetch events: {e}"))?;
         let mut frames = Vec::new();
         for event in events {
             let is_exp = event
-                .tags()
+                .tags
                 .iter()
-                .any(|t| t.as_vec().first().map(|s| s.as_str()) == Some("experiment")
-                    && t.as_vec().get(1).map(|s| s.as_str()) == Some(experiment_id));
+                .any(|t| t.kind() == "experiment" && t.content() == Some(experiment_id));
             if !is_exp {
                 continue;
             }
-            if let Ok(bytes) = hex::decode(event.content()) {
+            if let Ok(bytes) = hex::decode(&event.content) {
                 frames.push(bytes);
             }
         }
@@ -183,24 +116,21 @@ impl BuzzBridge {
         let content = serde_json::to_string(bundle).unwrap_or_default();
         let mut tags = vec![
             // Unique NIP-33 `d` address for the bundle (parameterized-replaceable kind).
-            Tag::custom(TagKind::from("d"), [bundle.id.as_str()]),
-            Tag::custom(TagKind::from("hypothesis"), [bundle.hypothesis.as_str()]),
-            Tag::custom(TagKind::from("baseline"), [bundle.baseline_hash.as_str()]),
-            Tag::custom(
-                TagKind::from("cert"),
-                [format!("{:?}", bundle.certification).as_str()],
-            ),
-            Tag::custom(TagKind::from("translation_digest"), [bundle.digest_hex().as_str()]),
+            Tag::custom("d", [bundle.id.as_str()]),
+            Tag::custom("hypothesis", [bundle.hypothesis.as_str()]),
+            Tag::custom("baseline", [bundle.baseline_hash.as_str()]),
+            Tag::custom("cert", [format!("{:?}", bundle.certification).as_str()]),
+            Tag::custom("translation_digest", [bundle.digest_hex().as_str()]),
         ];
         for pump in &bundle.pump_sequence {
-            tags.push(Tag::custom(TagKind::from("pump"), [pump.as_str()]));
+            tags.push(Tag::custom("pump", [pump.as_str()]));
         }
-        EventBuilder::new(Kind::Custom(KIND_EVIDENCE_BUNDLE), content, tags)
+        EventBuilder::new(Kind::Custom(KIND_EVIDENCE_BUNDLE), content).tags(tags)
     }
 
     /// Convert a Nostr event into an `EvidenceBundle`.
     pub fn event_to_evidence_bundle(event: &Event) -> Option<EvidenceBundle> {
-        if let Ok(bundle) = serde_json::from_str::<EvidenceBundle>(event.content()) {
+        if let Ok(bundle) = serde_json::from_str::<EvidenceBundle>(&event.content) {
             return Some(bundle);
         }
         None
@@ -210,12 +140,13 @@ impl BuzzBridge {
     pub async fn publish_evidence_bundle(&self, bundle: &EvidenceBundle) -> Result<EventId> {
         let builder = Self::evidence_bundle_to_event(bundle);
         let event = builder
-            .to_event(&self.keys)
+            .finalize(&self.keys)
             .map_err(|e| anyhow!("failed to build event: {e}"))?;
         validate_event_firewall(&event, Zone::Z1_Tools, Kind::Custom(KIND_EVIDENCE_BUNDLE))?;
         self.client
-            .send_event(event)
+            .send_event(&event)
             .await
+            .map(|output| output.value)
             .map_err(|e| anyhow!("failed to send event: {e}"))
     }
 
@@ -227,7 +158,8 @@ impl BuzzBridge {
             .limit(200);
         let events = self
             .client
-            .get_events_of(vec![filter], Some(Duration::from_secs(10)))
+            .fetch_events(filter)
+            .timeout(Duration::from_secs(10))
             .await
             .map_err(|e| anyhow!("failed to fetch events: {e}"))?;
         Ok(events.iter().filter_map(Self::event_to_evidence_bundle).collect())
@@ -287,7 +219,7 @@ mod tests {
         };
         let builder = BuzzBridge::evidence_bundle_to_event(&bundle);
         let keys = Keys::generate();
-        let event = builder.to_event(&keys).unwrap();
+        let event = builder.finalize(&keys).unwrap();
         let back = BuzzBridge::event_to_evidence_bundle(&event).unwrap();
         assert_eq!(back, bundle);
     }

@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 description = "Camada P2P da Catedral (bloco 1055): identidade Ed25519, mensagens assinadas e rede libp2p 0.56.0 real (Kademlia + gossipsub + identify). Núcleo testável sem malha multi-nó."
 
 [dependencies]
-libp2p = { version = "=0.56.0", features = [
+libp2p = { version = "=0.57.0", features = [
     "ed25519",
     "noise",
     "tcp",

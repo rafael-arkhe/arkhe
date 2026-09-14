@@ -139,6 +139,10 @@ pub struct DipoleField {
     pub b0: f64,
 }
 
+impl Default for DipoleField {
+    fn default() -> Self { Self::new() }
+}
+
 impl DipoleField {
     pub fn new() -> Self { Self { b0: 3.12e-5 } }
 }

@@ -30,3 +30,9 @@ wasm = ["dep:wasm-bindgen", "dep:console_error_panic_hook", "dep:getrandom", "de
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+
+# ARKHE-VSEPR interop: integration test amarra topologia(arkhe-topology) →
+# reputação(arkhe-reputation) → kernel/forge bridge (este crate).
+[dev-dependencies]
+arkhe-topology = { path = "../arkhe-topology" }
+arkhe-reputation = { path = "../arkhe-reputation" }

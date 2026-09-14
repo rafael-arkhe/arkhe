@@ -24,6 +24,10 @@ lru = "0.12"
 sha2 = { version = "0.10", default-features = false }
 # Fase 1: real BPv7 bundles (RFC 9171) + BPSec (RFC 9173) via hardy-bpv7.
 # rfc9173 habilita BIB-HMAC-SHA2/BCB-AES-GCM; no_std usa new_sequential().
+# NOTA (verificação 2026-09-11): este crate está EXCLUÍDO do workspace
+# (Cargo.toml raiz) — hardy-bpv7 0.6.0 exige rustc >= 1.95 (edition 2024) e
+# 0.5.0 não compila no rustc 1.94 (E0283 no crate vendor: Box::from com
+# hybrid-array). Verificação integral do DTN requer toolchain 1.95+.
 hardy-bpv7 = { version = "0.6", default-features = false, features = ["rfc9173"], optional = true }
 # Fase 4: convergência óptica (RaptorQ FEC + QR Code) + auditoria via Nostr.
 # Todos os deps pesados ficam atrás da feature `std` para preservar o build no_std.

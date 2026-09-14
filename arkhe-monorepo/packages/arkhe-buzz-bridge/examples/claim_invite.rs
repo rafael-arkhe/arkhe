@@ -34,12 +34,13 @@ fn sha256_hex(data: &[u8]) -> String {
 fn nip98_auth(keys: &Keys, url: &str, method: &str, body: &[u8]) -> Result<String> {
     let payload = sha256_hex(body);
     let tags = vec![
-        Tag::parse(&["u", url]).context("u tag")?,
-        Tag::parse(&["method", method]).context("method tag")?,
-        Tag::parse(&["payload", payload.as_str()]).context("payload tag")?,
+        Tag::parse(["u", url]).context("u tag")?,
+        Tag::parse(["method", method]).context("method tag")?,
+        Tag::parse(["payload", payload.as_str()]).context("payload tag")?,
     ];
-    let event = EventBuilder::new(Kind::HttpAuth, "", tags)
-        .to_event(keys)
+    let event = EventBuilder::new(Kind::HttpAuth, "")
+        .tags(tags)
+        .finalize(keys)
         .context("sign NIP-98 event")?;
     let event_json = serde_json::to_string(&event).context("serialize NIP-98 event")?;
     let encoded = STANDARD.encode(event_json.as_bytes());

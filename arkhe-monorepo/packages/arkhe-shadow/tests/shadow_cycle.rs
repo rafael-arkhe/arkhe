@@ -21,11 +21,11 @@ fn structured_state(rows: usize, cols: usize, rank: usize, seed: u64) -> DMatrix
 #[test]
 fn shadow_cycle_compresses_then_heals() {
     let data = structured_state(60, 50, 4, 42);
-    let cycle = arkhe_shadow::ShadowCycle::run(data.clone(), 6, 0.2);
+    let cycle = ShadowCycle::run(data.clone(), 6, 0.2);
 
     // Visible subset keeps the principal modes -> smaller than the true rank.
     assert_eq!(cycle.visible.shape(), (60, 50));
-    assert!(cycle.shadow.len() > 0, "a noisy matrix must leave a tail");
+    assert!(!cycle.shadow.is_empty(), "a noisy matrix must leave a tail");
 
     // Healing folds energy back in: healed energy > visible energy.
     assert!(

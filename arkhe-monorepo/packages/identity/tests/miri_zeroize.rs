@@ -17,7 +17,7 @@ fn miri_master_identity_zeroize() {
         agent_id: "miri-test".into(),
         fingerprint: "deadbeef1234".into(),
     };
-    let ptr = &identity.ml_dsa_65_seed as *const _ as *const u8;
+    let _ptr = &identity.ml_dsa_65_seed as *const _ as *const u8;
     drop(identity);
     // Miri will error if the memory is leaked or not zeroed
 }
@@ -27,7 +27,7 @@ fn miri_master_identity_zeroize() {
 fn miri_hkdf_derivation_zeroize() {
     let seed = [0x42u8; 64];
     let identity = derive_master_identity(&seed, "miri-agent").unwrap();
-    let ptr = &identity.ml_dsa_65_seed as *const _ as *const u8;
+    let _ptr = &identity.ml_dsa_65_seed as *const _ as *const u8;
     drop(identity);
 }
 
@@ -37,9 +37,9 @@ fn miri_error_path_zeroize() {
     let result = std::panic::catch_unwind(|| {
         let bad_seed = [0u8; 64];
         let identity = derive_master_identity(&bad_seed, "panic-test").unwrap();
-        // Force a panic after identity is created
-        assert!(false, "intentional panic to test unwind safety");
-        drop(identity);
+        let _alive = &identity; // keeps identity alive across the deliberate panic
+        // Force a panic after identity is created (zeroize-on-unwind path)
+        panic!("intentional panic to test unwind safety");
     });
     assert!(result.is_err());
 }

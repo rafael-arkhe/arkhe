@@ -322,6 +322,9 @@ pub mod prediction;
 /// JSON facade over the real hypergraph primitives, wasm/JS-consumable.
 pub mod wasm;
 
+/// TOON → hypergraph → forge bridge (módulo #16).
+pub mod bridge;
+
 /// `#[wasm_bindgen]` re-export shim (only built with `--features wasm`).
 #[cfg(feature = "wasm")]
 pub mod wasm_bindings;

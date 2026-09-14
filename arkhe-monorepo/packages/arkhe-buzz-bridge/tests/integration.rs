@@ -5,7 +5,7 @@ use arkhe_buzz_bridge::{
     FountainDecoder, FountainEncoder, KIND_EVIDENCE_BUNDLE, OrchORState, Zone,
     validate_event_firewall, validate_hyperedge_firewall,
 };
-use nostr_sdk::prelude::{EventBuilder, Keys, Kind};
+use nostr_sdk::prelude::{EventBuilder, FinalizeEvent, Keys, Kind};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 
@@ -63,7 +63,7 @@ fn event_firewall_binds_translation_digest() {
 
     // Valid event: includes the correct translation_digest and valid signature.
     let builder = BuzzBridge::evidence_bundle_to_event(&bundle);
-    let event = builder.to_event(&keys).unwrap();
+    let event = builder.finalize(&keys).unwrap();
     assert!(
         validate_event_firewall(
             &event,
@@ -76,27 +76,15 @@ fn event_firewall_binds_translation_digest() {
 
     // Tampered event: digest no longer matches content.
     let mut tags = vec![
-        nostr_sdk::prelude::Tag::custom(
-            nostr_sdk::prelude::TagKind::from("target_zone"),
-            ["Z3_Discrete"],
-        ),
-        nostr_sdk::prelude::Tag::custom(
-            nostr_sdk::prelude::TagKind::from("edge_type"),
-            ["TRANSLATES_TO_PRIMITIVE"],
-        ),
-        nostr_sdk::prelude::Tag::custom(
-            nostr_sdk::prelude::TagKind::from("translation_digest"),
-            ["deadbeef"],
-        ),
+        nostr_sdk::prelude::Tag::custom("target_zone", ["Z3_Discrete"]),
+        nostr_sdk::prelude::Tag::custom("edge_type", ["TRANSLATES_TO_PRIMITIVE"]),
+        nostr_sdk::prelude::Tag::custom("translation_digest", ["deadbeef"]),
     ];
     let mut content = serde_json::to_string(&bundle).unwrap();
     content.push(' '); // mutate content after digest was computed
-    let builder = EventBuilder::new(
-        Kind::Custom(KIND_EVIDENCE_BUNDLE),
-        content,
-        std::mem::take(&mut tags),
-    );
-    let event = builder.to_event(&keys).unwrap();
+    let builder =
+        EventBuilder::new(Kind::Custom(KIND_EVIDENCE_BUNDLE), content).tags(std::mem::take(&mut tags));
+    let event = builder.finalize(&keys).unwrap();
     assert!(
         validate_event_firewall(
             &event,

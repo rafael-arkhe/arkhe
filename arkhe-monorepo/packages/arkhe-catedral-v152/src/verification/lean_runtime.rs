@@ -39,7 +39,7 @@ impl LeanVerifier {
 
     /// I157 — Φ_irr ≤ 1 (coerência irreduzível saturada).
     pub fn check_i157(&mut self, phi_irr: f64) -> InvariantStatus {
-        if phi_irr < 0.0 || phi_irr > 1.0 {
+        if !(0.0..=1.0).contains(&phi_irr) {
             self.violations.push(("I157".into(), phi_irr));
             return InvariantStatus::Violated;
         }
@@ -108,6 +108,7 @@ impl LeanVerifier {
     }
 
     /// Executa todas as checagens e produz relatório consolidado.
+    #[allow(clippy::too_many_arguments)]
     pub fn verify_all(
         &self,
         spectrum: &[f64],

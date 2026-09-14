@@ -189,6 +189,14 @@ impl RecurrencyPolicy {
     }
 }
 
+pub mod metrics;
+pub mod server;
+pub mod telemetry;
+
+pub use metrics::{MetricsRegistry, MetricsSummary, RECENT_CAPACITY};
+pub use server::MetricsServer;
+pub use telemetry::{Fanout, NoopSink, PolicyObservation, TelemetryRecorder, TelemetrySink};
+
 /// The standard Safe-Core watchdog loop, wired over gRPC.
 ///
 /// Subscribes to the daemon's `WatchTickets` stream, feeds each ticket to the
@@ -204,14 +212,38 @@ pub async fn run_watchdog(
     client: &mut RecurrencyServiceClient<tonic::transport::Channel>,
     policy: &mut RecurrencyPolicy,
 ) -> anyhow::Result<()> {
+    run_watchdog_with_recorder(client, policy, &mut telemetry::NoopSink).await
+}
+
+/// Watchdog loop with a telemetry side-channel.
+///
+/// Identical to [`run_watchdog`] except that every observation is also pushed
+/// into `recorder` *after* enforcement — telemetry can never delay or veto a
+/// constitutional demand. Use [`telemetry::Fanout`] to record into several
+/// sinks at once (JSONL log + [`MetricsRegistry`], typically).
+pub async fn run_watchdog_with_recorder<R: telemetry::TelemetryRecorder>(
+    client: &mut RecurrencyServiceClient<tonic::transport::Channel>,
+    policy: &mut RecurrencyPolicy,
+    recorder: &mut R,
+) -> anyhow::Result<()> {
     let mut stream = client
         .watch_tickets(WatchRequest { since_tick: 0 })
         .await?
         .into_inner();
 
     while let Some(ticket) = stream.message().await? {
-        match policy.observe(&ticket) {
-            PolicyAction::Clamp => {
+        let action = policy.observe(&ticket);
+        let observation = telemetry::PolicyObservation::new(
+            ticket.tick(),
+            ticket.error_reduction(),
+            ticket.access_granted(),
+            ticket.suggested_gain(),
+            policy,
+            action,
+        );
+        recorder.record(&observation);
+        match observation.action {
+            telemetry::PolicyAction::Clamp => {
                 client
                     .set_regime(RegimeRequest {
                         regime: ProtoRegime::ArousalDeepSleep.into(),
@@ -224,7 +256,7 @@ pub async fn run_watchdog(
                     "safe-core CLAMP: hallucination vibe over threshold — forcing DeepSleep"
                 );
             }
-            PolicyAction::Unclamp => {
+            telemetry::PolicyAction::Unclamp => {
                 client
                     .set_regime(RegimeRequest {
                         regime: ProtoRegime::ArousalAlert.into(),
@@ -232,7 +264,7 @@ pub async fn run_watchdog(
                     .await?;
                 tracing::info!(vibe = policy.vibe, tick = ticket.tick, "safe-core release: back to Alert");
             }
-            PolicyAction::None => {}
+            telemetry::PolicyAction::None => {}
         }
     }
 

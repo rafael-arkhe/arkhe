@@ -60,6 +60,10 @@ pub struct Z1TBridge<T = SimulatedTransport> {
     last_contact: Instant,
 }
 
+impl<T: Z1TTransport> Default for Z1TBridge<T> {
+    fn default() -> Self { Self::new() }
+}
+
 impl<T: Z1TTransport> Z1TBridge<T> {
     pub fn new() -> Self {
         Self {
@@ -87,7 +91,7 @@ impl<T: Z1TTransport> Z1TBridge<T> {
                     if t.write(&framed).is_err() {
                         t.close();
                         attempt += 1;
-                        std::thread::sleep(self.backoff * (attempt as u32));
+                        std::thread::sleep(self.backoff * attempt);
                         continue;
                     }
                     self.transport = Some(t);
@@ -98,7 +102,7 @@ impl<T: Z1TTransport> Z1TBridge<T> {
                 }
                 Err(_) => {
                     attempt += 1;
-                    std::thread::sleep(self.backoff * (attempt as u32));
+                    std::thread::sleep(self.backoff * attempt);
                 }
             }
         }
