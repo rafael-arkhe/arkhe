@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Catedral OS v9.8 — A Tela Infinita + ICCID</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a0a; color: #fff;
+               font-family: 'Courier New', monospace; }
+        #info { position: absolute; top: 10px; left: 10px; z-index: 100;
+                background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px;
+                border: 1px solid #64ffda; font-size: 12px; line-height: 1.8; }
+        h3 { margin: 0 0 10px 0; color: #64ffda; font-size: 13px;
+             letter-spacing: 2px; text-transform: uppercase; }
+        .axiom { color: #64ffda; font-weight: bold; }
+        .label { color: #888; }
+        .value { color: #64ffda; }
+        #netinfo { position: absolute; bottom: 10px; right: 10px; z-index: 100;
+                   background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px;
+                   border: 1px solid #333; font-size: 11px; }
+        #iccid-panel { position: absolute; bottom: 10px; left: 10px; z-index: 100;
+                       background: rgba(0,0,0,0.9); padding: 15px; border-radius: 8px;
+                       border: 1px solid #64ffda; width: 300px; }
+        input { width: 100%; padding: 8px; margin-bottom: 10px; background: #111; border: 1px solid #333; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 8px; background: #64ffda; border: none; color: #000; font-weight: bold; cursor: pointer; }
+        button:hover { background: #fff; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>🏛️ Substrato 203 — A Tela Infinita (v9.8)</h3>
+        <div><span class="axiom">I.</span> <span class="label">Clareira:</span> M &lt; w</div>
+        <div><span class="axiom">II.</span> <span class="label">Flutuação:</span> tan(t/71)</div>
+        <div><span class="axiom">III.</span> <span class="label">Coerência:</span> M/w×360°</div>
+        <div><span class="axiom">IV.</span> <span class="label">Tempo:</span> sin(t/31)</div>
+        <div><span class="axiom">V.</span> <span class="label">Quântica:</span> Orch-OR Mesh</div>
+        <div><span class="axiom">VI.</span> <span class="label">Identidade:</span> ICCID + IIN</div>
+        <div><span class="axiom">VII.</span> <span class="label">Colheita:</span> EH-CRSN</div>
+        <div><span class="axiom">VIII.</span> <span class="label">Segurança:</span> AES + JWT</div>
+        <div style="margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
+            <div><span class="label">α:</span> <span class="value" id="m-alpha">0.00</span></div>
+            <div><span class="label">Estado:</span> <span class="value" id="m-state">COERENTE</span></div>
+            <div><span class="label">Veto:</span> <span class="value" id="m-veto">ARMADO</span></div>
+            <div><span class="label">Q-Fidelity:</span> <span class="value" id="m-quantum">--</span></div>
+        </div>
+    </div>
+    <div id="netinfo">
+        <div>🌐 <span class="label">Rede 6G:</span> <span class="value" id="net-status">--</span></div>
+        <div>📡 <span class="label">Latência:</span> <span class="value" id="net-lat">--</span></div>
+        <div>🔗 <span class="label">Nós:</span> <span class="value" id="net-nodes">--</span></div>
+    </div>
+    
+    <div id="iccid-panel">
+        <h3>🪪 Substrato 211 — Manifestação</h3>
+        <input type="text" id="iccid-input" placeholder="ICCID (18-22 dígitos)" value="89441111222233334446">
+        <div id="luhn-status" style="font-size: 11px; margin-bottom: 10px; color: #888;">Aguardando validação Luhn...</div>
+        <button onclick="manifestICCID()">Manifestar Identidade Soberana</button>
+        <div id="manifest-result" style="font-size: 11px; margin-top: 10px; color: #64ffda; word-break: break-all;"></div>
+    </div>
+
+    <script>
+        let t = 0, d = 20, W, w = 200, systemAlpha = 0.3;
+        let jwtToken = null;
+
+        function setup() {
+            createCanvas(W = w * 2, W);
+            colorMode(HSB);
+            setInterval(fetchData, 2000);
+            document.getElementById('iccid-input').addEventListener('input', validateLuhn);
+            validateLuhn();
+            login();
+        }
+
+        async function login() {
+            try {
+                let response = await fetch('/api/login');
+                let data = await response.json();
+                jwtToken = data.token;
+            } catch (e) {
+                console.error("Falha no login JWT", e);
+            }
+        }
+
+        function luhnChecksum(iccid) {
+            let digits = iccid.replace(/\D/g, '').split('').map(Number);
+            if (digits.length < 18 || digits.length > 22) return false;
+            let sum = 0;
+            let isSecond = false;
+            for (let i = digits.length - 1; i >= 0; i--) {
+                let d = digits[i];
+                if (isSecond) {
+                    d *= 2;
+                    if (d > 9) d -= 9;
+                }
+                sum += d;
+                isSecond = !isSecond;
+            }
+            return sum % 10 === 0;
+        }
+
+        function validateLuhn() {
+            let iccid = document.getElementById('iccid-input').value;
+            let statusDiv = document.getElementById('luhn-status');
+            if (luhnChecksum(iccid)) {
+                statusDiv.innerHTML = '✅ ICCID Válido (Luhn OK)';
+                statusDiv.style.color = '#64ffda';
+            } else {
+                statusDiv.innerHTML = '❌ ICCID Inválido';
+                statusDiv.style.color = '#ff6464';
+            }
+        }
+
+        async function manifestICCID() {
+            let iccid = document.getElementById('iccid-input').value;
+            if (!luhnChecksum(iccid)) {
+                alert("ICCID inválido! Corrija antes de manifestar.");
+                return;
+            }
+            let resultDiv = document.getElementById('manifest-result');
+            resultDiv.innerHTML = "⏳ Manifestando...";
+            try {
+                let response = await fetch('/api/manifest_iccid', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken}`
+                    },
+                    body: JSON.stringify({ iccid: iccid })
+                });
+                if (response.status === 401) {
+                    resultDiv.innerHTML = "❌ Não autorizado (JWT inválido/expirado)";
+                    return;
+                }
+                let data = await response.json();
+                if (data.status && data.status.startsWith("sovereign_anchor")) {
+                    resultDiv.innerHTML = `✅ Registrado!<br>Hash: ${data.block_hash.substring(0, 20)}...`;
+                } else {
+                    resultDiv.innerHTML = `❌ Erro: ${JSON.stringify(data)}`;
+                }
+            } catch (e) {
+                resultDiv.innerHTML = "❌ Erro de conexão.";
+            }
+        }
+
+        async function fetchData() {
+            if (!jwtToken) return;
+            try {
+                let response = await fetch('/api/health', {
+                    headers: { 'Authorization': `Bearer ${jwtToken}` }
+                });
+                if (response.status !== 200) return;
+                let data = await response.json();
+                
+                systemAlpha = data.network ? data.network.alpha_network : 0.3;
+                document.getElementById('m-alpha').textContent = systemAlpha.toFixed(3);
+                document.getElementById('m-state').textContent =
+                    systemAlpha > 0.95 ? '🛑 VETO' :
+                    systemAlpha > 0.85 ? '⚠️ ESCALATE' :
+                    systemAlpha > 0.70 ? '⚠️ CRÍTICO' : '✅ COERENTE';
+                document.getElementById('m-veto').textContent =
+                    systemAlpha > 0.95 ? '🛑 KILL-SWITCH' : 'ARMADO';
+                
+                if (data.network && data.network.quantum) {
+                    let q = data.network.quantum;
+                    document.getElementById('m-quantum').textContent = 
+                        q.status === 'coherent' ? `✅ ${(q.fidelity*100).toFixed(1)}%` : `❌ ${(q.fidelity*100).toFixed(1)}%`;
+                }
+                
+                if (data.network) {
+                    document.getElementById('net-status').textContent = data.network.status;
+                    document.getElementById('net-lat').textContent = data.network.avg_latency_ms.toFixed(1) + ' ms';
+                    document.getElementById('net-nodes').textContent = data.network.active_nodes;
+                }
+            } catch (e) {
+                systemAlpha = 0.3 + 0.5 * Math.abs(Math.sin(t / 100));
+                document.getElementById('m-alpha').textContent = systemAlpha.toFixed(3) + ' (auto)';
+            }
+        }
+
+        function draw() {
+            background(w * sin(t / 31), .1);
+            F = u => tan(t / 71) * d * (int(u / d) % 2 ? -1 : 1);
+            strokeWeight(d - 2);
+            for (let x = 0; x < W; x += d) {
+                for (let y = 0; y < W; y += d) {
+                    M = mag(x - w, y - w);
+                    stroke(M / w * 360, w, w, .4);
+                    let r = w * (1.1 - systemAlpha * 0.5);
+                    M < r ? point(x + F(y), y + F(x)) : 0;
+                }
+            }
+            t++;
+        }
+    </script>
+</body>
+</html>

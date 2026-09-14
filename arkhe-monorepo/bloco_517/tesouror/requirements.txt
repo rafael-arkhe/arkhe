@@ -1,0 +1,4 @@
+numpy>=1.26
+web3>=7.0
+eth-account>=0.13.0
+prometheus-client>=0.20

@@ -1,0 +1,52 @@
+{
+  "dashboard": {
+    "title": "Arkhe Manifold 8.1",
+    "description": "Monitoramento do ecossistema Arkhe (Verbal Chemistry + ROQUO + Glass5D + SQC)",
+    "tags": ["arkhe", "hpc", "quantum"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Eventos Processados",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(arkhe_events_total)",
+            "legendFormat": "total"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+      },
+      {
+        "id": 2,
+        "title": "Erros",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(arkhe_errors_total)",
+            "legendFormat": "erros"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+      },
+      {
+        "id": 3,
+        "title": "Operações de Banco/Glass5D",
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(arkhe_db_operations_total)",
+            "legendFormat": "operações"
+          }
+        ],
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+      }
+    ]
+  }
+}

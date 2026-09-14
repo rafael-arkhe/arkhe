@@ -1,0 +1,47 @@
+# SOPHIA V5.0 — Configuração auto-hospedada (homelab)
+# Tudo local: sem cloud, sem SaaS.
+
+paths:
+  base: /opt/sophia
+  output: /var/lib/sophia
+  logs: /var/log/sophia
+  models: /opt/sophia/models
+  secrets: /etc/sophia/secrets.conf
+  detections_sock: /run/sophia/edge_detections.json
+
+orchestrator:
+  loop_hz: 10             # 10 Hz
+  psi_c_initial: 0.5774   # Gap-1: 0.577350 < Φ_C <= 0.999900
+  brainwave_initial: 0.5
+  jitter: 0.01
+
+linguistic_agent:
+  vowel_bias_base: 0.22
+  vowel_bias_psi_scale: 0.10
+  report_interval_s: 5
+
+edge_vision:
+  camera_id: 0
+  input_hw: 224
+  input_hh: 224
+  model: glifos_detector_quantized.onnx
+  inference_hz: 2
+
+dashboard:
+  host: 0.0.0.0
+  port: 8080
+  debug: false
+  refresh_ms: 1000
+
+security:
+  watch_dir: /opt/sophia
+  baseline: /etc/sophia/file_hashes.json
+  integrity_log: /var/log/sophia_integrity.log
+  integrity_interval_s: 60
+  audit_interval_s: 3600
+  firewall_input_policy: DROP
+  allowed_ports: [8080, 22]
+  critical_files:
+    - /usr/local/bin/sophia_orchestrator
+    - /opt/sophia/bin/linguistic_agent
+    - /opt/sophia/bin/edge_vision

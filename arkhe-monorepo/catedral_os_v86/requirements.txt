@@ -1,0 +1,10 @@
+# Catedral OS v86.0 — Dependências
+#
+# Núcleo (obrigatório):
+numpy>=1.24
+
+# Opcional (melhora performance numérica):
+# scipy>=1.10
+
+# Testes:
+# pytest>=7.0

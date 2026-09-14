@@ -1,0 +1,10 @@
+low_freq,high_freq,description
+108.0,118.0,Radionavegação (VOR/ILS)
+118.0,137.0,Comunicação ar-solo VHF
+121.5,121.5,Emergência
+406.0,406.1,Satélite busca e salvamento
+144.0,146.0,Radioamador (secundário)
+430.0,440.0,Radioamador (secundário)
+0.526,1.605,Radiodifusão AM
+87.8,108.0,Radiodifusão FM
+1400.0,1427.0,Astronomia rádio

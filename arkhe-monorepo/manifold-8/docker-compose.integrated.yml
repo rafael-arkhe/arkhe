@@ -1,0 +1,238 @@
+# docker-compose.integrated.yml
+# Ecossistema Arkhe Manifold 8.1 — Verbal Chemistry + Event Processor + ROQUO + Glass5D
+#
+# Uso:
+#   docker compose -f docker-compose.integrated.yml up --build
+#
+# Em modo simulação (SIMULATION_MODE=true), o fluxo funciona sem os serviços reais.
+
+name: arkhe-manifold-8
+
+services:
+  # ==================== INFRAESTRUTURA ====================
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: integrated_system
+      POSTGRES_USER: arkhe
+      POSTGRES_PASSWORD: arkhe_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - arkhe-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arkhe"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - arkhe-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - arkhe-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - arkhe-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - arkhe-network
+
+  # ==================== PIPELINE DE DADOS ====================
+
+  event-processor:
+    build:
+      context: .
+      dockerfile: event-processor/Dockerfile
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_TOPIC=events.raw
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - S3_ENDPOINT_URL=http://minio:9000
+      - REDIS_HOST=redis
+      - METRICS_PORT=8000
+      - GLASS5D_ENABLED=true
+      - GLASS5D_API_URL=http://glass5d-sim:8080
+      - ROQUO_ENABLED=true
+      - ROQUO_API_URL=http://roquo-sim:8080
+      - SQC_API_URL=http://sqc-sim:8080
+      - SIMULATION_MODE=true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./core:/app/core
+      - ./verbal_events_processor.py:/app/verbal_events_processor.py
+      - ./shared:/app/shared
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      roquo-sim:
+        condition: service_started
+      glass5d-sim:
+        condition: service_started
+    networks:
+      - arkhe-network
+    scale: 2
+
+  # ==================== ARKHE ECOSSISTEMA ====================
+
+  # Simulador do ROQUO (para testes)
+  roquo-sim:
+    build:
+      context: ./simulators
+      dockerfile: Dockerfile.roquo
+    environment:
+      - SIMULATE_LATENCY_MS=100
+      - SIMULATE_QUANTUM_BACKEND=true
+    ports:
+      - "8081:8080"
+    networks:
+      - arkhe-network
+
+  # Simulador do Glass5D (para testes)
+  glass5d-sim:
+    build:
+      context: ./simulators
+      dockerfile: Dockerfile.glass5d
+    environment:
+      - MAX_CAPACITY_TB=360
+      - WORM_ENABLED=true
+      - VERIFICATION_ENABLED=true
+    ports:
+      - "8082:8080"
+    volumes:
+      - glass5d_data:/tmp/glass5d
+    networks:
+      - arkhe-network
+
+  # Simulador do SQC Interface
+  sqc-sim:
+    build:
+      context: ./simulators
+      dockerfile: Dockerfile.sqc
+    environment:
+      - ORCHESTRATION_ENABLED=true
+      - QUANTUM_BACKENDS=reimei,ibm_kobe
+    ports:
+      - "8083:8080"
+    networks:
+      - arkhe-network
+
+  # ==================== MONITORAMENTO ====================
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=200h'
+    networks:
+      - arkhe-network
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - arkhe-network
+
+  # ==================== DASHBOARD VERBAL ====================
+
+  verbal-dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile.streamlit
+    environment:
+      - VERBAL_API_URL=http://event-processor:8000
+      - ARKHE_API_URL=http://glass5d-sim:8080
+      - ROQUO_API_URL=http://roquo-sim:8080
+    ports:
+      - "8501:8501"
+    depends_on:
+      - event-processor
+      - glass5d-sim
+    networks:
+      - arkhe-network
+
+networks:
+  arkhe-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+
+volumes:
+  postgres_data:
+  minio_data:
+  kafka_data:
+  prometheus_data:
+  grafana_data:
+  glass5d_data:

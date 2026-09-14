@@ -1,0 +1,20 @@
+# Catedral OS v280.0 — Dependências
+#
+# Núcleo (obrigatório):
+numpy>=1.24
+
+# Dashboard web (OPCIONAL — sem dash, o fallback exporta HTML estático via
+# Plotly; documentado, não é falso-verde):
+# dash>=2.14
+# plotly>=5.18
+
+# Ledger distribuído (OPCIONAL — sem ipfshttpclient/daemon, o ledger degrada
+# para fallback local hash-encadeado; documentado):
+# ipfshttpclient>=0.8.0a2
+
+# Verificação formal (OPCIONAL — sistema Lean 4 deve estar no PATH para o
+# validador checar o arquivo formal real; sem lean, status "unavailable"):
+# lean
+
+# Testes:
+pytest>=7.0

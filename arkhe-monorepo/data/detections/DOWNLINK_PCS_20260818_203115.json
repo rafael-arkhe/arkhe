@@ -1,0 +1,27 @@
+{
+  "label": "DOWNLINK_PCS",
+  "center_freq_hz": 1992500000.0,
+  "sample_rate_hz": 1000000.0,
+  "bandwidth_hz": 1000000.0,
+  "duration_s": 0.05,
+  "timestamp_utc": "2026-08-18T23:31:15Z",
+  "mode": "sim",
+  "n_samples": 50000,
+  "target": "DOWNLINK_PCS",
+  "freq_hz": 1992500000.0,
+  "timestamp": "2026-08-18T23:31:15.365381+00:00",
+  "snr_db": 25.603691285400004,
+  "slope_khz_per_s": 1.7723966960914344,
+  "r_squared": 0.9079939016795159,
+  "confidence": "SATELITE",
+  "num_peaks": 5,
+  "all_peaks": [
+    1992320068.359375,
+    1992429687.5,
+    1992481689.453125,
+    1992519775.390625,
+    1992620117.1875
+  ],
+  "theoretical_doppler_khz": 50.44,
+  "npy_file": "data\\detections\\DOWNLINK_PCS_20260818_203115.npy"
+}

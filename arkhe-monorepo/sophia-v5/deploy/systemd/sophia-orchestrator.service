@@ -1,0 +1,18 @@
+[Unit]
+Description=SOPHIA V5.0 - Orquestrador de agentes locais (patches 19-22)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=arkhe
+Group=arkhe
+WorkingDirectory=/var/lib/sophia
+ExecStartPre=/usr/bin/install -d -o arkhe -g arkhe -m 0750 /var/lib/sophia /run/sophia
+ExecStart=/usr/bin/python3 /opt/sophia/agents/python/sophia_local/orchestrator.py --daemon
+# RestartPolicy: permanece audível cada ciclo na TemporalChain
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

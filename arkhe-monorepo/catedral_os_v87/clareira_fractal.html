@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Catedral OS v8.7 — A Tela Infinita</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a0a; color: #fff;
+               font-family: 'Courier New', monospace; }
+        #info { position: absolute; top: 10px; left: 10px; z-index: 100;
+                background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px;
+                border: 1px solid #64ffda; font-size: 12px; line-height: 1.8; }
+        h3 { margin: 0 0 10px 0; color: #64ffda; font-size: 13px;
+             letter-spacing: 2px; text-transform: uppercase; }
+        .axiom { color: #64ffda; font-weight: bold; }
+        .label { color: #888; }
+        .value { color: #64ffda; }
+        .veto { color: #ff4444; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>🏛️ Substrato 203 — A Tela Infinita</h3>
+        <div><span class="axiom">I.</span> <span class="label">Clareira:</span> M &lt; w (Sub 163)</div>
+        <div><span class="axiom">II.</span> <span class="label">Flutuação:</span> tan(t/71) (Sub 191)</div>
+        <div><span class="axiom">III.</span> <span class="label">Coerência:</span> M/w×360° (CGF)</div>
+        <div><span class="axiom">IV.</span> <span class="label">Tempo:</span> sin(t/31) (Sub 202)</div>
+        <div style="margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
+            <div><span class="label">α-Sistema:</span> <span class="value" id="m-alpha">0.00</span></div>
+            <div><span class="label">Ciclo:</span> <span class="value" id="m-cycle">0</span></div>
+            <div><span class="label">Estado:</span> <span class="value" id="m-state">COERENTE</span></div>
+            <div><span class="label">Veto:</span> <span class="value" id="m-veto">ARMADO</span></div>
+        </div>
+    </div>
+    <script>
+        // ========================================================================
+        // SUBSTRATO 203: A TELA INFINITA — VERSÃO CANÔNICA v8.7
+        // Os Quatro Axiomas Visuais da Catedral Cognitiva
+        // ========================================================================
+
+        let t = 0;
+        const d = 20;
+        let W;
+        const w = 200;
+        let systemAlpha = 0.3;
+
+        function setup() {
+            createCanvas(W = w * 2, W);
+            colorMode(HSB);
+            setInterval(fetchAlpha, 2000);
+        }
+
+        function fetchAlpha() {
+            fetch('/api/metrics')
+                .then(r => r.json())
+                .then(data => {
+                    systemAlpha = data.alpha || 0.3;
+                    document.getElementById('m-alpha').textContent = systemAlpha.toFixed(3);
+                    document.getElementById('m-cycle').textContent = Math.floor(t / 31);
+                    let state = systemAlpha > 0.95 ? '🛑 VETO ATIVADO' :
+                                systemAlpha > 0.85 ? '⚠️ ESCALATE' :
+                                systemAlpha > 0.70 ? '⚠️ CRÍTICO' :
+                                systemAlpha > 0.55 ? '⚠️ ATENÇÃO' : '✅ COERENTE';
+                    document.getElementById('m-state').textContent = state;
+                    document.getElementById('m-veto').textContent =
+                        systemAlpha > 0.95 ? '🛑 KILL-SWITCH' : 'ARMADO';
+                })
+                .catch(() => {
+                    systemAlpha = 0.3 + 0.5 * Math.abs(Math.sin(t / 100));
+                    document.getElementById('m-alpha').textContent = systemAlpha.toFixed(3) + ' (auto)';
+                    document.getElementById('m-cycle').textContent = Math.floor(t / 31);
+                    document.getElementById('m-state').textContent =
+                        systemAlpha > 0.95 ? '🛑 VETO ATIVADO' :
+                        systemAlpha > 0.85 ? '⚠️ ESCALATE' :
+                        systemAlpha > 0.70 ? '⚠️ CRÍTICO' : '✅ COERENTE';
+                    document.getElementById('m-veto').textContent = 'ARMADO (auto)';
+                });
+        }
+
+        function draw() {
+            // AXIOMA IV: O Tempo Epistêmico
+            background(w * sin(t / 31), .1);
+
+            // AXIOMA II: A Flutuação Termodinâmica
+            F = u => tan(t / 71) * d * (int(u / d) % 2 ? -1 : 1);
+
+            strokeWeight(d - 2);
+
+            for (let x = 0; x < W; x += d) {
+                for (let y = 0; y < W; y += d) {
+                    // AXIOMA I: A Clareira
+                    M = mag(x - w, y - w);
+
+                    // AXIOMA III: O Gradiente de Coerência
+                    stroke(M / w * 360, w, w, .4);
+
+                    // VETO DE ANÚBIS: Clareira encolhe se α alto
+                    let radiusLimit = w * (1.1 - systemAlpha * 0.5);
+                    M < radiusLimit ? point(x + F(y), y + F(x)) : 0;
+                }
+            }
+            t++;
+        }
+    </script>
+</body>
+</html>

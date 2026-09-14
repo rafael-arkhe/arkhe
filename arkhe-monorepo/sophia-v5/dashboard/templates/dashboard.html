@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SOPHIA V5.0 — Auto-Hospedada</title>
+  <style>
+    :root { --bg:#0b1020; --panel:#141b30; --fg:#e6ecff; --muted:#8aa0cc;
+            --ok:#3ddc84; --warn:#f4b942; --bad:#e5484d; --accent:#7c6cff; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;
+           background:var(--bg); color:var(--fg); }
+    header { padding:18px 24px; border-bottom:1px solid #1f2a4a;
+             display:flex; justify-content:space-between; align-items:center; }
+    h1 { font-size:18px; letter-spacing:2px; margin:0; }
+    .sub { color:var(--muted); font-size:12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+            gap:16px; padding:20px 24px; }
+    .card { background:var(--panel); border:1px solid #1f2a4a; border-radius:10px; padding:16px; }
+    .card h2 { font-size:13px; color:var(--muted); letter-spacing:1px; margin:0 0 12px;
+               text-transform:uppercase; }
+    .metric { display:flex; justify-content:space-between; padding:6px 0;
+              border-bottom:1px dashed #1f2a4a; }
+    .metric:last-child { border-bottom:none; }
+    .metric span { color:var(--muted); }
+    .metric b { color:var(--ok); }
+    .pill { display:inline-block; padding:2px 10px; border-radius:999px;
+            font-size:11px; border:1px solid; }
+    .ok   { color:var(--ok); border-color:var(--ok); }
+    .warn { color:var(--warn); border-color:var(--warn); }
+    ul.log { list-style:none; margin:0; padding:0; font-size:12px; }
+    ul.log li { padding:3px 0; color:var(--muted); border-bottom:1px dashed #1f2a4a; }
+    ul.log li b { color:var(--warn); }
+    .statusline { font-size:12px; color:var(--muted); padding:10px 24px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>SOPHIA V5.0 — AUTO-HOSPEDADA</h1>
+      <div class="sub">agentes locais · visão em edge · cybersec/homelab · sem SaaS</div>
+    </div>
+    <span class="pill ok" id="health">conectando…</span>
+  </header>
+
+  <div class="statusline" id="ts">—</div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Orquestrador (Patch #19–22)</h2>
+      <div id="orch"></div>
+    </div>
+    <div class="card">
+      <h2>TemporalChain (local)</h2>
+      <div id="temporal"></div>
+    </div>
+    <div class="card">
+      <h2>Visão em Edge (Pi / ESP32)</h2>
+      <div id="vision"></div>
+    </div>
+    <div class="card">
+      <h2>Segurança — Integridade</h2>
+      <div id="security"></div>
+    </div>
+  </div>
+
+  <div class="grid" style="padding-top:0">
+    <div class="card" style="grid-column:1/-1">
+      <h2>Cadeia de eventos (últimas ancoragens)</h2>
+      <ul class="log" id="ledger"></ul>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const fmt = (x) => (Number(x).toFixed ? Number(x).toFixed(4) : x);
+
+    function renderOrch(o) {
+      $("orch").innerHTML = o ? `
+        <div class="metric"><span>ψ_C (Patch 19)</span><b>${fmt(o.psi_C)}</b></div>
+        <div class="metric"><span>Q (Patch 20)</span><b>${fmt(o.q_coefficient)}</b></div>
+        <div class="metric"><span>Coerência global</span><b>${fmt(o.global_coherence)}</b></div>
+        <div class="metric"><span>τ decoerência</span><b>${fmt(o.decoherence_time)}</b></div>
+        <div class="metric"><span>estado</span><b>${o.running ? "RUNNING" : "IDLE"}</b></div>` :
+        `<em>sem dados</em>`;
+    }
+    function renderTemporal(t) {
+      $("temporal").innerHTML = t ? `
+        <div class="metric"><span>blocos</span><b>${t.ledger_entries}</b></div>
+        <div class="metric"><span>cadeia verificada</span><b>${t.ledger_verified ? "OK" : "FALHA"}</b></div>
+        <div class="metric"><span>último seal</span><b style="font-size:10px">${(t.last_seal||"-").slice(0,24)}</b></div>` :
+        `<em>sem dados</em>`;
+    }
+    function renderVision(v) {
+      let nodes = "";
+      if (v && v.detections && v.detections.length) {
+        for (const d of v.detections) {
+          nodes += `<div class="metric"><span>${d.label}</span>` +
+                   `<b>${(d.confidence*100).toFixed(0)}%</b></div>`;
+        }
+      } else { nodes = `<em>sem detecções</em>`; }
+      $("vision").innerHTML = `<div class="metric"><span>fonte</span><b>${v?.camera_path||"-"}</b></div>` + nodes;
+    }
+    function renderSecurity(s) {
+      let alerts = "";
+      if (s && s.alerts && s.alerts.length) {
+        for (const a of s.alerts.slice(-5)) alerts += `<li><b>!</b> ${a}</li>`;
+      } else { alerts = `<li>sem alertas</li>`; }
+      $("security").innerHTML = `<ul class="log">${alerts}</ul>` +
+        `<div class="metric"><span>baseline</span><b style="font-size:10px">${s?.baseline||"-"}</b></div>`;
+    }
+    async function refresh() {
+      try {
+        const r = await fetch("/api/status");
+        const data = await r.json();
+        renderOrch(data.orchestrator);
+        renderTemporal(data.temporal);
+        renderVision(data.vision);
+        renderSecurity(data.security);
+        $("health").className = "pill ok";
+        $("health").textContent = "online";
+        $("ts").textContent = "atualizado " + new Date().toLocaleTimeString();
+      } catch (e) {
+        $("health").className = "pill warn";
+        $("health").textContent = "offline";
+      }
+    }
+    setInterval(refresh, 1000);
+    refresh();
+  </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+# reproducibility.yaml — Protocolo de reprodutibilidade
+# Framework: ARKHE-SUBSTRATO-AUDIT-V2.0
+# Honestidade: offline é 100% determinístico; online depende de APIs externas
+# (Crossref/OpenAlex/DOAJ/doi.org) — os resultados refletem o estado das APIs
+# na data do run (Gravity-1), por isso o relatório embute a data UTC e o hash
+# da entrada.
+
+reproducibility:
+  script: "tools/audit_substrate.py"
+  runtime: "python>=3.11"            # stdlib; sem dependências obrigatórias
+  dependencies_obrigatorias: []
+  dependencies_opcionais:
+    - "PyYAML>=6.0  # parse de .yaml (senão aceita .json)"
+    - "sentence-transformers>=2.2  # só o critério 5 (abstract similarity)"
+    - "numpy>=1.24  # só o critério 5"
+  networks:
+    - "https://api.crossref.org"     # critérios 2,3,4,5,7,8,10
+    - "https://api.openalex.org"     # critérios 2,3,4,5,7,8,10,11
+    - "https://doaj.org/api"         # critério 9
+    - "https://doi.org"              # critérios 1,6
+  inputs:
+    - "docs/substrate/publications.yaml"
+  outputs:
+    - "docs/substrate/AUDIT-REPORT.md"
+    - "docs/substrate/discrepancies.md"
+  hash_algorithm: "sha256"
+  deterministic:
+    offline: true
+    online: "dependente do estado externo das APIs (data UTC registada)"
+  rerun_command: >
+    python tools/audit_substrate.py
+      --input docs/substrate/publications.yaml
+      --output-dir docs/substrate
+      --mode online
+      --similarity-threshold 0.85
+      --hash-anterior <sha256_real_do_bloco_1074>
+  integridade:
+    fonte_unica_verdade: "respostas vivas das APIs registadas em evidencia_bruta"
+    nunca_fabricado: "status 'ok'/'fail' exigem evidência; sem evidência => 'nao_verificado'"
+    verificador: "python tools/audit_substrate.py --selfcheck"

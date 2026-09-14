@@ -1,0 +1,18 @@
+{
+  "esim": {
+    "deployment": "virtual",
+    "physical_chip": false,
+    "version": "9.8"
+  },
+  "profile": {
+    "eid": "89049032000000000000000000000001",
+    "matching_id": "catedral-sovereign-001",
+    "iccid": "89441111222233334446",
+    "state": "installed",
+    "operator": "Globalplay",
+    "country": "Germany",
+    "substrate": "211",
+    "protection": "profile_locked",
+    "activation_code": "LPA:1$smdp.catedral.os$catedral-sovereign-001"
+  }
+}

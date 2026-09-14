@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-08-16T00:19:25.246855+00:00",
+  "total_files": 1,
+  "total_ok": 1,
+  "total_warning": 0,
+  "total_error": 0,
+  "total_confirmed": 29,
+  "total_warnings": 0,
+  "total_errors": 0,
+  "total_unverifiable": 0,
+  "results": [
+    {
+      "file": "data\\specs\\specs_example.md",
+      "status": "ok",
+      "n_claims": 41,
+      "n_validations": 29,
+      "confirmed": 29,
+      "warning": 0,
+      "error": 0,
+      "unverifiable": 0,
+      "report_path": "data\\reports\\specs_example.json",
+      "error_msg": null
+    }
+  ]
+}

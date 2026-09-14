@@ -1,0 +1,27 @@
+# agent.yaml — v77 VETADO — BLOCO 517 (G1)
+# Especificacao minima do agente hyperevm_recovery_agent para watsonx
+# Orchestrate. O deployment e feito via deploy_agent.sh (requer WXO).
+name: hyperevm_recovery_agent
+description: >-
+  Recuperacao/diagnostico de transacoes HyperEVM (chain id 999): status via
+  RPC, trace via trace_replayTransaction (GoldRush), simulacao evm t8n com
+  fallback eth_call, reenvio com ajuste de gas, monitor e relatorio forense.
+skills:
+  - name: rpc_tools
+    entrypoint: tools/rpc_tools.py
+  - name: trace_tools
+    entrypoint: tools/trace_tools.py
+  - name: simulation_tools
+    entrypoint: tools/simulation_tools.py
+  - name: resend_tools
+    entrypoint: tools/resend_tools.py
+environment:
+  - variable: RPC_URL
+    default: "https://rpc.hyperliquid.xyz/evm"
+  - variable: CHAIN_ID
+    default: "999"
+security:
+  secrets:
+    - PRIVATE_KEY
+    - GOLDRUSH_API_KEY
+    - TRACE_AI_API_KEY

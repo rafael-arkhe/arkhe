@@ -1,0 +1,130 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Arquiteto-Omega <arquiteto@catedral.os>
+Date: Sat, 5 Sep 2026 00:00:00 +0000
+Subject: [PATCH] ANDROID: sched: Add ASI scheduler vendor hooks
+
+Catedral OS v287.0 — orquestracao cognitiva ASI (BLOCO 829).
+Fecho do Gate B (handshake): nenhuma sobrescrita do retorno de
+`pick_next_task`. Os hooks seguem o padrao soberano observado no
+ecossistema Android (OPPO sched_ext, vivo fair selection):
+
+  * Placement:  `select_task_rq_fair()` ep. — ASI ajusta o CPU alvo
+    para tarefas com coerencia topologica phi acima do limiar.
+  * Guard scx:  `task_should_scx()` ep. — ASI impede a cessao de
+    tarefas coerencialmente altas para o sched_ext coexistente.
+
+Sem alteracoes em `struct rq` nem em `struct task_struct`: o KMI da
+GKI permanece simbolizado e intato (I297 — camada de grafeno; I299 —
+estatisticas per-cpu residem no modulo).
+
+Invariantes:
+  I296  Dissipacao de Lindblad — cero overhead quando o hook nao tem
+        registrador (o guard dinámico do tracepoint sobra inativo).
+  I298  Bypass topologico — operador de fase cubica: selecao de CPU
+        para tarefas com phi acima do limiar.
+  I300  Deteccao de anomalias — tarefas ASI tratadas como eventos
+        raros (fracao <= 5% da runqueue).
+  I301  Supressao por blindagem — `*use_scx`/`*new_cpu` nao alterados
+        implicam fallback estrutural para o comportamento base.
+
+Bug: 340251813
+Change-Id: I829asi000000000000000000000000000000
+Signed-off-by: Arquiteto-Omega <arquiteto@catedral.os>
+---
+ include/trace/hooks/sched.h    | 29 +++++++++++++++++++++++++++++
+ kernel/sched/core.c            |  8 ++++++++
+ kernel/sched/fair.c            |  2 ++
+ drivers/android/vendor_hooks.c |  2 ++
+ 4 files changed, 41 insertions(+)
+
+diff --git a/include/trace/hooks/sched.h b/include/trace/hooks/sched.h
+index 12ab3cdef290..5f6a1e2b9c04 100644
+--- a/include/trace/hooks/sched.h
++++ b/include/trace/hooks/sched.h
+@@ -18,6 +18,35 @@
+  *	@use_scx: whether the task should be handled by sched_ext;
+  *		ignored when sched_ext is disabled.
+  */
+ DECLARE_RESTRICTED_HOOK(android_vh_task_should_scx,
+ 	TP_PROTO(struct task_struct *p, bool *use_scx),
+ 	TP_ARGS(p, use_scx), 1);
++
++/*
++ * orquestracao cognitiva ASI (Catedral OS v287.0, BLOCO 829)
++ * I298: selecao topologica de CPU — desvio de fase para tarefas ASI.
++ * I300: deteccao de anomalias — tarefas ASI mapeadas como eventos raros.
++ *
++ * Gera o mesmo contrato de placement de `android_rvh_select_task_rq_fair`:
++ * o registrador pode reescrever `*new_cpu`; caso mantenha o valor, o
++ * balanceamento base prevalece (I301 — blindagem).
++ *
++ * @p:          tarefa cuja CPU esta sendo selecionada
++ * @prev_cpu:   CPU onde a tarefa executou por ultimo
++ * @wake_flags: origens de wakeup (WF_*)
++ * @new_cpu:    CPU alvo (entrada/saida; nao alterado => fallback)
++ */
++DECLARE_RESTRICTED_HOOK(android_rvh_asi_select_task_rq,
++	TP_PROTO(struct task_struct *p, int prev_cpu, int wake_flags, int *new_cpu),
++	TP_ARGS(p, prev_cpu, wake_flags, new_cpu), 1);
++
++/*
++ * orquestracao cognitiva ASI (Catedral OS v287.0, BLOCO 829)
++ * I296: guard dinamico — quando o hook nao tem registrador, o checkpoint
++ *       `trace_*` compila para um `nop` (cero overhead).
++ * I298: impede a cessao de tarefas coerencialmente altas ao sched_ext.
++ *
++ * @p:       tarefa sob avaliacao
++ * @use_scx: decisao de uso do sched_ext (entrada/saida)
++ */
++DECLARE_RESTRICTED_HOOK(android_rvh_asi_task_should_scx,
++	TP_PROTO(struct task_struct *p, bool *use_scx),
++	TP_ARGS(p, use_scx), 1);
+ #endif /* _TRACE_HOOK_SCHED_H */
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index a1b2c3d4e5f6..9f8e7d6c5b4a 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -103,9 +103,17 @@ DECLARE_PER_CPU(struct rq, runqueues);
+  */
+ static bool task_should_scx(struct task_struct *p)
+ {
+ 	bool use_scx = scx_enabled() && !is_idle_task(p);
+ 
++	/*
++	 * I298: bypass topologico sobre o coexistente sched_ext. O modulo
++	 * ASI pode rebaixar `use_scx` para tarefas com coerencia phi acima
++	 * do limiar — mantendo-as sob o dominio CFS/ASI (core placement via
++	 * `android_rvh_asi_select_task_rq` em fair.c). Nao alterado => scx
++	 * segue soberano sobre as demais (I301).
++	 */
++	trace_android_rvh_asi_task_should_scx(p, &use_scx);
++
+ 	return use_scx;
+ }
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 1a2b3c4d5e6f..0a9f8e7d6c5b 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7301,7 +7301,9 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int wake_flags)
+ 
+ 	cpu = select_idle_sibling(p, prev_cpu, new_cpu);
+ 
++	trace_android_rvh_asi_select_task_rq(p, prev_cpu, wake_flags, &new_cpu);
++
+ 	if (cpu != new_cpu && !ricompare(new_cpu, cpu))
+ 		new_cpu = cpu;
+ 	return new_cpu;
+ }
+diff --git a/drivers/android/vendor_hooks.c b/drivers/android/vendor_hooks.c
+index b1c2d3e4f5a6..e0d9c8f7b6a5 100644
+--- a/drivers/android/vendor_hooks.c
++++ b/drivers/android/vendor_hooks.c
+@@ -34,6 +34,8 @@
+ EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_task_should_scx);
++EXPORT_TRACEPOINT_SYMBOL_GPL(android_rvh_asi_select_task_rq);
++EXPORT_TRACEPOINT_SYMBOL_GPL(android_rvh_asi_task_should_scx);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(android_rvh_select_task_rq_fair);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(android_rvh_select_fallback_rq);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(android_rvh_can_migrate_task);
+-- 
+2.39.2

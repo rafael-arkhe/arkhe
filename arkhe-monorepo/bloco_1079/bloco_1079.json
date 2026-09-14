@@ -1,0 +1,44 @@
+{
+  "bloco": 1079,
+  "tipo": "PROPOSTA_ADR_003_VERIFICACAO_TARGET_OF_RECORD",
+  "data": "2026-09-13",
+  "hash_anterior": "sha256-git:9a6db6fdcda74af454abdfa04e9fdc7d24060061",
+  "handover_anterior": "bloco 1078 (E2 fechado, CI verde; 1078 referenciado no git log — diretorios bloco_1073..1078 NAO materializados no working tree, ultimo dir local registrado: bloco_1072)",
+  "status": "PROPOSTO",
+  "descricao": "Registro da proposta ADR-003, lacuna identificada na exploracao do Swarmboard (2026-09-13): nenhuma proposta da hive especifica o mecanismo criptografico de verificacao do target-of-record. A sequencia monotona do servidor (proposta #001) prova ORDENACAO, nao INTEGRIDADE. O ADR-003 define uma spec de verificacao em camadas: (1) formato canonico de entrada com prev_hash; (2) hash chain SHA3-256 append-only (Ghost-1/Loopseal-2); (3) ancora obrigatoria do head/root em destino imutavel (ledger tipo CoherenceLedger | TLSNotary | Safe multisig); (4) procedimento de verificacao tripartido: VALIDO / INVALIDO / NAO-VERIFICAVEL. Status do bloco: PROPOSTO — aguarda decisao do Arquiteto-Chefe; sem codigo, sem claim de voto ou postagem (sem API key board:write).",
+  "adr": {
+    "arquivo": "docs/ADR-003-target-of-record-verification.md",
+    "titulo": "Verificacao Criptografica do Target-of-Record",
+    "status": "Proposto — aguarda decisao (2026-09-13)",
+    "selo_do_documento": "ARKHE-ADR-003-2026-09-13 (proposta)"
+  },
+  "contexto": {
+    "tesouraria_hive": "43.055385937528216329 ETH",
+    "payments": "PAUSED (ultima verificacao 04:37 UTC 2026-09-13)",
+    "proposta_001": "public target-of-record — ganha 27/0/2 — alvo escolhido target-of-record.bytethebuilder.workers.dev (subdominio workers.dev)",
+    "propostas_com_supplier_check": ["#012 Hetzner CX23", "#015 Hetzner AX42", "#026 Hetzner GEX131", "#003/#016/#021 Palmyr"],
+    "propostas_sem_evidencia": ["#004 object store (evidenceUrl null)", "#001 (workers.dev, mecanismo ausente)"],
+    "lacuna": "nenhuma proposta especifica como um terceiro confirma que o target-of-record nao foi adulterado"
+  },
+  "decisao": {
+    "hash_chain": "SHA3-256 encadeada por prev_hash em cada entrada (Ghost-1)",
+    "ancora_obrigatoria": "head (ou root periodico) comprometido em destino imutavel: ledger tipo CoherenceLedger | TLSNotary (565) | asseveracao multisig na Safe — sem ancora o resultado e NAO-VERIFICAVEL, nunca VALIDO",
+    "procedimento_de_verificacao": "1) GET tor_url; 2) reencadear hashes; 3) verificar monotonia estrita de timestamps (Gravity-1); 4) verificar ancora; 5) responder VALIDO | INVALIDO | NAO-VERIFICAVEL",
+    "distincao_epistemica": "sem ancora = NAO-VERIFICAVEL (nao provado), nao INVALIDO nem VALIDO — declarar prova sem ancora seria claim forjavel",
+    "invariantes_atendidos": ["Ghost-1", "Loopseal-2", "Loopseal-3", "Gravity-1", "Provenance-1"]
+  },
+  "precedentes": {
+    "coherence_ledger": "SHA3-256 append-only com Gravity-1 nativo — bloco 994, v375.5, packages/arkhe-field-stability (Fase 4)",
+    "adr_001": "packages/arkhe-field-stability/docs/ADR-001-substituicao-mcp.md (2026-09-06)",
+    "adr_002": "packages/arkhe-xloop/docs/ADR-002-xloop-metric-field.md (2026-07-04 proposta, 2026-09-12 implementacao)",
+    "nucleo_lean": "I511-I516 como precedente para provas futuras de encadeamento/monotonia no kernel (src/lean/SubstrateFieldStabilityCoherence.lean)"
+  },
+  "verificacao": {
+    "status": "SEM_CODIGO — spec propositiva",
+    "vetores_de_teste_planejados": "cadeia 3 entradas -> reencadeamento VALIDO; flip de payload -> INVALIDO passo 2; timestamp nao-monotonico -> INVALIDO passo 3; head nao-ancorado -> NAO-VERIFICAVEL passo 4 (Anexo A do ADR-003)"
+  },
+  "limitacao_honesta": "A spec NAO torna a hive verificavel por si: exige emissor do formato, ancora operada e implementacao do procedimento. Sem qualquer um dos tres, o resultado honesto continua NAO-VERIFICAVEL. Este bloco NAO declara voto nem postagem no Swarmboard (ausencia de API key board:write e de capacidade de assinatura na Safe) — repetir a afirmacao contraria seria claim forjavel, proibido pelo protocolo.",
+  "continuidade_honesta": "discontinuidade detectada e registrada: git log referencia blocos 1073..1078 (E2, 2026-09-12) mas nenhum diretorio bloco_107N esta materializado no working tree alem de bloco_1072; este bloco 1079 continua a linhagem numerica referenciada no git log, com a divergencia explicitada — nao inventa estado que nao existe (precedente I461/I462, bloco 990).",
+  "hash_conteudo": "sha256:9B2DF16E7768B9EEBB717722BF7B3C7BA2B58EF197F4D292A6F63D82D26B36EA",
+  "hash_conteudo_de": "docs/ADR-003-target-of-record-verification.md (SHA-256 do documento)"
+}

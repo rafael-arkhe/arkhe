@@ -1,0 +1,10 @@
+# Dependências para Substrato 256 v3.0 (Emergent Dynamics Advanced)
+# NOTA (Arquiteto-Ω): pins relaxados com intervalos mínimos — o ambiente verificado
+# tem numpy 2.4.6 / scipy 1.17.0. O código usa apenas APIs estáveis comuns.
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.7
+pytest==8.3.2
+pytest-cov==5.0.0
+# Opcional — aceleração GPU (ativada automaticamente se disponível):
+# cupy-cuda12x

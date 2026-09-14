@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-08-16T00:55:56.973574+00:00",
+  "material": "Co8Zn10Mn2",
+  "material_meta": {
+    "q_max": 24.0,
+    "t_op": 300.0,
+    "t_window": [
+      0.0,
+      null
+    ],
+    "hopfion_envelope": true,
+    "nucleation": "laser / corrente (confirmado)",
+    "notes": "Q_max = 24 em feixes de skyrmions a 300 K, campo zero (Zhang 2025)."
+  },
+  "temperature": {
+    "material_t_op": 300.0,
+    "material_window_k": [
+      0.0,
+      null
+    ],
+    "target_tc": 320.0,
+    "gap_k": 20.0,
+    "strategy": "Meta de sintese Tc>320 K via engenharia de interacoes concorrentes (troca ferromagnetica, DMI, frustracao). Nao observado em literatura."
+  },
+  "mesh": {
+    "model": "hopfion_mesh_v86",
+    "n": 8,
+    "q_max": 24.0,
+    "q_total": 1536.0,
+    "coherence_order": 0.968412,
+    "coherence_perimeter": 0.978092,
+    "h1": 1.0,
+    "kappa": 1.0,
+    "hzz_nominal": 5.092958,
+    "hzz_model": 4.98138
+  },
+  "plvr": {
+    "phi_target": 0.8727,
+    "tol_rad": 0.001,
+    "window_ms": 50.0,
+    "locked": true,
+    "veto": false,
+    "lock_time_ms": 580.0,
+    "n_samples": 217
+  }
+}

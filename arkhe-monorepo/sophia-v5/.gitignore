@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+state.json
+ledger.jsonl
+output/
+edge_detections.json
+file_hashes.json
+deploy/edge_detections.json
+build/

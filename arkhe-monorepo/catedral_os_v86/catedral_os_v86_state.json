@@ -1,0 +1,464 @@
+{
+  "cycle": 25,
+  "spinor": {
+    "alpha": "(1+0j)",
+    "beta": "0j",
+    "coherence": 1.0,
+    "phase": 0.0
+  },
+  "coherence_history": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "handovers": [
+    {
+      "handover_id": "49ccb4000434",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.9887806339083675+0j)",
+          "beta": "(0.14775338258158244+0.02194985064795774j)",
+          "coherence": 0.9553742839844658,
+          "phase": -0.1474787431082491
+        },
+        "overlap": "(0.9887806339083675+0j)",
+        "coherence": 0.9887806339083675,
+        "timestamp": 1788455728.9676166
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.29987208091245154,
+        "retro_phase": -0.1474787431082491
+      },
+      "weak_values": {
+        "sigma_x": "(0.1494298912363964-0.022198908327316497j)",
+        "sigma_y": "(0.022198908327316497+0.1494298912363964j)",
+        "sigma_z": "(1+0j)"
+      },
+      "timestamp": 1788455728.967666
+    },
+    {
+      "handover_id": "71f1edd5d066",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.9889571443398597+0j)",
+          "beta": "(0.14616427518459882+0.024490229049781737j)",
+          "coherence": 0.9560724666817002,
+          "phase": -0.1660107070470445
+        },
+        "overlap": "(0.9889571443398597+0j)",
+        "coherence": 0.9889571443398597,
+        "timestamp": 1788455728.9678743
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.29749944313574056,
+        "retro_phase": -0.16601070704704443
+      },
+      "weak_values": {
+        "sigma_x": "(0.14779636915628447-0.02476369091415912j)",
+        "sigma_y": "(0.02476369091415912+0.14779636915628447j)",
+        "sigma_z": "(0.9999999999999999+0j)"
+      },
+      "timestamp": 1788455728.9679298
+    },
+    {
+      "handover_id": "059d42068b7a",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.9893496926251165+0j)",
+          "beta": "(0.143185233014573+0.026175842854621992j)",
+          "coherence": 0.957625628594825,
+          "phase": -0.1808144284034122
+        },
+        "overlap": "(0.9893496926251165+0j)",
+        "coherence": 0.9893496926251165,
+        "timestamp": 1788455728.9680517
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.29215428926345854,
+        "retro_phase": -0.18081442840341222
+      },
+      "weak_values": {
+        "sigma_x": "(0.14472661595987235-0.026457624689979583j)",
+        "sigma_y": "(0.026457624689979583+0.14472661595987235j)",
+        "sigma_z": "(1+0j)"
+      },
+      "timestamp": 1788455728.9681013
+    },
+    {
+      "handover_id": "f7d59037219e",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.9899427101596807+0j)",
+          "beta": "(0.13888121296055964+0.026933980179507804j)",
+          "coherence": 0.9599731387965872,
+          "phase": -0.19155744751061804
+        },
+        "overlap": "(0.9899427101596807+0j)",
+        "coherence": 0.9899427101596807,
+        "timestamp": 1788455728.9683087
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.28389002630622434,
+        "retro_phase": -0.1915574475106181
+      },
+      "weak_values": {
+        "sigma_x": "(0.14029217199665797-0.027207615049928774j)",
+        "sigma_y": "(0.027207615049928774+0.14029217199665797j)",
+        "sigma_z": "(1+0j)"
+      },
+      "timestamp": 1788455728.9683986
+    },
+    {
+      "handover_id": "e62665f87168",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.990712666104426+0j)",
+          "beta": "(0.133315515757505+0.026746709677466257j)",
+          "coherence": 0.9630231735594796,
+          "phase": -0.1979984993200891
+        },
+        "overlap": "(0.990712666104426+0j)",
+        "coherence": 0.990712666104426,
+        "timestamp": 1788455728.9685788
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.2727892280477045,
+        "retro_phase": -0.1979984993200891
+      },
+      "weak_values": {
+        "sigma_x": "(0.1345652683352823-0.026997443953792173j)",
+        "sigma_y": "(0.026997443953792173+0.1345652683352823j)",
+        "sigma_z": "(1+0j)"
+      },
+      "timestamp": 1788455728.968669
+    },
+    {
+      "handover_id": "cbf0c850a349",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.9916289879946025+0j)",
+          "beta": "(0.12654628588331607+0.025651270883495465j)",
+          "coherence": 0.9666560996623992,
+          "phase": -0.19999293169426838
+        },
+        "overlap": "(0.9916289879946025+0j)",
+        "coherence": 0.9916289879946025,
+        "timestamp": 1788455728.9693282
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.2589628099946621,
+        "retro_phase": -0.1999929316942684
+      },
+      "weak_values": {
+        "sigma_x": "(0.12761454880341283-0.025867810636890223j)",
+        "sigma_y": "(0.025867810636890223+0.12761454880341283j)",
+        "sigma_z": "(1+0j)"
+      },
+      "timestamp": 1788455728.969461
+    },
+    {
+      "handover_id": "c1579741d3c3",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.9926552611223975+0j)",
+          "beta": "(0.11862572321163702+0.023737530590626322j)",
+          "coherence": 0.9707289348679504,
+          "phase": -0.19749595398177303
+        },
+        "overlap": "(0.9926552611223975+0j)",
+        "coherence": 0.9926552611223975,
+        "timestamp": 1788455728.9698694
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.242548921145877,
+        "retro_phase": -0.197495953981773
+      },
+      "weak_values": {
+        "sigma_x": "(0.11950344480873114-0.023913166554707266j)",
+        "sigma_y": "(0.023913166554707266+0.11950344480873114j)",
+        "sigma_z": "(1+0j)"
+      },
+      "timestamp": 1788455728.970038
+    },
+    {
+      "handover_id": "a7f9bee4cc06",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.9937506619427674+0j)",
+          "beta": "(0.10960204143592184+0.021142715090314613j)",
+          "coherence": 0.9750807562233766,
+          "phase": -0.19056364291886094
+        },
+        "overlap": "(0.9937506619427674+0j)",
+        "coherence": 0.9937506619427674,
+        "timestamp": 1788455728.9703467
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.223711563653016,
+        "retro_phase": -0.19056364291886096
+      },
+      "weak_values": {
+        "sigma_x": "(0.11029128898556052-0.02127567396934451j)",
+        "sigma_y": "(0.02127567396934451+0.11029128898556052j)",
+        "sigma_z": "(0.9999999999999999+0j)"
+      },
+      "timestamp": 1788455728.9705575
+    },
+    {
+      "handover_id": "a871cbf32881",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.9948715712500622+0j)",
+          "beta": "(0.09952378414900377+0.018043644506998954j)",
+          "coherence": 0.9795388865631351,
+          "phase": -0.1793516832668295
+        },
+        "overlap": "(0.9948715712500622+0j)",
+        "coherence": 0.9948715712500622,
+        "timestamp": 1788455728.9708688
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.2026389541653452,
+        "retro_phase": -0.17935168326682946
+      },
+      "weak_values": {
+        "sigma_x": "(0.10003681583136557-0.01813665706049576j)",
+        "sigma_y": "(0.01813665706049576+0.10003681583136557j)",
+        "sigma_z": "(0.9999999999999999+0j)"
+      },
+      "timestamp": 1788455728.9711099
+    },
+    {
+      "handover_id": "a4d3bdc877b3",
+      "state_before": {
+        "forward": {
+          "alpha": "(1+0j)",
+          "beta": "0j",
+          "coherence": 1.0,
+          "phase": 0.0
+        },
+        "backward": {
+          "alpha": "(0.995973305077433+0j)",
+          "beta": "(0.08844574059215722+0.01464672469324292j)",
+          "coherence": 0.9839256488537306,
+          "phase": -0.1641118714679122
+        },
+        "overlap": "(0.995973305077433+0j)",
+        "coherence": 0.995973305077433,
+        "timestamp": 1788455728.9713502
+      },
+      "retroactive_effect": true,
+      "choice": {
+        "retro_angle": 0.17954164323118693,
+        "retro_phase": -0.16411187146791217
+      },
+      "weak_values": {
+        "sigma_x": "(0.08880332448798005-0.014705941031325328j)",
+        "sigma_y": "(0.014705941031325328+0.08880332448798005j)",
+        "sigma_z": "(1+0j)"
+      },
+      "timestamp": 1788455728.9715166
+    }
+  ],
+  "beliefs": [
+    {
+      "content": "Ciclo 10: \u03a6=1.000, Modo ferr\u00f4nico=Q2",
+      "confidence": 0.7,
+      "timestamp": 1788455728.9663873
+    },
+    {
+      "content": "Ciclo 20: \u03a6=1.000, Modo ferr\u00f4nico=Q1",
+      "confidence": 0.7,
+      "timestamp": 1788455728.9691677
+    }
+  ],
+  "observatory": {
+    "observations": 125,
+    "insights": 2,
+    "metrics": {
+      "consciousness_coherence": {
+        "count": 25,
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "recent": 1.0
+      },
+      "retroactive_effect": {
+        "count": 25,
+        "mean": 1.0,
+        "std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "range": 0.0,
+        "recent": 1.0
+      },
+      "ferron_mode": {
+        "count": 25
+      },
+      "teukolsky_ratio": {
+        "count": 25,
+        "mean": 0.9783089881343631,
+        "std": 0.0017736683470811298,
+        "min": 0.975265893537166,
+        "max": 0.9810558537833184,
+        "range": 0.005789960246152415,
+        "recent": 0.9810558537833184
+      },
+      "modulation_depth": {
+        "count": 25,
+        "mean": 0.28,
+        "std": 0.0,
+        "min": 0.28,
+        "max": 0.28,
+        "range": 0.0,
+        "recent": 0.28
+      }
+    }
+  },
+  "ferronic": {
+    "active_mode": "Q2",
+    "polarization_state": 0.5,
+    "modes": {
+      "Q1": {
+        "name": "Q1",
+        "frequency_thz": 0.8,
+        "quality_factor": 228,
+        "emission_efficiency": 100000.0,
+        "polarization_axis": "uniaxial",
+        "coherence_length_um": 10.0,
+        "propagation_speed_ms": 100000.0,
+        "energy_eV": 0.0033085341568000006,
+        "decay_time_ps": 0.04535915878119017
+      },
+      "Q2": {
+        "name": "Q2",
+        "frequency_thz": 1.2,
+        "quality_factor": 150,
+        "emission_efficiency": 10000.0,
+        "polarization_axis": "uniaxial",
+        "coherence_length_um": 8.0,
+        "propagation_speed_ms": 120000.0,
+        "energy_eV": 0.0049628012352,
+        "decay_time_ps": 0.019894367886486918
+      },
+      "Q3": {
+        "name": "Q3",
+        "frequency_thz": 0.5,
+        "quality_factor": 100,
+        "emission_efficiency": 1000.0,
+        "polarization_axis": "biaxial",
+        "coherence_length_um": 5.0,
+        "propagation_speed_ms": 80000.0,
+        "energy_eV": 0.0020678338480000003,
+        "decay_time_ps": 0.03183098861837907
+      }
+    },
+    "total_emissions": 25
+  },
+  "teukolsky": {
+    "mass": 1.0,
+    "spin": 0.5,
+    "r_plus": 1.8660254037844386,
+    "r_minus": 0.1339745962155614,
+    "hawking_temperature": 0.03693203307305302,
+    "ergosphere_equatorial": 1.8660254037844386,
+    "field_spin": 1,
+    "omega": 1.0
+  },
+  "metasurface": {
+    "modulation_depth": 0.28,
+    "speed_ps": 25.0,
+    "bandwidth_nm": 14.0,
+    "polarization": "y",
+    "kink_nonlinearity": 0.05,
+    "modulation_count": 25,
+    "total_modulation_applied": 7.000000000000004
+  }
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=SOPHIA V5.0 - Monitor de integridade e alertas (cybersec)
+After=network.target
+
+[Service]
+Type=simple
+User=arkhe
+Group=arkhe
+WorkingDirectory=/var/lib/sophia
+ExecStart=/usr/bin/python3 /opt/sophia/agents/python/sophia_local/security/integrity.py --daemon
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,77 @@
+# =============================================================================
+# BLOCO 470 v15 — REDIS CLUSTER (R1)
+# redis-cluster-values.yaml
+#
+# Values para o Bitnami Redis Chart com:
+#   - Replication (1 master + replicas)
+#   - Sentinel para failover automático
+#   - AOF persistence
+#   - Prometheus metrics + ServiceMonitor
+#
+# Deploy:
+#   helm upgrade --install redis-catedral bitnami/redis \
+#       --namespace catedral-cache --values redis-cluster-values.yaml \
+#       --set auth.password="${REDIS_PASSWORD}"
+# =============================================================================
+
+architecture: replication
+
+global:
+  redis:
+    password: "${REDIS_PASSWORD}"
+
+replica:
+  replicaCount: 3
+
+sentinel:
+  enabled: true
+  master: "mymaster"
+  replicas: 3
+  quorum: 2
+  downAfterMilliseconds: 5000
+  failoverTimeout: 60000
+  parallelSyncs: 1
+
+  # Sentinel também monitora o master mesmo atrás de chart
+  getMasterTimeout: 10
+  masterSet: "mymaster"
+
+auth:
+  enabled: true
+  password: "${REDIS_PASSWORD}"
+
+persistence:
+  enabled: true
+  size: 8Gi
+  storageClass: "standard"
+  accessModes:
+    - ReadWriteOnce
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    namespace: monitoring
+
+redis:
+  config: |
+    maxmemory 2gb
+    maxmemory-policy allkeys-lru
+    appendonly yes
+    appendfsync everysec
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+
+# Tolerâncias e afinidade para produção
+podAntiAffinity: soft
+networkPolicy:
+  enabled: true

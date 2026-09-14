@@ -1,0 +1,46 @@
+name: arkhe-crypto-code-testable
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Toolchain Rust (stable + clippy)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cargo — arkhe-vss (Feldman VSS, dealer honesto vs malicioso)
+        working-directory: arkhe-monorepo
+        run: cargo test -p arkhe-vss
+
+      - name: Cargo — arkhe-pacts (BIP-322 prova temporalmente indexada)
+        working-directory: arkhe-monorepo
+        run: cargo test -p arkhe-pacts
+
+      - name: Cargo — arkhe-stark (STARK PQ condicional à hash)
+        working-directory: arkhe-monorepo
+        run: cargo test -p arkhe-stark
+
+      - name: Cargo — arkhe-crypto stub (10/10 + doctest)
+        working-directory: arkhe-monorepo
+        run: cargo test -p arkhe-crypto
+
+      - name: Cargo — arkhe-crypto feature bip322 (9/9 + doctest, Fix #8)
+        working-directory: arkhe-monorepo
+        run: cargo test -p arkhe-crypto --features bip322
+
+      - name: Cargo — clippy all-four (D warnings)
+        working-directory: arkhe-monorepo
+        run: cargo clippy -p arkhe-vss -p arkhe-pacts -p arkhe-stark -p arkhe-crypto --all-targets -- -D warnings
+
+      - name: Cargo — clippy arkhe-crypto feature bip322 (D warnings)
+        working-directory: arkhe-monorepo
+        run: cargo clippy -p arkhe-crypto --all-targets --features bip322 -- -D warnings

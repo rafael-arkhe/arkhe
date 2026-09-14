@@ -1,0 +1,10 @@
+# Dependências para Substrato 212 (standalone)
+# NOTA (Arquiteto-Ω): o pin original lia `cryptography==44.0.2`, mas o ambiente
+# verificado tem `cryptography 50.0.1`. Para não forçar downgrade/divergência,
+# usamos `cryptography>=44` — o código usa apenas APIs estáveis comuns a v44+.
+PyJWT==2.13.0
+cryptography>=44
+hvac==2.4.0
+requests==2.32.3
+pytest==8.3.2
+pytest-cov==5.0.0

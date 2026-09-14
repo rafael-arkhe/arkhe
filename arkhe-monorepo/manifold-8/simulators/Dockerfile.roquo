@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY roquo_sim.py /app/roquo_sim.py
+
+EXPOSE 8080
+
+CMD ["python", "roquo_sim.py"]

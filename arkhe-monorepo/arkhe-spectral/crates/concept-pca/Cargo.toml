@@ -1,0 +1,14 @@
+[package]
+name = "concept-pca"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Cobertura conceitual via PCA sobre embeddings: rank efetivo, entropia espectral e similaridade entre conceitos (ARKHE-SPECTRAL).\n\nEnglish: conceptual coverage of embedding spaces via PCA — variance explained, component count and pairwise cosine similarity."
+readme = "README.md"
+
+[dependencies]
+nalgebra = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+approx = "0.5"

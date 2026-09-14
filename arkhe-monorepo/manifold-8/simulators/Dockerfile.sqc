@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY sqc_sim.py /app/sqc_sim.py
+
+EXPOSE 8080
+
+CMD ["python", "sqc_sim.py"]

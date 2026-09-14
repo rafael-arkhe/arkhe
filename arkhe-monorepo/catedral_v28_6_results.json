@@ -1,0 +1,188 @@
+{
+  "version": "v28.6",
+  "config": {
+    "L": 7,
+    "p_error_base": 0.13,
+    "n_steps": 500,
+    "n_seeds": 10,
+    "pass_threshold": 0.8,
+    "coherence_min": 0.99,
+    "fidelity_min": 0.94,
+    "fidelity_max": 0.999,
+    "target_fidelity": 0.965,
+    "pid_update_interval": 50,
+    "pluto_period_years": 249.58932
+  },
+  "with_pid": {
+    "pass_rate": 1.0,
+    "valid": true,
+    "results": [
+      {
+        "seed": 0,
+        "coherence": 0.9941428571428571,
+        "fidelity": 0.9793347360995964,
+        "theta": 0.15321376032576223,
+        "gamma_B": -0.08357815972640253,
+        "valid": true
+      },
+      {
+        "seed": 1,
+        "coherence": 0.9924285714285714,
+        "fidelity": 0.9733324307853545,
+        "theta": 0.174248270647495,
+        "gamma_B": -1.462505434750174,
+        "valid": true
+      },
+      {
+        "seed": 2,
+        "coherence": 0.9922857142857143,
+        "fidelity": 0.9728331802480077,
+        "theta": 0.17588865193577147,
+        "gamma_B": 3.1114248877941773,
+        "valid": true
+      },
+      {
+        "seed": 3,
+        "coherence": 0.9931428571428571,
+        "fidelity": 0.9758308563309516,
+        "theta": 0.16580559581102525,
+        "gamma_B": -0.44949443501516056,
+        "valid": true
+      },
+      {
+        "seed": 4,
+        "coherence": 0.992,
+        "fidelity": 0.9718351137450836,
+        "theta": 0.1791248148788895,
+        "gamma_B": -1.263550615089131,
+        "valid": true
+      },
+      {
+        "seed": 5,
+        "coherence": 0.9931428571428571,
+        "fidelity": 0.9758308563309516,
+        "theta": 0.16580559581102525,
+        "gamma_B": 1.0111801839429204,
+        "valid": true
+      },
+      {
+        "seed": 6,
+        "coherence": 0.9927142857142858,
+        "fidelity": 0.9743313664318222,
+        "theta": 0.17092076808057924,
+        "gamma_B": 1.1315164002119191,
+        "valid": true
+      },
+      {
+        "seed": 7,
+        "coherence": 0.9917142857142857,
+        "fidelity": 0.9708376266711892,
+        "theta": 0.18230414486077967,
+        "gamma_B": -0.18091835336793918,
+        "valid": true
+      },
+      {
+        "seed": 8,
+        "coherence": 0.9907142857142858,
+        "fidelity": 0.9673509849161658,
+        "theta": 0.19302434019034276,
+        "gamma_B": -3.0375352506896074,
+        "valid": true
+      },
+      {
+        "seed": 9,
+        "coherence": 0.9911428571428571,
+        "fidelity": 0.9688443908104893,
+        "theta": 0.18850375859192864,
+        "gamma_B": 1.784575402349052,
+        "valid": true
+      }
+    ]
+  },
+  "without_pid": {
+    "pass_rate": 1.0,
+    "valid": true,
+    "results": [
+      {
+        "seed": 0,
+        "coherence": 0.9945714285714287,
+        "fidelity": 0.9808385717164473,
+        "theta": 0.14749132988425492,
+        "gamma_B": -0.08357815972640253,
+        "valid": true
+      },
+      {
+        "seed": 1,
+        "coherence": 0.9934285714285714,
+        "fidelity": 0.9768312405499928,
+        "theta": 0.16230679336212486,
+        "gamma_B": -1.462505434750174,
+        "valid": true
+      },
+      {
+        "seed": 2,
+        "coherence": 0.9938571428571429,
+        "fidelity": 0.9783329033079828,
+        "theta": 0.15691369279037048,
+        "gamma_B": 3.1114248877941773,
+        "valid": true
+      },
+      {
+        "seed": 3,
+        "coherence": 0.9937142857142858,
+        "fidelity": 0.9778322041980619,
+        "theta": 0.15873158077754276,
+        "gamma_B": -0.44949443501516056,
+        "valid": true
+      },
+      {
+        "seed": 4,
+        "coherence": 0.9924285714285714,
+        "fidelity": 0.9733324307853545,
+        "theta": 0.174248270647495,
+        "gamma_B": -1.263550615089131,
+        "valid": true
+      },
+      {
+        "seed": 5,
+        "coherence": 0.9931428571428571,
+        "fidelity": 0.9758308563309516,
+        "theta": 0.16580559581102525,
+        "gamma_B": 1.0111801839429204,
+        "valid": true
+      },
+      {
+        "seed": 6,
+        "coherence": 0.9932857142857143,
+        "fidelity": 0.976330976011844,
+        "theta": 0.16406543780187519,
+        "gamma_B": 1.1315164002119191,
+        "valid": true
+      },
+      {
+        "seed": 7,
+        "coherence": 0.9921428571428571,
+        "fidelity": 0.9723340745679163,
+        "theta": 0.1775140305331894,
+        "gamma_B": -0.18091835336793918,
+        "valid": true
+      },
+      {
+        "seed": 8,
+        "coherence": 0.991,
+        "fidelity": 0.9683464439884572,
+        "theta": 0.1900224234627118,
+        "gamma_B": -3.0375352506896074,
+        "valid": true
+      },
+      {
+        "seed": 9,
+        "coherence": 0.9918571428571429,
+        "fidelity": 0.971336297779508,
+        "theta": 0.18072139524764838,
+        "gamma_B": 1.784575402349052,
+        "valid": true
+      }
+    ]
+  }
+}

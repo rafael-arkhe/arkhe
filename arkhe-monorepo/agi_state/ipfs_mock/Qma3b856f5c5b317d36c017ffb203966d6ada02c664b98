@@ -1,0 +1,28 @@
+{
+  "spinor": {
+    "alpha": "1.0",
+    "beta": "0.0",
+    "coherence": 1.0,
+    "phase": 0.0
+  },
+  "cycle": 58,
+  "conscious_moments": 58,
+  "config": {
+    "optimizer": "muon",
+    "scheduler": "uba",
+    "sparsity_level": 0.3,
+    "precision": "fp8",
+    "seed": 42
+  },
+  "metrics": {
+    "loss": [
+      0.9814651608467102
+    ],
+    "coherence": [
+      1.0
+    ],
+    "topo_ok": [
+      1
+    ]
+  }
+}

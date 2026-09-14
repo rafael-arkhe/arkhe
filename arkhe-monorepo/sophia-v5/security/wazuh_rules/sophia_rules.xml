@@ -1,0 +1,34 @@
+<group name="sophia,">
+
+  <rule id="110100" level="3">
+    <decoded_as>syslog</decoded_as>
+    <field name="program">sophia_orchestrator</field>
+    <regex>psi_C</regex>
+    <description>Sophia: ciclo do orquestrador registrado.</description>
+  </rule>
+
+  <rule id="110101" level="8">
+    <decoded_as>syslog</decoded_as>
+    <field name="program">sophia_integrity</field>
+    <match>Arquivo modificado</match>
+    <description>Sophia: integridade violada - arquivo critico alterado.</description>
+    <group>integrity,</group>
+  </rule>
+
+  <rule id="110102" level="10">
+    <decoded_as>syslog</decoded_as>
+    <field name="program">sophia_hardening</field>
+    <match>DRY-RUN</match>
+    <description>Sophia: hardening esta em dry-run (nao aplicado).</description>
+    <group>hardening,</group>
+  </rule>
+
+  <rule id="110103" level="6">
+    <decoded_as>syslog</decoded_as>
+    <field name="program">sophia_integrity</field>
+    <match>Novo arquivo</match>
+    <description>Sophia: arquivo nao-baseline detectado no diretorio vigiado.</description>
+    <options>no_full_log</options>
+  </rule>
+
+</group>

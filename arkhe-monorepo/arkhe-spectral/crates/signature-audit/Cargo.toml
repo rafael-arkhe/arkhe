@@ -1,0 +1,13 @@
+[package]
+name = "signature-audit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Auditoria de assinaturas espectrais: comparação consistente/inconsistente e resíduos de verificação (ARKHE-SPECTRAL).\n\nEnglish: spectral signature-consistency auditing via pseudo-inverse with residual and condition-number reporting."
+readme = "README.md"
+
+[dependencies]
+nalgebra = { workspace = true }
+
+[dev-dependencies]
+approx = "0.5"

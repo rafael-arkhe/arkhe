@@ -1,0 +1,17 @@
+[Unit]
+Description=SOPHIA V5.0 - Dashboard local (porta 8080)
+After=sophia-orchestrator.service
+Wants=sophia-orchestrator.service
+
+[Service]
+Type=simple
+User=arkhe
+Group=arkhe
+WorkingDirectory=/opt/sophia/dashboard
+Environment=PYTHONPATH=/opt/sophia/agents/python
+ExecStart=/usr/bin/python3 /opt/sophia/dashboard/app.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

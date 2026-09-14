@@ -1,0 +1,26 @@
+# Configuração do Prometheus para o ecossistema Arkhe 8.1
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "event-processor"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["event-processor:8000"]
+
+  - job_name: "roquo-sim"
+    metrics_path: "/health"
+    static_configs:
+      - targets: ["roquo-sim:8080"]
+
+  - job_name: "glass5d-sim"
+    metrics_path: "/health"
+    static_configs:
+      - targets: ["glass5d-sim:8080"]
+
+  - job_name: "sqc-sim"
+    metrics_path: "/health"
+    static_configs:
+      - targets: ["sqc-sim:8080"]

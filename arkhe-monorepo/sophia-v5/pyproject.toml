@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sophia-v5"
+version = "5.0.0"
+description = "SOPHIA V5.0 — self-hosted local agents, edge vision e cybersec (homelab hardening + monitorização)"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0",
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+]
+[project.optional-dependencies]
+dashboard = ["flask-socketio>=5.3", "eventlet>=0.33"]
+dev = ["pytest>=8.0", "ruff>=0.4"]
+
+[tool.setuptools]
+packages = [
+    "sophia_local",
+    "sophia_local.security",
+    "sophia_local.substrates",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["agents/python"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"

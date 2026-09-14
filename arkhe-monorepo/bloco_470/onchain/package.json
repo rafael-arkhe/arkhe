@@ -1,0 +1,18 @@
+{
+  "name": "bloco-470-onchain",
+  "version": "15.0.0",
+  "private": true,
+  "description": "Verificadores on-chain do Motor de Governança da Catedral OS (BLOCO 470 v13/v15)",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:sepolia": "hardhat run scripts/deploy-verifier.js --network sepolia",
+    "verify:sepolia": "hardhat verify --network sepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.0"
+  }
+}

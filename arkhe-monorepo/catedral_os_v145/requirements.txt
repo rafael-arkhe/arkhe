@@ -1,0 +1,20 @@
+# Catedral OS v14.5 — Dependências
+#
+# Núcleo (obrigatório no ambiente de execução):
+numpy>=1.24
+scipy>=1.10
+
+# Renderização de fractais (opcional — se ausente, fractal_summary ainda
+# retorna métricas numpy, apenas não salva PNG):
+matplotlib>=3.7
+
+# Integração com AGI em Prolog (OPCIONAL — o orquestrador degrada para modo
+# simulação se não estiver instalado). Requer o binário `swipl` no PATH.
+# pyswip>=0.2.11
+
+# Autenticação: nota de auditoria — o spec original cita JWT RS256 (PyJWT)
+# e bcrypt, mas o orquestrador v14.5 usa um token HMAC-SHA256 (stdlib) como
+# substituto honesto, pois PyJWT/bcrypt/openssl podem não estar disponíveis.
+# Para voltar a JWT real, instale e troque AuthManager:
+#   bcrypt>=4.0
+#   PyJWT>=2.0

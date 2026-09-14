@@ -1,0 +1,6 @@
+# Substrato 264 v2 — requisitos (mínimos)
+# O port Python de verificação usa apenas a stdlib (3.8+).
+# Sem dependências externas obrigatórias.
+
+# Para rodar o sistema canônico em Prolog (opcional, requer swipl no PATH):
+#   pyswip>=0.2.11

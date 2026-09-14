@@ -1,0 +1,15 @@
+[Unit]
+Description=SOPHIA V5.0 - Pipeline de visao em edge (Pi/ESP32 sidecar)
+After=network.target
+
+[Service]
+Type=simple
+User=arkhe
+Group=arkhe
+WorkingDirectory=/var/lib/sophia
+ExecStart=/usr/local/bin/sophia_vision
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

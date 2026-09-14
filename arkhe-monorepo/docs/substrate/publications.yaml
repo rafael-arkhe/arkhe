@@ -1,0 +1,39 @@
+# publications.yaml — Entrada da auditoria de substrato bibliográfico
+# Framework: ARKHE-SUBSTRATO-AUDIT-V2.0 (tools/audit_substrate.py)
+# Invariante central (bloco 1072, prec. I461/I462): nenhum dado aqui é
+# inventado pela ferramenta. Colar SOMENTE publicações reais, com metadados
+# copiados da fonte (Crossref/OpenAlex/arXiv/editora).
+#
+# Campos:
+#   id         <- identificador local (obrigatório)
+#   title      <- título exato (obrigatório)
+#   authors    <- [ { name, orcid? } ]
+#   year       <- ano de publicação
+#   doi        <- DOI sem prefixo https://doi.org/
+#   url        <- link (critério 1)
+#   arxiv_id   <- ex. "2601.22149"
+#   issn       <- ISSN do periódico (critério 9)
+#   abstract   <- abstract (critério 5/11/12)
+#   relation   <- fundamentacao | algoritmo | validacao | analogia | baseline
+#   component  <- componente VSC (ex. "arkhe-safe-manifold")
+#   force      <- direta | indireta | conceitual | ausente
+#   skip       <- critérios a omitir (ex. [5,12] quando não há modelo)
+#
+# EXEMPLO ILUSTRATIVO — remova antes de auditar (NÃO é dado real a auditar):
+#   - id: "EXEMPLO"
+#     title: "Título Ilustrativo — Substituir por título real"
+#     authors:
+#       - { name: "Autor Exemplo", orcid: "0000-0000-0000-0000" }
+#     year: 2026
+#     doi: "10.0000/illustrative-placeholder"
+#     url: "https://example.org/paper"
+#     arxiv_id: "2601.00000"
+#     issn: "0000-0000"
+#     abstract: "Abstract ilustrativo para documentar o schema."
+#     relation: "fundamentacao"
+#     component: "arkhe-safe-manifold"
+#     force: "direta"
+#     skip: [5, 12]
+
+framework: "ARKHE-SUBSTRATO-AUDIT-V2.0"
+publications: []

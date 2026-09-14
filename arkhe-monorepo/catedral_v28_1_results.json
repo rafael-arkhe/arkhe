@@ -1,0 +1,135 @@
+{
+  "version": "v28.1",
+  "with_pid": {
+    "pass_rate": 1.0,
+    "valid": true,
+    "results": [
+      {
+        "seed": 0,
+        "coherence": 0.9930408163265306,
+        "fidelity": 0.9756787453889844,
+        "valid": true
+      },
+      {
+        "seed": 1,
+        "coherence": 0.9931224489795918,
+        "fidelity": 0.9759620628284736,
+        "valid": true
+      },
+      {
+        "seed": 2,
+        "coherence": 0.9924285714285713,
+        "fidelity": 0.9735553596871168,
+        "valid": true
+      },
+      {
+        "seed": 3,
+        "coherence": 0.9930816326530612,
+        "fidelity": 0.9758203982456137,
+        "valid": true
+      },
+      {
+        "seed": 4,
+        "coherence": 0.9933673469387755,
+        "fidelity": 0.9768122965764602,
+        "valid": true
+      },
+      {
+        "seed": 5,
+        "coherence": 0.9928163265306121,
+        "fidelity": 0.9748998642838774,
+        "valid": true
+      },
+      {
+        "seed": 6,
+        "coherence": 0.9927346938775511,
+        "fidelity": 0.9746167227378365,
+        "valid": true
+      },
+      {
+        "seed": 7,
+        "coherence": 0.9944285714285714,
+        "fidelity": 0.9805015209293513,
+        "valid": true
+      },
+      {
+        "seed": 8,
+        "coherence": 0.9928367346938776,
+        "fidelity": 0.9749706569992825,
+        "valid": true
+      },
+      {
+        "seed": 9,
+        "coherence": 0.9935714285714287,
+        "fidelity": 0.9775211471711022,
+        "valid": true
+      }
+    ]
+  },
+  "without_pid": {
+    "pass_rate": 1.0,
+    "valid": true,
+    "results": [
+      {
+        "seed": 0,
+        "coherence": 0.9938775510204082,
+        "fidelity": 0.978584972730091,
+        "valid": true
+      },
+      {
+        "seed": 1,
+        "coherence": 0.9941428571428571,
+        "fidelity": 0.9795074884246718,
+        "valid": true
+      },
+      {
+        "seed": 2,
+        "coherence": 0.9934897959183674,
+        "fidelity": 0.9772375717545568,
+        "valid": true
+      },
+      {
+        "seed": 3,
+        "coherence": 0.9942448979591836,
+        "fidelity": 0.9798624340734431,
+        "valid": true
+      },
+      {
+        "seed": 4,
+        "coherence": 0.9944489795918369,
+        "fidelity": 0.9805725452377954,
+        "valid": true
+      },
+      {
+        "seed": 5,
+        "coherence": 0.9941632653061224,
+        "fidelity": 0.979578471691312,
+        "valid": true
+      },
+      {
+        "seed": 6,
+        "coherence": 0.9938979591836735,
+        "fidelity": 0.9786559178864829,
+        "valid": true
+      },
+      {
+        "seed": 7,
+        "coherence": 0.995408163265306,
+        "fidelity": 0.9839139945314704,
+        "valid": true
+      },
+      {
+        "seed": 8,
+        "coherence": 0.9942244897959183,
+        "fidelity": 0.9797914390805743,
+        "valid": true
+      },
+      {
+        "seed": 9,
+        "coherence": 0.9946326530612245,
+        "fidelity": 0.9812118959338751,
+        "valid": true
+      }
+    ]
+  }
+}

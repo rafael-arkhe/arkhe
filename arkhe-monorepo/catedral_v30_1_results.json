@@ -1,0 +1,15 @@
+{
+  "version": "v30.1",
+  "qec_model": "F = 0.965 + 0.035 * tanh(30 * (0.13 - p))",
+  "pymatching_removed": true,
+  "scenarios": {
+    "A: Tautologia": {
+      "no_llm": 1.0,
+      "with_llm": 1.0
+    },
+    "B: Colapso": {
+      "no_llm": 1.0,
+      "with_llm": 1.0
+    }
+  }
+}

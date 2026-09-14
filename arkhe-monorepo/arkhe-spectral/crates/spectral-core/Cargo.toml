@@ -1,0 +1,15 @@
+[package]
+name = "spectral-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Análise espectral de DAGs de tarefas: Laplaciano, Fiedler confiável/único, condicionamento e particionamento (ARKHE-SPECTRAL).\n\nEnglish: spectral analysis of task DAGs — Laplacian, reliable/unique Fiedler vector, incremental SVD (Brand + Zhang), orthogonal Procrustes alignment and ML-DSA-65 wire-format offsets."
+readme = "README.md"
+
+[dependencies]
+nalgebra = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+approx = "0.5"

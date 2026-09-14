@@ -1,0 +1,46 @@
+{
+  "session": "cd4329c0206a27d5",
+  "timestamp": "2026-08-17T20:20:47.640106+00:00",
+  "engram_id": "e51aa18520e29409",
+  "steps": {
+    "topological_validation": {
+      "winding_number": 963.0150395237115,
+      "winding_after_noise": 963.0074183899967,
+      "resilience": true,
+      "validation": "valid",
+      "phase_coherence": 0.034323163247420664,
+      "topological_charge": 963.0373072048528,
+      "protocol_2025": "Nature Communications 16, 2934 (2025)",
+      "protocol_2026": "Nature Communications 17, 2085 (2026)",
+      "noise_amplitude": 0.04326665369384229,
+      "validated": true,
+      "signal_length": 44100
+    },
+    "roquo_job": {
+      "job_id": "roquo-sim-784aaf2a",
+      "status": "completed",
+      "simulated": true,
+      "quantum_backend": "auto",
+      "priority": "critical",
+      "timeout_seconds": 3600
+    },
+    "glass5d_archive": {
+      "record_id": "g5d-sim-2c7a0ee79c00",
+      "bytes_written": 3708,
+      "status": "archived",
+      "simulated": true,
+      "worm": true,
+      "lifetime_years": 100000
+    }
+  },
+  "status": "success",
+  "engram_metadata": {
+    "session_id": "cd4329c0206a27d5",
+    "created_at": "2026-08-17T20:20:47.640088+00:00",
+    "source": "data_pipeline",
+    "topological_winding": 963.0150395237115,
+    "roquo_job_id": "roquo-sim-784aaf2a",
+    "glass5d_record_id": "g5d-sim-2c7a0ee79c00",
+    "data_hash": "d877e3d3828037a4f005ae6f52d2033ebb5ab1a4fb0feb35563e0e660fdaa164"
+  }
+}
