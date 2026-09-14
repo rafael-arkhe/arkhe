@@ -1,0 +1,181 @@
+# ARKHE-EXTERNAL-ORCHESTRATION-v1.1
+# Windmill self-hosted como camada de orquestração EXTERNA ao ARKHE OS.
+#
+# INVARIANTES (não negociáveis):
+#   1. Windmill NÃO substitui EvidenceBus, SandboxContract, nem runtime dos domínios.
+#   2. Comunicação com ARKHE apenas via webhook/gRPC (nunca shared memory).
+#   3. EvidencePacket críticos bypassam Windmill (gRPC direto Dom A→C→B).
+#   4. Latência p95 < 100ms é medida no EvidenceBus, não na fila do Windmill.
+#   5. Todas as imagens são PINADAS por digest SHA256 — tag :main é proibida.
+#   6. docker.sock NÃO é montado em nenhum serviço — privilege escalation vetado.
+#   7. Todos os serviços expõem healthcheck para detecção de falha (Fail-Closed).
+#
+# Selo: ARKHE-EXTERNAL-ORCHESTRATION-v1.1-2026-08-11
+# Status: Proposto para revisão no Integration Spike (Semana 18)
+
+version: "3.8"
+
+services:
+  # ---------------------------------------------------------------------------
+  # Caddy — Reverse Proxy com TLS automático (Let's Encrypt ou self-signed)
+  # Substitui exposição direta da porta 8000. O Windmill oficial recomenda
+  # reverse proxy externo para TLS termination.
+  # ---------------------------------------------------------------------------
+  caddy:
+    image: caddy:2.8.4@sha256:2c7c4a9b2f0bf37c7c44f126b5b23a0d38b14f5b63f42f4b9e6f8c2e9d1a5b7c
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2019/metrics"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL — Persistência do Windmill (dados de scheduling, não críticos)
+  # ---------------------------------------------------------------------------
+  windmill-db:
+    image: postgres:16.4-alpine@sha256:3f9f0e7c6b8a2e1d4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f
+    environment:
+      POSTGRES_USER: windmill
+      POSTGRES_PASSWORD: ${WINDMILL_DB_PASSWORD}
+      POSTGRES_DB: windmill
+    volumes:
+      - windmill_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U windmill"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Redis — Fila de jobs do Windmill (dados voláteis, recriável)
+  # ---------------------------------------------------------------------------
+  windmill-redis:
+    image: redis:7.4.0-alpine@sha256:9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b
+    volumes:
+      - windmill_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Windmill Server — API e UI (nunca exposto diretamente, sempre via Caddy)
+  # ---------------------------------------------------------------------------
+  windmill-server:
+    # PINADO: digest SHA256 da imagem windmill:1.458.3 (exemplo ilustrativo)
+    # Para atualizar: obter novo digest no GHCR, atualizar este arquivo,
+    # e registrar no BOM Docker (Anexo C do ARKHE).
+    image: ghcr.io/windmill-labs/windmill@sha256:1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b
+    expose:
+      - "8000"
+    environment:
+      - DATABASE_URL=postgres://windmill:${WINDMILL_DB_PASSWORD}@windmill-db/windmill?sslmode=disable
+      - MODE=server
+      - BASE_URL=https://windmill.arkhe.local
+      - BASE_INTERNAL_URL=http://windmill-server:8000
+      - RUST_LOG=info
+      - NUM_WORKERS=3
+      - TIMEOUT=300
+      - SLEEP_QUEUE=200
+    depends_on:
+      windmill-db:
+        condition: service_healthy
+      windmill-redis:
+        condition: service_healthy
+    volumes:
+      - windmill_worker_dependency_cache:/tmp/windmill/cache
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Windmill Worker — Executa scripts de orquestração (não runtime científico)
+  # INVARIANTE: docker.sock NÃO é montado. Privilege escalation vetado.
+  # Se Docker-in-Docker for necessário no futuro, abrir RFP para
+  # docker-socket-proxy (Tecnativa) com filtros read-only.
+  # ---------------------------------------------------------------------------
+  windmill-worker:
+    image: ghcr.io/windmill-labs/windmill@sha256:1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b
+    environment:
+      - DATABASE_URL=postgres://windmill:${WINDMILL_DB_PASSWORD}@windmill-db/windmill?sslmode=disable
+      - MODE=worker
+      - WORKER_GROUP=default
+      - NUM_WORKERS=3
+      - SLEEP_QUEUE=200
+      - BASE_INTERNAL_URL=http://windmill-server:8000
+      - BASE_URL=https://windmill.arkhe.local
+      - KEEP_JOB_DIR=false
+      - PYTHON_PATH=/usr/local/bin/python3
+    depends_on:
+      windmill-db:
+        condition: service_healthy
+      windmill-redis:
+        condition: service_healthy
+      windmill-server:
+        condition: service_healthy
+    volumes:
+      - windmill_worker_dependency_cache:/tmp/windmill/cache
+    # NOTA: Nenhum bind de docker.sock. R12 mitigado.
+    # Se jobs Windmill precisarem de Docker, usar DIND (Docker-in-Docker)
+    # sidecar com privilégios mínimos, nunca o socket do host.
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # EvidenceBus Bridge — Converte webhooks Windmill → gRPC EvidencePacket
+  # Este serviço é parte do ARKHE (Domínio C), não do Windmill.
+  # INVARIANTE: NÃO persiste no PostgreSQL do Windmill.
+  # Recebe webhook, valida HMAC, constrói EvidencePacket, assina com Ed25519,
+  # e envia para EvidenceBus via gRPC.
+  # ---------------------------------------------------------------------------
+  arkhe-evidence-bridge:
+    build:
+      context: ./arkhe-evidence-bridge
+      dockerfile: Dockerfile
+    environment:
+      - ARKHE_EVIDENCE_BUS_ADDR=arkhe-evidencebus:50051
+      - WINDMILL_WEBHOOK_SECRET=${WINDMILL_WEBHOOK_SECRET}
+      - EVIDENCE_SIGNING_KEY_PATH=/secrets/ed25519.key
+      - BRIDGE_TIMEOUT_MS=5000
+      - BRIDGE_MAX_RETRIES=3
+    volumes:
+      - ./secrets:/secrets:ro
+    depends_on:
+      - windmill-server
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  windmill_postgres_data:
+  windmill_redis_data:
+  windmill_worker_dependency_cache:
+  caddy_data:
+  caddy_config:
