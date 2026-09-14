@@ -28,7 +28,25 @@ members = [
     "crates/arkhe-health-check",
     "crates/arkhe-storage",
     "crates/arkhe-nostr-anchor",
+    # TEMPORARILY DISABLED 2026-09-14 (AutoCoder triage): `crates/arkhe-buzz`
+    # exists as a directory but has no Cargo.toml -- its only file is an
+    # untracked `src/bin/arkhe-buzz-server.rs`, hidden from `git status` by the
+    # global `bin/` ignore rule. A member without a manifest makes every cargo
+    # command fail to load the workspace, so it is disabled on the same terms
+    # as the entries below. Re-enable when the crate exists, or delete the
+    # entry.
+    # "crates/arkhe-buzz",
+    # TEMPORARILY DISABLED 2026-09-14 (AutoCoder triage): declared but absent on
+    # disk -- never committed in any branch, and no source file in the tree
+    # references them. Re-enable when the crate exists, or delete the entry.
+    # "crates/arkhe-buzz-relay",
     "crates/arkhe-blossom",
+    # "crates/arkhe-web-gateway",
+    "crates/arkhe-geometric-verifier",
+    # "crates/arkhe-mcp-server",
+    "crates/arkhe-orcid",
+    # "crates/arkhe-security",
+    # "crates/arkhe-change",
 ]
 resolver = "2"
 
@@ -46,6 +64,8 @@ postcard = { version = "1.0", features = ["alloc"] }
 blake3 = "1.5"
 hex = "0.4"
 sha2 = "0.10"
+sha3 = "0.10"
+bech32 = "0.11"
 hkdf = "0.12"
 hmac = "0.12"
 rand = "0.8"
