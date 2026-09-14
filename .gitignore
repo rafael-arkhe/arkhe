@@ -94,3 +94,7 @@ workspace-b84e0aa8-129b-4ee7-8563-95c5fa285ef1/
 workspace-bd3c0df0-e017-49d7-b677-5bc59a094e5b/
 *.synctex*
 *.mp3
+
+# --- repositorios git aninhados (nao commitar como gitlink) ---
+arkhe-monorepo/heesch/
+arkhe-monorepo/proximity-prize/
