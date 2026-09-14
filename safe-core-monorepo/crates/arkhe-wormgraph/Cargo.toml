@@ -1,0 +1,14 @@
+[package]
+name = "arkhe-wormgraph"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Plano Arkhe OS §1.5 — grafo causal (wormgraph): nós e arestas tipados, append-only com hash encadeado BLAKE3, consultas por tipo/signatário/invariante"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+arkhe-core = { path = "../arkhe-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }

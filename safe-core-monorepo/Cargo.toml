@@ -47,6 +47,9 @@ members = [
     "crates/arkhe-orcid",
     # "crates/arkhe-security",
     # "crates/arkhe-change",
+    # ✅ Plano Arkhe OS — §1.5 (Fase 1.5) grafo causal, §2.1–2.3 (Fase 2) verificação client-side em WASM
+    "crates/arkhe-wormgraph",
+    "crates/arkhe-verify-wasm",
 ]
 resolver = "2"
 
