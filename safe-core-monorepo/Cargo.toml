@@ -50,6 +50,10 @@ members = [
     # ✅ Plano Arkhe OS — §1.5 (Fase 1.5) grafo causal, §2.1–2.3 (Fase 2) verificação client-side em WASM
     "crates/arkhe-wormgraph",
     "crates/arkhe-verify-wasm",
+    # ✅ §2.3 — a segunda casca do core do `arkhe-verify-wasm`: as cinco
+    # verificações com tipos nativos, o modelo Rekor/CT e o adaptador HTTP.
+    # Nativo de propósito — não é dependência do alvo wasm.
+    "crates/arkhe-verify",
 ]
 resolver = "2"
 

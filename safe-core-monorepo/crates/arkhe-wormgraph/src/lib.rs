@@ -18,6 +18,10 @@
 //! - **Imutabilidade**: append-only com hash encadeado; [`WormGraph::chain_hash`]
 //!   é estável e verificável, e [`WormGraph::verify_chain`] o confere.
 //! - **Erros tipados**: [`WormGraphError`], com `thiserror`.
+//! - **Ponte para `arkhe-evidence`**: [`evidence::build_from_evidence_chain`]
+//!   constrói o grafo a partir de uma `EvidenceChain` (um nó por registro, com
+//!   os hashes encadeados preservados) e [`evidence::verify_against_chain`]
+//!   cruza as duas verificações. Ver a nota de modelo de execução abaixo.
 //!
 //! # Reaproveitamento de `arkhe_core`
 //!
@@ -29,14 +33,29 @@
 //! [//]: # (O `CanonicalEncoder` de `arkhe-governance` não é reaproveitável: é)
 //! [//]: # (`pub(crate)` àquele crate. A codificação canônica é reimplementada)
 //! [//]: # (localmente, com prefixos de comprimento e separador de domínio.)
+//!
+//! # Modelo de execução: síncrono, com uma ponte assíncrona
+//!
+//! O [`WormGraph`] e toda a API de grafo continuam **síncronos**. A única parte
+//! assíncrona é o módulo [`evidence`], porque `EvidenceChain` é assíncrona
+//! (`tokio::sync::RwLock`) — as funções daquela ponte são `async` para poder
+//! aguardar a cadeia, mas o que fazem com o grafo é síncrono, e este crate não
+//! passou a depender do tokio para compilar (o tokio entra só como dependência
+//! de desenvolvimento, para os testes terem executor). Nenhum outro módulo
+//! mudou de modelo.
 
 #![deny(unsafe_code)]
 #![warn(missing_docs)]
 
 pub mod error;
+pub mod evidence;
 pub mod graph;
 pub mod types;
 
 pub use error::WormGraphError;
+pub use evidence::{
+    build_from_evidence_chain, evidence_nodes, node_id_for, verify_against_chain,
+    EvidenceBridgeError, EVIDENCE_EDGE_TYPE, EVIDENCE_NODE_TYPE,
+};
 pub use graph::{NodeFilter, WormGraph, GENESIS_HASH};
 pub use types::{Edge, Entry, Node, WormEntry};

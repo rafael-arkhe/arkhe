@@ -9,6 +9,16 @@ repository.workspace = true
 
 [dependencies]
 arkhe-core = { path = "../arkhe-core" }
+# A ponte de `crate::evidence` lê uma `EvidenceChain`. O grafo em si continua
+# síncrono: `arkhe-evidence` é assíncrono (tokio), e é a ponte — não o
+# `WormGraph` — que carrega essa assincronia. Ver a nota de modelo em
+# `src/evidence.rs`.
+arkhe-evidence = { path = "../arkhe-evidence" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+# Só os testes precisam de um executor: a biblioteca apenas devolve e aguarda
+# futures de `arkhe-evidence`, sem chamar nenhuma API do tokio.
+tokio = { workspace = true, features = ["full"] }

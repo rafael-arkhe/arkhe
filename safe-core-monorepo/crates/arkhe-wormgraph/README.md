@@ -89,6 +89,38 @@ O `CanonicalEncoder` de `arkhe-governance` **não** foi reaproveitado: é
 `pub(crate)` àquele crate e não é alcançável daqui. A codificação canônica é
 reimplementada localmente (domínio + prefixos de comprimento + tag de tipo).
 
+## Ponte para `arkhe-evidence`
+
+O módulo `src/evidence.rs` liga o grafo ao log de evidências encadeado
+(`arkhe-evidence`), espelhando o precedente `provenance_graph` do
+`arkhe-geometric-verifier`:
+
+| Função | O que faz |
+|:---|:---|
+| `build_from_evidence_chain(&EvidenceChain) -> Result<WormGraph, _>` | um `Node` por `EvidenceRecord` (com `index`, `timestamp` e o par `hash`/`prev_hash` **preservado** no payload do nó), e uma aresta por par de registros consecutivos |
+| `verify_against_chain(&WormGraph, &EvidenceChain)` | cruza as duas verificações — o `WormGraph::verify_chain()` e o `EvidenceChain::verify_chain()` — e depois confere que o grafo representa aquela cadeia |
+
+O payload do registro **não** é copiado para dentro do nó, e sim o seu
+comprimento: o payload já vive na cadeia, e uma segunda cópia poderia discordar
+da primeira.
+
+O cruzamento pega duas coisas que o `EvidenceChain` sozinho **não** pega: o hash
+de um `EvidenceRecord` cobre `(prev_hash, payload)`, portanto editar o
+`timestamp` ou o campo `index` de um registro deixa a cadeia de evidências
+verificando. O grafo preserva esses campos do momento da construção, então a
+divergência aparece (`TimestampMismatch`, `RecordIndexMismatch`).
+
+### Modelo de execução
+
+O `WormGraph` continua **síncrono**; a assincronia fica contida na ponte, porque
+`EvidenceChain` é assíncrona (`tokio::sync::RwLock`). As duas funções acima são
+`async` — mas só para aguardar a cadeia: tudo o que fazem com o grafo é
+síncrono. O tokio é dependência **de desenvolvimento** (só os testes precisam de
+executor); a biblioteca não o usa diretamente, e nem a lógica de hash do
+`arkhe-evidence` é duplicada — o wormgraph continua chamando
+`arkhe_core::hash::blake3_hash`, e a ponte apenas grava com
+`arkhe_core::hash::hash_to_hex` os hashes que o `arkhe-evidence` já calculou.
+
 ## Testes
 
 ```
@@ -100,3 +132,10 @@ de cada campo (payload, signer, invariantes, timestamp), remoção, reordenaçã
 forja de `sequence`, as quatro consultas e o filtro conjuntivo, rejeição de
 duplicata e de ponta inexistente, e as propriedades do `chain_hash`
 (determinismo, sensibilidade, ausência de colisão de fronteira de campo).
+
+Da ponte: cadeia vazia, 1 registro, 5 registros, encadeamento preservado,
+carimbo/índice de cada aresta, round-trip JSON do grafo construído, detecção de
+adulteração (hash, carimbo, remoção de entrada, remoção de aresta, aresta
+religada, ponta fora do subgrafo), o caso que **só** o cruzamento pega (grafo e
+cadeia íntegros, mas de cadeias diferentes) e a recusa de um grafo misto que
+apenas convive com outros tipos de entrada.

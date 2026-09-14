@@ -1,0 +1,39 @@
+[package]
+name = "arkhe-verify"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Plano Arkhe OS §2.3 — casca nativa sobre o core de verificação de arkhe-verify-wasm (as cinco verificações, sem wasm_bindgen) com o modelo de dados no formato Rekor/CT e um adaptador HTTP para uma instância Rekor"
+license.workspace = true
+repository.workspace = true
+
+# Arquitetura "um core, duas cascas": a verificação vive no core de
+# `arkhe-verify-wasm` (que declara `crate-type = ["cdylib", "rlib"]`), e este
+# crate é a casca **nativa**. Ele depende do wasm como `rlib` e chama as mesmas
+# funções `*_inner` — a casca `#[wasm_bindgen]` é a outra. Nada de verificação é
+# reimplementado aqui.
+[dependencies]
+arkhe-verify-wasm = { path = "../arkhe-verify-wasm" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+# Mesmo pin de `arkhe-orcid` (o outro cliente HTTP do workspace). Não está em
+# `[workspace.dependencies]`, então a versão é fixada aqui.
+reqwest = { version = "0.13.4", default-features = false, features = ["json", "rustls"] }
+
+[dev-dependencies]
+# Mesma abordagem de `arkhe-orcid`: o adaptador HTTP é exercitado contra um
+# servidor local (mockito), nunca contra uma instância Rekor real.
+mockito = "1.7.2"
+tokio = { workspace = true, features = ["rt", "macros", "sync"] }
+# Para construir provas de inclusão de verdade nos testes — mesmo pin do core.
+ct-merkle = "0.3.0"
+# `sha2` 0.11 é o `digest` que o `ct-merkle` 0.3 usa (ver o README do
+# `arkhe-verify-wasm` sobre a divergência forçada de 0.10 → 0.11).
+sha2 = "0.11"
+ed25519-dalek = { workspace = true }
+# A **biblioteca** não usa base64 diretamente: ela reusa
+# `arkhe_verify_wasm::encoding::decode_base64`, que já é a decodificação do
+# core. O `base64` entra só aqui, para os testes montarem fixtures — o core
+# expõe o decodificador, não o codificador.
+base64 = "0.22"
