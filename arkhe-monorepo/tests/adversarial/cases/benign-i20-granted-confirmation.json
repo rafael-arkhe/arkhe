@@ -1,0 +1,43 @@
+{
+  "id": "benign-i20-granted-confirmation",
+  "target_invariant": "I-20",
+  "kind": "benign",
+  "title": "Critical operation with an explicitly granted human confirmation, under a stricter compliance config",
+  "mechanism": "critical_operation is true and a HumanConfirmation with confirmed=true is registered for the same scope, so I-20 holds. The ambient config is stricter than the default (bias detection and explainability required) purely to show the config patch surface is exercised; the state is safe-by-construction under that config, so no invariant fires.",
+  "rationale": "Negative control for I-20. It guards the false positive where a critical operation is treated as a violation regardless of the confirmation record. Together with issue-38687 (same flag, no confirmation -> violation) and the crate-level denial case, it pins the predicate to 'confirmed record present' rather than 'critical operation flagged'. Note that `confirmed: false` would NOT satisfy this gate; that variant is covered by the test `i20_denied_confirmation_does_not_satisfy_the_gate`.",
+  "metadata": {
+    "operation": "deploy-prod",
+    "confirm_flag": "explicitly granted",
+    "config_regime": "bias detection + explainability required (stricter than default)",
+    "control_for": "I-20 false positive"
+  },
+  "config": {
+    "require_sbom_verification": true,
+    "require_model_hash_validation": true,
+    "enable_bias_detection": true,
+    "max_bias_threshold": 0.05,
+    "require_explainability": true,
+    "min_explainability_threshold": 0.7
+  },
+  "state": {
+    "critical_operation": true,
+    "human_confirmation": {
+      "operator": "operator@arkhe",
+      "scope": "deploy-prod",
+      "confirmed": true,
+      "timestamp": "2026-09-13T00:00:00Z"
+    }
+  },
+  "expected": {
+    "violations": [],
+    "witness": {
+      "undeclared_capabilities": [],
+      "tampered_trusted_artifacts": [],
+      "self_suppressed_files": []
+    },
+    "safe_state_rejected": false,
+    "neron_repairs": true,
+    "neron_residual_violations": [],
+    "neron_output_accepted": true
+  }
+}

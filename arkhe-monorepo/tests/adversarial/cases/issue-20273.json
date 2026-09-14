@@ -1,0 +1,71 @@
+{
+  "id": "issue-20273",
+  "target_invariant": "I-18",
+  "kind": "adversarial",
+  "title": "Bundled skill modified in place: SKILL.md no longer matches its sealed hash",
+  "mechanism": "A bundled skill is modified after being sealed as trusted. The artifact manifest.json and the local scratch copy are untouched, but skills/bundled/hermes-skill/SKILL.md hashes differently from the value recorded when it was sealed, so I-18 fires with that single artifact as witness.",
+  "rationale": "I-18 (trusted_artifacts_immutable) is the direct predicate: 'trusted artifact observed_hash == expected_hash'. Overwriting a bundled artifact is precisely a sealed-bytes divergence. This case is deliberately broader than the minimum needed to trip the gate: it also carries a trusted artifact that is intact, and an untrusted artifact whose hashes diverge. Both must NOT appear in the witness — the intact trusted artifact proves the check is per-artifact rather than all-or-nothing, and the untrusted divergent artifact proves the `trusted` flag is honoured (I-18 is out of scope for untrusted artifacts, so a naive implementation that ignored `trusted` would produce a false positive here).",
+  "metadata": {
+    "modified_artifact": "skills/bundled/hermes-skill/SKILL.md",
+    "intact_trusted_artifact": "skills/bundled/hermes-skill/manifest.json",
+    "out_of_scope_untrusted_artifact": "skills/local/scratch/SKILL.md",
+    "cwe": "CWE-345: insufficient verification of data authenticity",
+    "neutralization_semantics": "Re-sealing SKILL.md to the bytes actually observed removes the divergence. The real remediation is to restore the bundled bytes from the sealed release."
+  },
+  "state": {
+    "trusted_artifacts": [
+      {
+        "name": "skills/bundled/hermes-skill/manifest.json",
+        "expected_hash": "sha3-256:sealed-71c4",
+        "observed_hash": "sha3-256:sealed-71c4",
+        "trusted": true
+      },
+      {
+        "name": "skills/bundled/hermes-skill/SKILL.md",
+        "expected_hash": "sha3-256:sealed-0a12",
+        "observed_hash": "sha3-256:rewritten-by-upgrade-b33f",
+        "trusted": true
+      },
+      {
+        "name": "skills/local/scratch/SKILL.md",
+        "expected_hash": "sha3-256:local-a001",
+        "observed_hash": "sha3-256:local-edited-b002",
+        "trusted": false
+      }
+    ]
+  },
+  "neutralization": {
+    "trusted_artifacts": [
+      {
+        "name": "skills/bundled/hermes-skill/manifest.json",
+        "expected_hash": "sha3-256:sealed-71c4",
+        "observed_hash": "sha3-256:sealed-71c4",
+        "trusted": true
+      },
+      {
+        "name": "skills/bundled/hermes-skill/SKILL.md",
+        "expected_hash": "sha3-256:rewritten-by-upgrade-b33f",
+        "observed_hash": "sha3-256:rewritten-by-upgrade-b33f",
+        "trusted": true
+      },
+      {
+        "name": "skills/local/scratch/SKILL.md",
+        "expected_hash": "sha3-256:local-a001",
+        "observed_hash": "sha3-256:local-edited-b002",
+        "trusted": false
+      }
+    ]
+  },
+  "expected": {
+    "violations": ["I-18"],
+    "witness": {
+      "undeclared_capabilities": [],
+      "tampered_trusted_artifacts": ["skills/bundled/hermes-skill/SKILL.md"],
+      "self_suppressed_files": []
+    },
+    "safe_state_rejected": true,
+    "neron_repairs": true,
+    "neron_residual_violations": [],
+    "neron_output_accepted": true
+  }
+}

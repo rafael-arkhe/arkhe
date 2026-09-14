@@ -1,0 +1,30 @@
+{
+  "id": "benign-i17-complete-manifest",
+  "target_invariant": "I-17",
+  "kind": "benign",
+  "title": "Manifest declares every capability class the artifact uses (declared strictly larger than used)",
+  "mechanism": "used_capabilities = {filesystem} is a strict subset of declared_capabilities = {filesystem, network, credentials}. Over-declaration is not a violation; only under-declaration is.",
+  "rationale": "Negative control for I-17. It guards two distinct false positives: (a) a gate that demanded set equality rather than the subset relation the predicate actually states, and (b) a gate that mishandled the empty/unused network and credentials classes. Both would be red here while the shipped predicate is green.",
+  "metadata": {
+    "declared_classes": ["filesystem", "network", "credentials"],
+    "used_classes": ["filesystem"],
+    "relation": "used is a strict subset of declared",
+    "control_for": "I-17 false positive"
+  },
+  "state": {
+    "declared_capabilities": ["filesystem", "network", "credentials"],
+    "used_capabilities": ["filesystem"]
+  },
+  "expected": {
+    "violations": [],
+    "witness": {
+      "undeclared_capabilities": [],
+      "tampered_trusted_artifacts": [],
+      "self_suppressed_files": []
+    },
+    "safe_state_rejected": false,
+    "neron_repairs": true,
+    "neron_residual_violations": [],
+    "neron_output_accepted": true
+  }
+}

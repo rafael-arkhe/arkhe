@@ -1,0 +1,34 @@
+{
+  "id": "benign-i19-scoped-suppression",
+  "target_invariant": "I-19",
+  "kind": "benign",
+  "title": "Suppression config exists but its patterns match none of the contained files",
+  "mechanism": "The artifact carries a .skillignore with patterns 'tmp/*' and '*.bak'. Neither pattern matches any entry of artifact_files (SKILL.md, scripts/run.sh), so `suppressed_contained` is empty and I-19 holds.",
+  "rationale": "Negative control for I-19. It guards the false positive where the presence of a suppression config is itself treated as a violation, rather than the actual predicate (a pattern matching a contained file). The config is deliberately non-empty and non-trivial so the control exercises the matcher rather than the `suppression.is_none()` shortcut.",
+  "metadata": {
+    "config_path": ".skillignore",
+    "patterns": ["tmp/*", "*.bak"],
+    "contained_files": ["SKILL.md", "scripts/run.sh"],
+    "suppressed_of_contained": [],
+    "control_for": "I-19 false positive"
+  },
+  "state": {
+    "artifact_files": ["SKILL.md", "scripts/run.sh"],
+    "suppression": {
+      "config_path": ".skillignore",
+      "patterns": ["tmp/*", "*.bak"]
+    }
+  },
+  "expected": {
+    "violations": [],
+    "witness": {
+      "undeclared_capabilities": [],
+      "tampered_trusted_artifacts": [],
+      "self_suppressed_files": []
+    },
+    "safe_state_rejected": false,
+    "neron_repairs": true,
+    "neron_residual_violations": [],
+    "neron_output_accepted": true
+  }
+}

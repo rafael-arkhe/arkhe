@@ -1,0 +1,41 @@
+{
+  "id": "skillignore-self-suppression",
+  "target_invariant": "I-19",
+  "kind": "adversarial",
+  "title": "The artifact's own .skillignore suppresses evidence it contains, hiding it from its own audit",
+  "mechanism": "The artifact ships a .skillignore that lists 'evidence/*' (and '*.log'). The artifact manifest says it contains evidence/audit.log, so the artifact's own configuration suppresses a file that the artifact itself contains. I-19 fires: an artifact may not use its own declarative config to hide its own contents from verification.",
+  "rationale": "I-19 (no_self_suppression_of_evidence) is the exact predicate: `suppression.suppressed_contained(artifact_files)` must be empty. The other hooks do not fit: nothing uses an undeclared capability (I-17), no sealed artifact diverges (I-18), and no critical operation is flagged (I-20). The case deliberately includes files that the config does NOT suppress (SKILL.md, scripts/run.sh, and .skillignore itself) so the witness is a precise subset rather than 'the config exists'. Note that the matching pattern reported is the first one that matches in pattern order, and the witness reports file names, not patterns.",
+  "metadata": {
+    "config_path": ".skillignore",
+    "patterns": ["evidence/*", "*.log"],
+    "contained_files": ["SKILL.md", "scripts/run.sh", "evidence/audit.log", ".skillignore"],
+    "suppressed_of_contained": ["evidence/audit.log"],
+    "cwe": "CWE-693: protection mechanism failure (self-suppression of audit evidence)",
+    "neutralization_semantics": "Restricting the patterns to a scratch path ('tmp/*') that the artifact does not contain: the config still exists but no longer suppresses anything it ships."
+  },
+  "state": {
+    "artifact_files": ["SKILL.md", "scripts/run.sh", "evidence/audit.log", ".skillignore"],
+    "suppression": {
+      "config_path": ".skillignore",
+      "patterns": ["evidence/*", "*.log"]
+    }
+  },
+  "neutralization": {
+    "suppression": {
+      "config_path": ".skillignore",
+      "patterns": ["tmp/*"]
+    }
+  },
+  "expected": {
+    "violations": ["I-19"],
+    "witness": {
+      "undeclared_capabilities": [],
+      "tampered_trusted_artifacts": [],
+      "self_suppressed_files": ["evidence/audit.log"]
+    },
+    "safe_state_rejected": true,
+    "neron_repairs": true,
+    "neron_residual_violations": [],
+    "neron_output_accepted": true
+  }
+}

@@ -1,4 +1,4 @@
-//! ARKHE‑χ SafeManifold v0.8.0 — 16-Invariant Security Projection
+//! ARKHE‑χ SafeManifold v0.8.0 — 20-Invariant Security Projection
 //!
 //! This crate projects system security states into a canonical equivalence-class
 //! space ("manifold"). Mathematical names (Abel-Jacobi, Torelli, Néron) are
@@ -29,7 +29,7 @@
 //! let config = SystemConfig::default();
 //! let state = SystemState::safe(config);
 //! let safe = SafeState::new(state).unwrap();
-//! // `safe` is guaranteed to satisfy all invariants I-01..I-16
+//! // `safe` is guaranteed to satisfy all invariants I-01..I-20
 //! ```
 //!
 //! # Consciousness Governance (C-01 to C-08)
@@ -75,7 +75,10 @@ pub use safe_manifold::{
     DimensionWeights,
 };
 pub use abel_jacobi::{embed_state, is_within_manifold, observer_defect, collision_detected, torelli_equivalence};
-pub use invariants::{SystemState, SystemConfig, Invariant, ManifoldError};
+pub use invariants::{
+    SystemState, SystemConfig, Invariant, ManifoldError, CapabilitySet, TrustedArtifact,
+    SuppressionConfig, HumanConfirmation,
+};
 pub use escape_region::EscapeRegion;
 pub use frontier::{dominant_invariant, sample_interleaved, severity, FrontierHistory};
 pub use prolog_bridge::{PrologBridge, PrologClient, PrologError, RULES_SRC, RSI_SRC};

@@ -166,7 +166,7 @@ pub struct ManifoldProfile {
     pub bias_score: i64,
 }
 
-/// A [`SystemState`] that is guaranteed to satisfy all invariants I-01..I-16.
+/// A [`SystemState`] that is guaranteed to satisfy all invariants I-01..I-20.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SafeState(SystemState);
 
@@ -347,7 +347,7 @@ impl SafeManifold {
         s1 != s2 && self.embed_state(s1) == self.embed_state(s2)
     }
 
-    /// Classify the escape region using violation severity (16 invariants).
+    /// Classify the escape region using violation severity (20 invariants).
     pub fn classify_escape(&self, state: &SystemState) -> EscapeRegion {
         match state.violation_count() {
             0 => EscapeRegion::Safe,
@@ -358,7 +358,16 @@ impl SafeManifold {
         }
     }
 
-    /// Graceful degradation: clamp fields and enforce ALL invariants.
+    /// Graceful degradation: clamp fields and enforce the mechanically
+    /// degradable invariants.
+    ///
+    /// I‑01..I‑19 are repaired by clamping/dropping (I‑17 drops undeclared
+    /// capability usage, I‑18 quarantines tampered trusted artifacts, I‑19 drops
+    /// the artifact's own suppression config). **I‑20 is intentionally not
+    /// repaired**: a critical operation without explicit human confirmation
+    /// cannot be made safe by degradation without defeating the invariant, so
+    /// `neron_model` preserves it and the operation stays blocked. Callers must
+    /// register a confirmation out-of-band before the state can be accepted.
     pub fn neron_model(&self, state: &SystemState) -> SystemState {
         let mut degraded = state.clone();
         degraded.token_budget = degraded.token_budget.max(0).min(self.max_tokens);
@@ -378,6 +387,20 @@ impl SafeManifold {
         degraded.bias_score = degraded.bias_score.min(self.config.max_bias_threshold);
         degraded.explainability_score = degraded.explainability_score
             .max(self.config.min_explainability_threshold);
+        // I-17: drop capability usage that the manifest did not declare.
+        degraded.used_capabilities = degraded
+            .used_capabilities
+            .intersect_with(&degraded.declared_capabilities);
+        // I-18: quarantine trusted artifacts whose sealed hash no longer matches.
+        for artifact in &mut degraded.trusted_artifacts {
+            if !artifact.is_intact() {
+                artifact.quarantine();
+            }
+        }
+        // I-19: drop the artifact's own suppression config so verification sees
+        // every contained file.
+        degraded.suppression = None;
+        // I-20: preserved (see method docs) — never fabricate a confirmation.
         degraded.config = self.config.clone();
         degraded
     }

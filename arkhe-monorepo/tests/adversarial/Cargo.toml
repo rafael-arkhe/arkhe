@@ -1,0 +1,13 @@
+[package]
+name = "arkhe-adversarial-corpus"
+version = "0.1.0"
+edition = "2021"
+publish = false
+rust-version = "1.85"
+description = "Declarative adversarial corpus exercising the SafeManifold constitutional invariants I-17..I-20 (arkhe-safe-manifold). Data-only fixtures: no exploit payloads, no command execution, no network, no disk writes."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arkhe-safe-manifold = { path = "../../packages/arkhe-safe-manifold", version = "0.8.0" }
+serde = { workspace = true }
+serde_json = "1"

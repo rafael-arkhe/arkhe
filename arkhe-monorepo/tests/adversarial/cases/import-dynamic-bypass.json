@@ -1,0 +1,34 @@
+{
+  "id": "import-dynamic-bypass",
+  "target_invariant": "I-17",
+  "kind": "adversarial",
+  "title": "Dynamic import loads a plugin that spawns a process, using a capability class the manifest never declared",
+  "mechanism": "A dynamic import resolves a module at runtime and the loaded plugin executes it as a process. The manifest declares filesystem and network only, so the process class is used without being declared and I-17 fires.",
+  "rationale": "I-17 (capability_manifest_complete) is the manifest gate the dynamic-import bypass is designed to evade: static analysis never sees the import, so the capability it needs is never declared, but the runtime state records the use. The other three hooks are absent by construction (no sealed artifact, no suppression config, no critical operation), so if I-17 is neutralised the case is clean — which is what makes I-17 the load-bearing gate rather than a coincidental one. This case also exercises the process class, giving the corpus coverage of all four capability classes across its three I-17 fixtures (filesystem, filesystem+credentials, process).",
+  "metadata": {
+    "import": "dynamic import of plugins/loader.so",
+    "declared_classes": ["filesystem", "network"],
+    "used_classes": ["filesystem", "network", "process"],
+    "cwe": "CWE-829: inclusion of functionality from untrusted control sphere",
+    "neutralization_semantics": "Declaring the process class the plugin actually uses. The real remediation is to stop the dynamic import or to declare and review the capability."
+  },
+  "state": {
+    "declared_capabilities": ["filesystem", "network"],
+    "used_capabilities": ["filesystem", "network", "process"]
+  },
+  "neutralization": {
+    "declared_capabilities": ["filesystem", "network", "process"]
+  },
+  "expected": {
+    "violations": ["I-17"],
+    "witness": {
+      "undeclared_capabilities": ["process"],
+      "tampered_trusted_artifacts": [],
+      "self_suppressed_files": []
+    },
+    "safe_state_rejected": true,
+    "neron_repairs": true,
+    "neron_residual_violations": [],
+    "neron_output_accepted": true
+  }
+}

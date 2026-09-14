@@ -197,8 +197,8 @@ fn test_system_state_to_vector_16d() {
 }
 
 #[test]
-fn test_invariant_all_returns_16() {
-    assert_eq!(Invariant::all().len(), 16);
+fn test_invariant_all_returns_20() {
+    assert_eq!(Invariant::all().len(), 20);
 }
 
 #[test]
@@ -278,6 +278,13 @@ proptest! {
             provenance_attested: true,
             bias_score: 0.0,
             explainability_score: 1.0,
+            declared_capabilities: CapabilitySet::all(),
+            used_capabilities: CapabilitySet::none(),
+            trusted_artifacts: Vec::new(),
+            artifact_files: Vec::new(),
+            suppression: None,
+            critical_operation: false,
+            human_confirmation: None,
             config,
         };
 
@@ -314,6 +321,13 @@ proptest! {
             provenance_attested: true,
             bias_score: 0.0,
             explainability_score: 1.0,
+            declared_capabilities: CapabilitySet::all(),
+            used_capabilities: CapabilitySet::none(),
+            trusted_artifacts: Vec::new(),
+            artifact_files: Vec::new(),
+            suppression: None,
+            critical_operation: false,
+            human_confirmation: None,
             config,
         };
 
@@ -349,6 +363,13 @@ proptest! {
             provenance_attested: true,
             bias_score: 0.0,
             explainability_score: 1.0,
+            declared_capabilities: CapabilitySet::all(),
+            used_capabilities: CapabilitySet::none(),
+            trusted_artifacts: Vec::new(),
+            artifact_files: Vec::new(),
+            suppression: None,
+            critical_operation: false,
+            human_confirmation: None,
             config,
         };
 
@@ -381,6 +402,13 @@ proptest! {
             provenance_attested: true,
             bias_score: 0.0,
             explainability_score: 1.0,
+            declared_capabilities: CapabilitySet::all(),
+            used_capabilities: CapabilitySet::none(),
+            trusted_artifacts: Vec::new(),
+            artifact_files: Vec::new(),
+            suppression: None,
+            critical_operation: false,
+            human_confirmation: None,
             config,
         };
 
@@ -603,4 +631,74 @@ fn mock_prolog_has_rule_and_add_rule() {
     mock.add_rule("custom_x", 50);
     assert!(mock.has_rule("custom_x"));
     assert_eq!(mock.query_count(), 17);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// I-17..I-20 constitutional extension — public API integration
+// ═════════════════════════════════════════════════════════════════════════════
+
+#[test]
+fn test_new_invariant_blocks_safe_state_construction() {
+    let mut state = SystemState::safe(SystemConfig::default());
+    state.critical_operation = true; // no human confirmation registered
+    assert!(state.violations().contains(&Invariant::I20));
+    let err = SafeState::new(state).unwrap_err();
+    assert!(matches!(err, ManifoldError::InvariantViolation(_)));
+}
+
+#[test]
+fn test_neron_model_repairs_i17_i18_i19() {
+    let manifold = SafeManifold::new();
+    let mut state = SystemState::safe(manifold.config.clone());
+    state.declared_capabilities = CapabilitySet { filesystem: true, ..CapabilitySet::none() };
+    state.used_capabilities = CapabilitySet { network: true, ..CapabilitySet::none() };
+    state.trusted_artifacts =
+        vec![TrustedArtifact::new("arkhe-core.so", "blake3:aaa", "sha256:zzz")];
+    state.artifact_files = vec!["src/lib.rs".into()];
+    state.suppression = Some(SuppressionConfig::new(".skillignore", vec!["src/*.rs".into()]));
+
+    let degraded = manifold.neron_model(&state);
+    assert!(degraded.check_i17());
+    assert!(degraded.check_i18());
+    assert!(degraded.check_i19());
+    assert!(!degraded.used_capabilities.network);
+    assert!(degraded.trusted_artifacts.iter().all(|a| !a.trusted));
+    assert!(degraded.suppression.is_none());
+    assert!(degraded.check_all());
+}
+
+#[test]
+fn test_neron_model_preserves_unconfirmed_critical_operation() {
+    let manifold = SafeManifold::new();
+    let mut state = SystemState::safe(manifold.config.clone());
+    state.critical_operation = true;
+
+    // Degradation must not fabricate a human confirmation to satisfy I-20.
+    let blocked = manifold.neron_model(&state);
+    assert!(blocked.critical_operation);
+    assert!(blocked.human_confirmation.is_none());
+    assert!(!blocked.check_i20());
+    assert!(!blocked.check_all());
+    assert!(blocked.violations().contains(&Invariant::I20));
+}
+
+#[test]
+fn test_canonical_i09_i12_ids_stable() {
+    assert_eq!(Invariant::I09.id(), "I-09");
+    assert_eq!(Invariant::I10.id(), "I-10");
+    assert_eq!(Invariant::I11.id(), "I-11");
+    assert_eq!(Invariant::I12.id(), "I-12");
+
+    let mut state = SystemState::safe(SystemConfig::default());
+    state.pqc_signature_valid = false;
+    assert!(!Invariant::I09.check(&state));
+    state.pqc_signature_valid = true;
+    state.sbom_verified = false;
+    assert!(!Invariant::I10.check(&state));
+    state.sbom_verified = true;
+    state.model_hash_validated = false;
+    assert!(!Invariant::I11.check(&state));
+    state.model_hash_validated = true;
+    state.audit_trail_complete = false;
+    assert!(!Invariant::I12.check(&state));
 }

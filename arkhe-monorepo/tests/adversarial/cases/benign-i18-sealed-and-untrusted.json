@@ -1,0 +1,42 @@
+{
+  "id": "benign-i18-sealed-and-untrusted",
+  "target_invariant": "I-18",
+  "kind": "benign",
+  "title": "Trusted artifact is intact and an untrusted artifact with diverging hashes is out of scope",
+  "mechanism": "One artifact is marked trusted with observed_hash == expected_hash, so it satisfies I-18. A second artifact is marked untrusted and its observed hash deliberately diverges from its expected hash; `TrustedArtifact::is_intact` short-circuits on `!trusted`, so untrusted artifacts always satisfy I-18.",
+  "rationale": "Negative control for I-18. The untrusted-with-divergent-hash entry is the important part: an implementation that checked `expected_hash == observed_hash` for every artifact regardless of the `trusted` flag would report a violation here, while the shipped predicate correctly reports none. This is a false-positive guard aimed at the exact scope boundary the invariant documents.",
+  "metadata": {
+    "trusted_intact": "vendor/sealed-lib.so",
+    "untrusted_divergent": "vendor/local-debug.so",
+    "out_of_scope_reason": "trusted == false",
+    "control_for": "I-18 false positive"
+  },
+  "state": {
+    "trusted_artifacts": [
+      {
+        "name": "vendor/sealed-lib.so",
+        "expected_hash": "blake3:sealed-aaaa",
+        "observed_hash": "blake3:sealed-aaaa",
+        "trusted": true
+      },
+      {
+        "name": "vendor/local-debug.so",
+        "expected_hash": "blake3:local-bbbb",
+        "observed_hash": "blake3:rebuilt-locally-cccc",
+        "trusted": false
+      }
+    ]
+  },
+  "expected": {
+    "violations": [],
+    "witness": {
+      "undeclared_capabilities": [],
+      "tampered_trusted_artifacts": [],
+      "self_suppressed_files": []
+    },
+    "safe_state_rejected": false,
+    "neron_repairs": true,
+    "neron_residual_violations": [],
+    "neron_output_accepted": true
+  }
+}
