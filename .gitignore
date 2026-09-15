@@ -102,3 +102,14 @@ arkhe-monorepo/proximity-prize/
 # --- saida do wasm-bindgen (artefato de build, nao commitar) ---
 # `pkg/` ja e coberto pelo gitignore global; `pkg-web/` nao era.
 pkg-web/
+
+# --- chaves Nostr (hashtree/nostr) e afins ---
+# `nsec*` e a chave PRIVADA — nunca pode ser commitada nem publicada.
+# `npub*` e publica, mas costuma estar na mesma pasta que a privada.
+# Acrescentado em 2026-09-15: o bloco "# Secrets" (L27) cobria .env/.key/.pem
+# mas nao os padroes Nostr, que sao o formato de identidade desta stack.
+nsec*
+nsec1*
+npub*
+.netrc
+auth.cookie
