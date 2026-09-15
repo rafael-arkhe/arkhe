@@ -1,3 +1,8 @@
+# Este workflow vive na RAIZ do repositório, e não em `arkhe-ui/.github/`.
+# O GitHub só lê `.github/workflows/` na raiz: uma cópia aninhada nunca corre.
+# Esta já viveu em `arkhe-ui/.github/workflows/ci.yml` e nunca foi executada.
+# O filtro `paths:` é relativo à raiz; o job trabalha em `arkhe-ui/` via
+# `defaults.run.working-directory`.
 name: arkhe-ui CI
 
 on:
@@ -49,5 +54,9 @@ jobs:
       - name: Testes e2e
         run: npx playwright test
 
+      # Não-bloqueante: requer uma conta Chromatic e o segredo CHROMATIC_TOKEN.
+      # Sem conta este passo falha, e o job nasceria vermelho por uma razão que
+      # nada tem a ver com o código. Quando a conta existir, retirar a linha abaixo.
       - name: Chromatic
         run: npx chromatic --project-token=${{ secrets.CHROMATIC_TOKEN }}
+        continue-on-error: true
