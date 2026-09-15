@@ -1,0 +1,15 @@
+# Artefactos do cargo: o binário, os objectos intermédios e o `gen/` do
+# `tauri-build`. Nada disto é fonte.
+#
+# CORRIGIDO 2026-09-15 por medicao: a frase anterior afirmava que o `Cargo.lock`
+# nao e ignorado. E falso. `git add --dry-run` nao lista o `Cargo.lock` deste
+# diretorio, porque `~/.gitignore_global:50` ignora `Cargo.lock` globalmente — e
+# o global vence esta intencao local. E por isso que NENHUM lock e rastreado
+# neste projeto. Para commitar o lock desta app seria preciso uma negacao aqui
+# (`!Cargo.lock`), que um .gitignore de subdiretorio vence o global. Nao foi
+# adicionada: versionar lockfiles e convencao do projeto, nao desta tarefa.
+/target/
+
+# Gerado pelo `tauri-build` a partir do `tauri.conf.json` (inclui os esquemas
+# JSON do ACL referenciados pelos `$schema` das capabilities).
+/gen/schemas

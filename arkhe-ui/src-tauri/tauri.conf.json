@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Arkhe",
+  "version": "0.1.0",
+  "identifier": "org.arkhe-os.arkhe",
+  "build": {
+    "beforeDevCommand": "npm run dev:app",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build:app",
+    "frontendDist": "../dist-app"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Arkhe — verificação de atestações",
+        "width": 1100,
+        "height": 820,
+        "minWidth": 720,
+        "minHeight": 560,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "DeveloperTool",
+    "shortDescription": "Verificação de atestações do Arkhe OS",
+    "longDescription": "Verificação client-side (SHA-256, Ed25519 contra um trust root, inclusão Merkle RFC 6962 e quórum de testemunhas) e inspecção de modelos GGUF pelo núcleo nativo arkhe-verify."
+  }
+}

@@ -1,0 +1,54 @@
+[package]
+name = "arkhe-ui-app"
+version = "0.1.0"
+edition = "2021"
+description = "Plano Arkhe OS §Fase 5 — o casco Tauri: a app de verificação como aplicativo instalável, ligado ao núcleo nativo de verificação (arkhe-verify)"
+authors = ["Arkhe OS Architects <arkhe@arkhe-os.org>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/arkhe-os/arkhe"
+
+# Workspace próprio, deliberadamente.
+#
+# O `Cargo.toml` da raiz deste repositório declara um `[workspace]` (o do
+# kernel) que **não** inclui este pacote. O cargo sobe a árvore a partir daqui,
+# encontra esse workspace e recusa o pacote como membro implícito — a tabela
+# vazia abaixo faz deste diretório a raiz do seu próprio workspace, que é o que
+# uma app Tauri é. Efeito colateral desejado: o `Cargo.lock` da app fica
+# separado do lock da raiz, o que é correto — são duas árvores de dependências
+# diferentes, com versões de `serde` diferentes (a raiz usa 1.0 solto, o
+# `safe-core-monorepo` tem o seu).
+[workspace]
+
+[lib]
+# O entrypoint real vive na biblioteca (e não no `main.rs`) porque o macro
+# `tauri::generate_context!` precisa de ser compilado como parte de um crate
+# com nome estável — é também o que a organização de uma app Tauri v2 espera.
+name = "arkhe_ui_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+# Versões fixadas no registo (medidas com `cargo info`, não presumidas):
+# `tauri` 2.11.5 é o stable; `3.0.0-alpha.0` existe e **não** é usado aqui.
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+tauri = { version = "2.11.5", features = [] }
+serde = { version = "1", features = ["derive"] }
+# O núcleo de verificação. Caminho relativo a **este** directorio
+# (`arkhe-ui/src-tauri/`), ou seja, dois níveis acima da app: `arkhe-ui/` →
+# raiz do repo → `safe-core-monorepo/crates/arkhe-verify`.
+#
+# Dependência de **caminho**, não de registo: o crate não é publicado, e a
+# app tem de verificar com o mesmo código que o `arkhe-verify-wasm` compila
+# para wasm — as duas cascas sobre o mesmo core.
+arkhe-verify = { path = "../../safe-core-monorepo/crates/arkhe-verify" }
+
+# Perfil de release de uma app distribuível: um binário só, sem símbolos, e o
+# menor possível. `panic = "abort"` é seguro aqui — nada nesta app depende de
+# `catch_unwind`, e o webview não sobrevive a um panic de qualquer forma.
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

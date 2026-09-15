@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "As permissões da janela principal da app Arkhe. O conjunto `core:default` cobre o IPC do core (eventos, janela, webview, app, recursos); o comando da aplicação (`inspect_gguf_model`) não aparece aqui de propósito — comandos definidos pela própria app não passam pelo ACL, só os comandos de plugins passam.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}
