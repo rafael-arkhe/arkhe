@@ -16,6 +16,20 @@ Este documento segue a mesma disciplina do projeto ARKHE: **uma afirmação só 
 2. **Mistura de registos** — notas de engenharia rigorosa convivem com uma camada de *nomes mitológicos* (`cathedral/`, `vajra`, "global mind") e com afirmações grandiosas (ressonância planetária, "consciência unitária", sinal para fora do planeta). Essas últimas **não** são propriedades verificáveis do software e **não** são tratadas como facto neste documento. Onde nomes poéticos aparecem no código, são identificados como *codenames*, não como capacidades físicas.
 3. **Estado exagerado** — nem tudo está implementado. A legenda abaixo marca o estado real de cada componente.
 
+> **Alcance da correção — inventário de crates medido, não aterrado (medição de 2026-09-15, branch `QC-0892`, HEAD `b0a3940c`).**
+>
+> O parágrafo acima diz que três problemas "aqui foram corrigidos". Isso é exato quanto à **poda de hipérbole**: a camada mitológica foi isolada e o estado exagerado foi sinalizado. **Não é exato quanto ao inventário de crates** — esse não foi aterrado no workspace. §5 e §6 **descrevem um design-alvo, não o estado do repositório**, e devem ser lidos como intenção arquitetural, não como inventário do que existe.
+>
+> O que foi medido:
+>
+> - Dos **14 crates** declarados em §5, **5 existem com esse nome** — `arkhe-core`, `arkhe-pqc`, `arkhe-p2p`, `arkhe-rsi`, `arkhe-governance` — e **9 não existem como caminho em lugar nenhum**: `arkhe-spec`, `arkhe-omni`, `arkhe-zk`, `arkhe-blockchain`, `arkhe-ledger`, `arkhe-evm`, `arkhe-hathor-notary`, `arkhe-cognition`, `arkhe-lean`. **Sete desses nove nomes aparecem num único arquivo: este documento.**
+> - A árvore real tem **131 diretórios de crate em três raízes** — `crates/`, `safe-core-monorepo/crates/` e `arkhe-monorepo/packages/` — e **151 `Cargo.toml` rastreados** no repositório inteiro, dos quais 31 fora dessas três raízes. `examples/` e `specs/`, declarados em §5, **não existem**.
+> - Os dois ficheiros de prova nomeados em §5/§15 (`proofs/compose_lipschitz.lean`, `proofs/precision_stability.lean`) **não existem** em lado nenhum.
+> - **§6 tem o título "Índice dos 12 crates" mas lista 13 linhas que nomeiam 14 crates** — o documento não concorda consigo mesmo sobre quantos declara.
+> - Dos 5 nomes que existem, **nenhum corresponde à função declarada**: `arkhe-p2p` existe mas usa libp2p, não "Nostr + WebRTC"; `arkhe-rsi` existe mas é um verificador de invariantes, não o "otimizador de janela deslizante"; `arkhe-governance` existe e **não** é stub (tem 7 módulos); `arkhe-core` existe em dois sítios e nenhum deles é o pipeline de 10 passos de §7.
+>
+> Isto **não invalida a intenção** deste documento como arquitetura desenhada — invalida a sua leitura como inventário do que existe. A reconciliação medida, crate a crate e com evidência, está em [`docs/arquitetura-reconciliacao.md`](docs/arquitetura-reconciliacao.md).
+
 ### Legenda de estado
 
 |Símbolo|Significado|
