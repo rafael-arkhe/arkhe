@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------------------
+# .cargo/config.toml — raiz do repositório
+#
+# Objetivo: tirar o caminho da máquina de build dos binários publicáveis.
+#
+# O defeito, medido antes desta config: o `rustc` grava em cada binário as
+# strings de localização de `panic!`/`file!()` e de debug info com o caminho
+# absoluto de origem. Sem remap isso é o caminho do perfil do usuário:
+#
+#   arkhe-ui-app.exe              "C:\Users\Lemes" = 158
+#   arkhe_verify_wasm_bg.wasm     "C:\Users\Lemes" =  12
+#
+# Todos os acertos vinham de dependências em `.cargo\registry\src\...` (mais o
+# sysroot). A identidade não vazava — vazava o caminho.
+#
+# Por que na RAIZ e não uma config por sub-árvore: o cargo procura
+# `.cargo/config.toml` subindo a partir do diretório de trabalho, e essa busca
+# não para em fronteira de workspace. Da raiz, uma única config cobre as DUAS
+# builds que interessam — o app (`arkhe-ui/src-tauri`, que produz o exe e os
+# instaladores MSI/NSIS) e o wasm (`safe-core-monorepo/crates/arkhe-verify-wasm`,
+# que produz `pkg/` e `pkg-web/`) — e qualquer outra do repositório. Uma config
+# por sub-árvore deixaria uma das duas a vazar.
+#
+# ORDEM — medida, não assumida: quando dois prefixos casam com o mesmo caminho,
+# o `rustc` usa o ÚLTIMO da lista, não o mais longo nem o primeiro. Três sondas
+# com `rustc 1.94.0` (ver o relatório da tarefa) descartaram as duas hipóteses
+# alternativas: em `[específico, curto]` venceu o curto; em `[curto, específico]`
+# venceu o específico; em `[específico, curto, médio]` venceu o médio — o
+# terceiro. Por isso o prefixo mais específico (a raiz do repositório, que está
+# sob `C:\Users\Lemes`) vem POR ÚLTIMO. Nesta ordem, um caminho do repositório
+# vira `/src/...` e o resto do perfil vira `/build/...`. Se a ordem fosse
+# invertida, o repositório viraria `/build/Downloads/sasc-v34.8-ω-...`: some o
+# nome de usuário, mas continua a descrever a máquina.
+#
+# O `ω` e as barras invertidas do prefixo foram testados explicitamente: um
+# prefixo contendo `ω` casa e remapeia normalmente.
+#
+# Isto NÃO é o mesmo que publicar: nada aqui autoriza publicar. É só remap.
+# ---------------------------------------------------------------------------
+
+[build]
+# Aspas SIMPLES de propósito. Em TOML, string entre aspas duplas processa
+# escapes — e o `\U` de `\Users` é escape unicode inválido, então o cargo
+# recusa a config inteira (`could not load Cargo configuration`) e TODA build
+# do repositório quebra. Foi medido: foi exatamente o que aconteceu na primeira
+# versão deste ficheiro, na sonda mínima. A string literal (aspas simples) não
+# processa escape nenhum e entrega os separadores ao `rustc` como escritos.
+rustflags = [
+  # O resto do perfil do usuário: `.cargo\registry\src\...`, `.rustup\toolchains\...`.
+  '--remap-path-prefix=C:\Users\Lemes=/build',
+  # A raiz do repositório:
+  #   C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine
+  # Por último de propósito: o último prefixo que casa é o que vence.
+  '--remap-path-prefix=C:\Users\Lemes\Downloads\sasc-v34.8-ω-__-real-implementation-engine=/src',
+]
