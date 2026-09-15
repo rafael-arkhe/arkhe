@@ -28,6 +28,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "icon": ["icons/icon.ico"],
     "category": "DeveloperTool",
     "shortDescription": "Verificação de atestações do Arkhe OS",
     "longDescription": "Verificação client-side (SHA-256, Ed25519 contra um trust root, inclusão Merkle RFC 6962 e quórum de testemunhas) e inspecção de modelos GGUF pelo núcleo nativo arkhe-verify."

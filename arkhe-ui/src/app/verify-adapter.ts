@@ -15,6 +15,21 @@
  *       target/wasm32-unknown-unknown/release/arkhe_verify_wasm.wasm
  *
  * (`pkg-web/` é artefacto de build e não entra no git.)
+ *
+ * # Esta fronteira é uma de duas
+ *
+ * A outra é o [`gguf-adapter`](./gguf-adapter.ts), que fala com o **processo
+ * Rust** (o comando `inspect_gguf_model` do casco Tauri) e não com o WASM. São
+ * módulos separados e não um só porque as duas fronteiras têm disponibilidade
+ * diferente — esta funciona no navegador **e** dentro do Tauri; a outra só
+ * dentro do Tauri — e porque o contrato desta ("o único módulo que sabe que
+ * existe um WebAssembly") deixaria de ser verdade se aqui se soubesse também de
+ * um processo nativo opcional. O cabeçalho do `gguf-adapter` detalha os quatro
+ * eixos em que divergem.
+ *
+ * O que é comum aos dois: nenhum deles reimplementa verificação. Ambos delegam
+ * no mesmo core (`arkhe-verify`), por cascas diferentes — "um core, duas
+ * cascas".
  */
 import initVerifyGlue, {
   initSync,

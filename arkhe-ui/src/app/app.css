@@ -129,3 +129,36 @@
   overflow-x: auto;
   color: var(--text-primary);
 }
+
+/* --------------------------------------------------- modelo GGUF (núcleo nativo) */
+
+/* Lista de definição (termo/valor) em vez da linha `space-between` dos
+   estágios: aqui há valores longos — um digest de 64 hex — que têm de poder
+   quebrar em vez de empurrar o termo para fora do cartão. */
+.app-inspect__facts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.app-inspect__fact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.app-inspect__fact-term {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.app-inspect__fact-value {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}

@@ -37,8 +37,10 @@
 //! - Não abre diálogo de ficheiros. O caminho chega como `String` do
 //!   frontend; não há permissão de filesystem nem plugin de diálogo
 //!   configurados. Ver a nota de segurança em [`inspect_gguf_model`].
-//! - Não embute ícones. Ver `README.md` deste directorio: a chave
-//!   `bundle.icon` foi **omitida**, não preenchida com binários fabricados.
+//! - Não traz arte. Existe um `icons/icon.ico` **provisório** — um losango
+//!   geométrico gerado por aritmética, que existe porque o `tauri-build` o exige
+//!   em tempo de build-script no Windows. Não é um recurso de marca e tem de ser
+//!   substituído; ver `icons/PROVISORIO.md`.
 
 use arkhe_verify::gguf::{model_digest, parse_header, GgufHeaderReport};
 use serde::Serialize;

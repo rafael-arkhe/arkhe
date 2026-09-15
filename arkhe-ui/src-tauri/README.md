@@ -14,6 +14,7 @@ e o entrega ao núcleo de verificação nativo.
 | `src/lib.rs` | `inspect_gguf_model` (o comando) e `run()` (a janela) |
 | `tauri.conf.json` | A configuração da app, no schema do **v2** |
 | `capabilities/default.json` | As permissões da janela principal |
+| `icons/icon.ico` | **Ícone provisório, não é arte** — ver `icons/PROVISORIO.md` |
 
 ## Como correr
 
@@ -69,78 +70,88 @@ nem é o `com.tauri.dev` do template:
   `authors = ["Arkhe OS Architects <arkhe@arkhe-os.org>"]` → o domínio é
   `arkhe-os.org` → reverse-DNS `org.arkhe-os` → `org.arkhe-os.arkhe`.
 
-## Lacuna registada: ícones
+## Ícones: um provisório, e o que isso fecha (e o que não fecha)
 
-O **v2 espera `bundle.icon`** (um `.ico` para Windows, `.icns` para macOS, PNGs
-para Linux). **Não existe nenhum desses arquivos neste repositório**, e nenhum
-foi fabricado: gerar um `.ico` a partir do nada seria pôr um binário inventado
-no lugar de um recurso de marca que alguém tem de desenhar.
+Existe **um** ficheiro de ícone: `icons/icon.ico`. É **provisório e não é
+arte** — um losango geométrico gerado por aritmética, que existe por uma razão
+mecânica e não por uma razão de marca. A declaração completa está em
+[`icons/PROVISORIO.md`](icons/PROVISORIO.md), com o layout dos bytes, o sha256 e
+como foi validado.
 
-Por isso a chave `bundle.icon` está **ausente** do `tauri.conf.json` (não
-apontada para arquivos inexistentes — isso seria uma configuração que mente).
-
-### Medido, e contra a expectativa
-
-A expectativa era que `cargo check` passasse sem ícones e que só o bundle
-precisasse deles. **Não é o que acontece no Windows.** O `build.rs` corre
-sempre, e o `tauri-build` gera um *Windows Resource file* a partir do `.ico`
-nesse mesmo passo:
-
-```text
-`icons/icon.ico` not found; required for generating a Windows Resource file during tauri-build
-```
-
-O `Err` é incondicional — `tauri-build-2.6.3/src/lib.rs`, no bloco
-`if target_triple.contains("windows")`: o caminho do ícone é
-`attributes.windows_attributes.window_icon_path`, senão o primeiro `.ico` de
-`config.bundle.icon`, senão `"icons/icon.ico"`; e, se esse caminho não existir,
-a função devolve `Err` (linhas 608–675). Não há chave de configuração que
-dispense o ícone.
-
-Consequências reais:
-
-| | Sem `.ico` (estado deste repositório) | Com um `.ico` válido |
-| --- | --- | --- |
-| `cargo check` (Windows) | **falha** (exit 101, no `build.rs`) | passa (exit 0) |
-| `tauri build` (Windows) | falha no mesmo ponto | prossegue para WiX/NSIS |
-
-Ou seja: **neste alvo, o ícone não é um problema do empacotador — é um
-pré-requisito de compilação.** A app não compila no Windows enquanto não houver
-um `icons/icon.ico`.
-
-Para fechar a lacuna quando houver arte: colocar os arquivos em `icons/` e
-acrescentar
+`bundle.icon` está declarado apontando para esse ficheiro:
 
 ```json
-"bundle": { "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.ico"] }
+"bundle": { "icon": ["icons/icon.ico"] }
 ```
 
-(`npm run tauri icon <fonte.png>` gera o conjunto completo a partir de uma
-imagem quadrada. O `.ico` tem de existir como arquivo — o `tauri-build` lê o
-conteúdo, não basta a chave apontar para lá.)
+### Medido: o ícone é pré-requisito de *compilação*, não só do empacotador
 
-Enquanto não houver ícone, o `cargo check` pode ainda assim ser corrido **para
-diagnóstico**, injectando um `.ico` existente por variável de ambiente (o
-`TAURI_CONFIG` é fundido sobre o `tauri.conf.json` como *merge patch* RFC 7386 —
-`tauri-build/src/lib.rs:487`), sem tocar em nenhum arquivo do repositório:
+Ao contrário do que se esperava, `cargo check` **não** passa sem ícones no
+Windows. O `build.rs` corre sempre e o `tauri-build` gera um *Windows Resource
+file* a partir do `.ico` nesse mesmo passo. O `Err` é incondicional —
+`tauri-build-2.6.3/src/lib.rs`, no bloco `if target_triple.contains("windows")`:
+o caminho do ícone é `attributes.windows_attributes.window_icon_path`, senão o
+primeiro `.ico` de `config.bundle.icon`, senão `"icons/icon.ico"`; e, se esse
+caminho não existir, a função devolve `Err` (linhas 608–675). Não há chave de
+configuração que dispense o ícone.
+
+| | Sem `.ico` | Com `icons/icon.ico` |
+| --- | --- | --- |
+| `cargo check` (Windows) | **falhava** (exit 101, no `build.rs`) | **passa (exit 0)**, sem override |
+| `tauri build` (Windows) | falhava no mesmo ponto | deixa de falhar **aqui** (não corrido) |
+
+### Medido: o que o `cargo check` realmente prova sobre o ícone
+
+Vale a pena registar, porque condiciona o valor do gate. Não é só "o ficheiro
+existe": o `tauri::generate_context!()` **analisa o ícone**. Substituindo-o por
+lixo, o check volta a 101:
+
+```text
+---- 0 bytes ----
+failed to parse icon …/icons/icon.ico: failed to fill whole buffer
+
+---- 270398 bytes de 0xFF (tamanho certo, conteúdo lixo) ----
+failed to parse icon …/icons/icon.ico: Invalid reserved field value in ICONDIR (was 65535, but must be 0)
+```
+
+A segunda mensagem vem do parser do `ico` crate. Ou seja: **exit 0 é evidência de
+estrutura válida, não apenas de presença** — mas continua a não ser evidência de
+que o desenho presta. Quem fecha essa parte é o GDI+ (ver `PROVISORIO.md`).
+
+### O que continua aberto
+
+- **A arte.** Substituir o provisório. `npm run tauri icon <fonte.png>` gera o
+  conjunto completo a partir de uma imagem quadrada.
+- **As outras plataformas.** Só existe o `.ico`. Não há `32x32.png`,
+  `128x128.png`, `128x128@2x.png` nem `icon.icns`, portanto `bundle.icon` lista
+  um ficheiro que serve o Windows e **não** serve Linux/macOS. Quando a arte
+  existir, a lista deve crescer para os incluir.
+
+### Nota: o `TAURI_CONFIG` como instrumento de diagnóstico (histórico)
+
+Antes de haver ícone, o check só podia ser corrido injectando um `.ico` de outro
+programa por variável de ambiente — o `TAURI_CONFIG` é fundido sobre o
+`tauri.conf.json` como *merge patch* RFC 7386 (`tauri-build/src/lib.rs:487`):
 
 ```bash
 TAURI_CONFIG='{"bundle":{"icon":["C:/Windows/ACU.ico"]}}' cargo check --all-targets
 ```
 
-Isto **não** é a configuração do projecto: é uma medição. Produz um binário
-cujo ícone de recurso é o de outro programa, e serve para responder a "o código
-compila?" sem responder "que ícone é este?".
+Isso **já não é preciso**: com `icons/icon.ico` presente, `cargo check` passa
+limpo. O comando fica registado porque foi assim que o bloqueio foi isolado, e
+não como configuração do projecto — produzia um binário cujo ícone de recurso era
+o de outro programa.
 
 ## Versões
 
-Medidas com `cargo info`, não presumidas:
+Medidas no registo (`cargo info`, `npm view`), não presumidas:
 
-| Crate | Versão | Porquê |
+| Crate / pacote | Versão | Porquê |
 | --- | --- | --- |
 | `tauri` | `2.11.5` | o stable; `3.0.0-alpha.0` existe e **não** é usado |
 | `tauri-build` | `2.6.3` | o par do `tauri` 2.11.5 |
 | `tauri-cli` (npm) | `2.11.4` | casa com o `tauri-cli` do registo |
+| `@tauri-apps/api` (npm) | `2.11.1` | o `latest` do registo; é o lado JS do IPC (`invoke`) |
 
 ## Workspace próprio
 
