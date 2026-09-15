@@ -1,0 +1,111 @@
+# Assina e ancora o arkhe.gguf com Sigstore keyless.
+#
+# Porque o artefacto vem de uma release, e não do git:
+#   o arkhe.gguf tem mais de 1 GB e não entra no repositório. A release é o
+#   transporte, e o SHA-256 é verificado ANTES de assinar, para que a assinatura
+#   cubra exactamente os bytes que foram publicados -- verificar depois de assinar
+#   não verifica nada.
+#
+# Invocação da CLI, medida em 2026-09-15 contra o `model_signing` instalado:
+#   model_signing sign sigstore <MODEL_PATH>   -- forma explícita, usada aqui
+#   model_signing sign <MODEL_PATH>            -- também funciona: o método tem
+#                                                 `sigstore` por omissão
+#   model_signing sign                         -- exit 2: falta o MODEL_PATH
+# A linha de uso (`sign [OPTIONS] PKI_METHOD`) sugere que `sigstore` é obrigatório;
+# a execução mostra que não é. O comportamento medido vale mais do que a leitura.
+#
+# NÃO VERIFICADO: o valor exacto de `--identity`. Se estiver errado, o passo de
+# verificação falha e não se assina nada -- é fail-closed, e é assim que o valor
+# correcto se descobre na primeira execução.
+name: Model Sign & Anchor
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Tag da release que contém o arkhe.gguf
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar o model-signing
+        run: pip install model-signing
+
+      - name: Resolver a tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Descarregar o arkhe.gguf da release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p model
+          gh release download "${{ steps.tag.outputs.tag }}" \
+            --pattern "arkhe.gguf" \
+            --dir model \
+            --repo "${{ github.repository }}"
+
+      - name: Verificar o SHA-256 antes de assinar
+        run: |
+          cd model
+          EXPECTED="${{ vars.ARKHE_GGUF_SHA256 }}"
+          if [ -z "$EXPECTED" ]; then
+            echo "::error::A variável ARKHE_GGUF_SHA256 não está definida no repositório."
+            exit 1
+          fi
+          ACTUAL=$(sha256sum arkhe.gguf | cut -d' ' -f1)
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "::error::SHA-256 não corresponde. Esperado $EXPECTED, obtido $ACTUAL"
+            exit 1
+          fi
+          echo "SHA-256 verificado: $ACTUAL"
+
+      - name: Assinar com Sigstore keyless (OIDC do GitHub)
+        run: |
+          cd model
+          model_signing sign sigstore arkhe.gguf --signature arkhe.gguf.sig
+
+      - name: Verificar o roundtrip
+        run: |
+          cd model
+          model_signing verify sigstore arkhe.gguf \
+            --signature arkhe.gguf.sig \
+            --identity "${{ github.workflow_ref }}" \
+            --identity-provider "https://token.actions.githubusercontent.com"
+
+      - name: Publicar o bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: sigstore-bundle-${{ steps.tag.outputs.tag }}
+          path: model/arkhe.gguf.sig
+          retention-days: 90
+
+      - name: Resumo
+        run: |
+          {
+            echo "## Modelo assinado e ancorado"
+            echo ""
+            echo "- tag: ${{ steps.tag.outputs.tag }}"
+            echo "- sha256: ${{ vars.ARKHE_GGUF_SHA256 }}"
+            echo "- identidade: ${{ github.workflow_ref }}"
+          } >> "$GITHUB_STEP_SUMMARY"
