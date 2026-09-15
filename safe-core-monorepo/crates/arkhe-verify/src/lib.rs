@@ -42,6 +42,11 @@
 //!    `verify_witness_quorum` a partir do que o log publica.
 //! 3. **O adaptador HTTP** ([`RekorClient`]): as duas chamadas ao log, contra
 //!    uma instância configurável.
+//! 4. **A verificação de um modelo GGUF** ([`gguf`]): o cabeçalho lido de
+//!    bytes, o digest SHA-256 do modelo para conferência contra um esperado, e
+//!    a ligação a uma atestação existente — que delega o pipeline a
+//!    [`verify_attestation`]. A API inteira é sobre `&[u8]`: não há `Path` nem
+//!    I/O, porque o core compila para wasm e quem lê o arquivo é quem chama.
 //!
 //! # O que esta crate **não** faz
 //!
@@ -54,6 +59,10 @@
 //!   um servidor local (`mockito`), como o `arkhe-orcid` faz.
 //! - Não instala `sigstore`. Ver a seção do README sobre a rota opcional e o
 //!   pin `0.13` com `features = ["wasm"]`.
+//! - Não valida o **conteúdo** de um GGUF além do cabeçalho: [`gguf`] lê 24
+//!   bytes de estrutura e o digest dos bytes, e não os pares chave-valor, os
+//!   descritores de tensor nem o bloco de dados. Ver a nota "o que este módulo
+//!   não prova" em [`gguf`].
 //!
 //! # Rede
 //!
@@ -65,6 +74,7 @@
 
 pub mod error;
 pub mod facade;
+pub mod gguf;
 pub mod rekor;
 pub mod report;
 
@@ -72,6 +82,11 @@ pub use error::RekorError;
 pub use facade::{
     attestation_subject, verify_attestation, verify_inclusion, verify_sha256, verify_signature,
     verify_witness_quorum,
+};
+pub use gguf::{
+    model_digest, parse_header, verify_model_attestation, verify_model_digest,
+    GgufAttestationReport, GgufHeaderReport, GgufModelReport, GGUF_MAGIC, HEADER_LEN,
+    SUPPORTED_VERSIONS,
 };
 pub use rekor::{
     parse_signed_checkpoint, Checkpoint, ConsistencyProof, InclusionProof, LogEntriesResponse,

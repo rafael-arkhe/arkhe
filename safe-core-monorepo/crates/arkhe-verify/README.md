@@ -67,6 +67,44 @@ num `WitnessKeyring` explícito, porque em CT ele mora numa lista de chaves
 distribuída fora da note, e inventar uma resolução aqui seria inventar uma raiz
 de confiança.
 
+## Modelo GGUF (`src/gguf.rs`)
+
+O caminho crítico: verificar um **modelo** em bytes.
+
+| Função | O que responde |
+|:---|:---|
+| `parse_header(&[u8])` → `GgufHeaderReport` | o cabeçalho é estruturalmente válido? magic `GGUF`, versão interpretável (2 ou 3), contagem de tensores e de pares chave-valor |
+| `model_digest(&[u8])` → `String` | qual é o digest SHA-256 destes bytes (para publicar num manifesto) |
+| `verify_model_digest(&[u8], esperado_hex)` → `GgufModelReport` | o digest confere com o esperado? **Reusa `facade::verify_sha256`** |
+| `verify_model_attestation(&[u8], json, trust_root)` → `GgufAttestationReport` | uma atestação existente liga **este** modelo ao log? **Delega a `facade::verify_attestation`** |
+
+**A API é sobre `&[u8]`, nunca sobre `Path`.** Não há `std::fs` no módulo: quem
+lê o arquivo é quem chama (`examples/conferir_gguf.rs` é um chamador de
+exemplo). O crate **inteiro** passa em `cargo check --target
+wasm32-unknown-unknown` — não por acaso, mas porque nenhuma parte da
+verificação toca o sistema de arquivos.
+
+Três recusas são **relatórios com causa**, nunca `Err`: arquivo truncado, magic
+inválido e versão não interpretada. O leitor é incremental, então um arquivo de
+16 bytes reporta a versão e o primeiro contador que estavam presentes e `None`
+no que faltou. Os contadores são lidos como `i64` e um valor negativo é
+recusado, como no leitor de referência do `llama.cpp`; uma versão com a metade
+alta preenchida é diagnosticada como *endianness* trocada.
+
+Duas fronteiras, ditas em vez de contornadas:
+
+- **Cabeçalho válido não é modelo válido.** `parse_header` lê 24 bytes de
+  estrutura e não olha os pares chave-valor, os descritores de tensor nem o
+  bloco de dados. Quem identifica os bytes é o **digest**; o cabeçalho é o
+  diagnóstico que explica uma recusa.
+- **A atestação liga o digest pelo payload.** O *subject* do core amarra
+  `SHA-256(payload)`, e não existe campo para "o digest do artefato" distinto
+  do payload — então a rota só vale quando o **payload da atestação é o próprio
+  modelo**. Uma entrada de log cujo corpo seja um manifesto que *menciona* o
+  digest responde negativo, e é o correto. Verificar essa outra forma exigiria
+  um subject novo, com domínio próprio, e isso pertence ao core, não a esta
+  casca.
+
 ## Adaptador HTTP e rede
 
 **Só `RekorClient` faz rede**, e só os dois métodos dele. Todo o resto é puro
