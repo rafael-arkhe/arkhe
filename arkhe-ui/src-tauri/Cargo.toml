@@ -30,6 +30,12 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 # Versões fixadas no registo (medidas com `cargo info`, não presumidas):
 # `tauri` 2.11.5 é o stable; `3.0.0-alpha.0` existe e **não** é usado aqui.
 tauri-build = { version = "2.6.3", features = [] }
+# O mesmo `embed-resource` que o `tauri-build` já usa por baixo do `tauri-winres`
+# (3.0.11 no lock), agora chamado directamente: é ele que sabe compilar um
+# *Windows Resource* e emitir o `cargo:rustc-link-arg-tests=` que falta aos
+# testes. Não acrescenta código novo à árvore — só uma aresta directa para uma
+# dependência que já lá está. Ver `build.rs`.
+embed-resource = "3"
 
 [dependencies]
 tauri = { version = "2.11.5", features = [] }
@@ -42,6 +48,27 @@ serde = { version = "1", features = ["derive"] }
 # app tem de verificar com o mesmo código que o `arkhe-verify-wasm` compila
 # para wasm — as duas cascas sobre o mesmo core.
 arkhe-verify = { path = "../../safe-core-monorepo/crates/arkhe-verify" }
+
+[dev-dependencies]
+# `tauri` com a feature `test` — é ela que abre `tauri::test` (`src/test/mod.rs`,
+# com o `pub mod test` em `tauri-2.11.5/src/lib.rs:1100` guardado por
+# `#[cfg(any(test, feature = "test"))]`). Traz o `MockRuntime`, que não tem
+# janela, sessão gráfica nem event loop, e a única entrada pública para o
+# **despacho** de um comando: `get_ipc_response`, que constrói um
+# `InvokeRequest`, chama `Webview::on_message` e devolve o `InvokeResponse` já
+# resolvido.
+#
+# A feature fica **aqui**, e não em `[dependencies]`, de propósito: `test = []` é
+# uma feature vazia (não acrescenta crates), mas expor `tauri::test` no binário
+# de produção não é aceitável. `cargo check` do binário continua a ver o `tauri`
+# sem ela; só os alvos de teste é que unificam a feature.
+#
+# `serde_json` é o que o IPC é no fio: o corpo do pedido chega como
+# `InvokeBody::Json(Value)`, e `get_ipc_response` devolve o canal de erro como
+# `Value`. Sem ele os testes teriam de importar o `serde_json` do `tauri` por um
+# caminho interno (`tauri::ipc` não o reexporta).
+tauri = { version = "2.11.5", features = ["test"] }
+serde_json = "1"
 
 # Perfil de release de uma app distribuível: um binário só, sem símbolos, e o
 # menor possível. `panic = "abort"` é seguro aqui — nada nesta app depende de

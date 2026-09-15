@@ -128,16 +128,48 @@ fn inspect_gguf_model(path: String) -> Result<ModelInspection, String> {
     })
 }
 
+/// A fronteira do IPC: a lista dos comandos que o frontend pode invocar.
+///
+/// Um comando `#[tauri::command]` que não esteja nesta lista existe como função
+/// mas não é invocável — é esta lista que é a fronteira, e é por isso que ela
+/// fica ao lado da definição das funções.
+///
+/// # Porque é que isto está numa função, e não dentro do [`run`]
+///
+/// Para que o **registo** seja um só. `tests/ipc.rs` passa esta mesma função ao
+/// runtime falso (`MockRuntime`) e despacha por ela, portanto remover um comando
+/// daqui quebra os testes de despacho — não só a app. Se o `invoke_handler`
+/// estivesse escrito em dois sítios (um aqui, outro no teste), o teste
+/// continuaria verde a exercitar um registo que a app já não tem, que é a forma
+/// mais silenciosa de um teste de integração deixar de valer.
+///
+/// Genérica sobre `R: tauri::Runtime` porque é isso que permite servir as duas
+/// pontas: `tauri::Wry` (o `Builder::default` do [`run`]) e o `MockRuntime` dos
+/// testes.
+///
+/// # Porque é que é `pub`
+///
+/// `pub` e não privada só para o alvo de integração a poder chamar: um
+/// `tests/*.rs` é um crate à parte, que vê a API pública e mais nada, e
+/// duplicar-lhe o `invoke_handler` era precisamente o que esta função existe
+/// para evitar. Não é um alargamento gratuito da superfície — é a superfície
+/// mínima que deixa o teste exercitar o registo **de produção**. (O comando em
+/// si continua privado; o comentário de [`inspect_gguf_model`] explica porquê.)
+///
+/// O `#[must_use]` acompanha o de `Builder::invoke_handler`: ignorar o
+/// resultado seria devolver um builder **sem** os comandos registados.
+#[must_use]
+pub fn registar_comandos<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
+    builder.invoke_handler(tauri::generate_handler![inspect_gguf_model])
+}
+
 /// Arranca a janela da app.
 ///
-/// Chamada pelo `src/main.rs`. O `invoke_handler` é o registo explícito do que
-/// o frontend pode pedir: um comando `#[tauri::command]` que não esteja aqui
-/// existe como função mas não é invocável — a lista é a fronteira, e é por
-/// isso que ela fica ao lado da definição das funções.
+/// Chamada pelo `src/main.rs`. O registo do que o frontend pode pedir vive em
+/// [`registar_comandos`], partilhado com os testes.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![inspect_gguf_model])
+    registar_comandos(tauri::Builder::default())
         .run(tauri::generate_context!())
         .expect("falha ao arrancar a janela da app Arkhe");
 }
@@ -145,6 +177,13 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // Este módulo guarda os testes **unitários**: chamam `inspect_gguf_model`
+    // directamente, provando a função. O **despacho** — o mesmo comando pelo
+    // `invoke_handler` registado — vive em `tests/ipc.rs`, porque só um alvo de
+    // integração pode receber o manifesto do ComCtl32 v6 de que o
+    // `tauri::test` precisa no Windows. O `build.rs` e o topo daquele ficheiro
+    // explicam a cadeia toda.
 
     /// Um caminho único no directorio temporário, sem trazer uma dependência
     /// (`tempfile`) só para isto.
@@ -191,7 +230,11 @@ mod tests {
         let inspeccao = inspect_gguf_model(caminho.to_string_lossy().into_owned())
             .expect("conteúdo inválido não é Err");
 
-        assert!(inspeccao.header.magic_ok == false);
+        // `!magic_ok` em vez de `magic_ok == false`: o `clippy::bool_comparison`
+        // recusa a segunda forma, e com `-D warnings` isso é erro. Era o único
+        // lint do `--all-targets` deste pacote que já vinha de trás desta
+        // tarefa; a asserção é a mesma.
+        assert!(!inspeccao.header.magic_ok);
         assert!(!inspeccao.header.ok);
         assert!(inspeccao.header.error.is_some(), "a causa tem de vir preenchida");
         // O digest é reportado mesmo com o cabeçalho recusado — o dado que
