@@ -1,0 +1,29 @@
+# Convencao de fim de linha do repositorio.
+#
+# Medido em 2026-09-15 com `git ls-files --eol`: 2169 ficheiros rastreados,
+# 1963 ja em i/lf w/lf. A convencao de facto e LF.
+#
+# Sem regra global `* text=auto`: medida, ela renomalizaria 962 ficheiros de
+# uma vez, o que e um diff grande para um ganho cosmetico. As regras abaixo
+# cobrem os tipos de texto que o projeto escreve a mao.
+
+*.rs    text eol=lf
+*.toml  text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+*.json5 text eol=lf
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.css   text eol=lf
+*.html  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.sh    text eol=lf
+*.py    text eol=lf
+
+*.png  binary
+*.jpg  binary
+*.ico  binary
+*.icns binary
+*.wasm binary
+*.gguf binary
