@@ -5,8 +5,22 @@
 @import '../tokens/arkhe-tokens.css';
 
 /* Os utilitários usados pelos componentes vivem em src/**. Declaramos a
-   raiz de varrimento explicitamente para não depender da auto-detecção. */
+   raiz de varrimento explicitamente para não depender da auto-detecção.
+
+   A exclusão de `src/app/` é deliberada, e não é cosmética: o Tailwind v4 faz
+   auto-detecção a partir da raiz do projecto e o `@source` só ACRESCENTA — não
+   substitui. Sem esta linha, qualquer candidato a utilitário escrito na app
+   entra no `dist/arkhe-ui.css` da biblioteca: a app mudaria o pacote
+   publicado. Com ela, "a app não altera o dist/" deixa de ser sorte e passa a
+   ser estrutura. A app não precisa do varrimento aqui: não escreve utilidades
+   do Tailwind (ver src/app/app.css).
+
+   Nota para quem editar este ficheiro: o Tailwind extrai candidatos dos
+   COMENTÁRIOS deste CSS também. Escrever o nome de um token ou de uma
+   utilidade num comentário basta para o emitir no `dist/` — foi assim que
+   este comentário, na primeira versão, acrescentou 88 bytes à biblioteca. */
 @source '../';
+@source not '../app';
 
 @layer base {
   html {

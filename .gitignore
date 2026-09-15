@@ -98,3 +98,7 @@ workspace-bd3c0df0-e017-49d7-b677-5bc59a094e5b/
 # --- repositorios git aninhados (nao commitar como gitlink) ---
 arkhe-monorepo/heesch/
 arkhe-monorepo/proximity-prize/
+
+# --- saida do wasm-bindgen (artefato de build, nao commitar) ---
+# `pkg/` ja e coberto pelo gitignore global; `pkg-web/` nao era.
+pkg-web/

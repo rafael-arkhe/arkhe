@@ -23,6 +23,16 @@
     "skipLibCheck": true,
     "noEmit": true,
 
+    // `@arkhe/ui` é o nome com que a app importa os primitivos, e é o que o
+    // `exports` do `package.json` expõe (`./dist/index.js`) — o Vite resolve-o
+    // assim. Em type-check é preciso um desvio: o build da biblioteca não emite
+    // `.d.ts` nenhum, portanto `dist/index.js` chega ao TypeScript como `any`.
+    // Apontamos o especificador para a fonte, que é a mesma coisa tipada.
+    // (Lacuna real do pacote, não uma escolha: ver o relatório da Fase 4.)
+    "paths": {
+      "@arkhe/ui": ["./src/index.ts"]
+    },
+
     "types": ["vitest/globals"]
   },
   "include": ["src", "test"]

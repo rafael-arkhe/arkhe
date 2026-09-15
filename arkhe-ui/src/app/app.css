@@ -1,0 +1,131 @@
+/* =====================================================================
+   Estilos da app (Fase 4) — CSS semântico sobre os tokens do design system
+   =====================================================================
+
+   Duas decisões que valem explicação:
+
+   1. **Esta app não escreve classes utilitárias do Tailwind** — e o build da
+      app nem sequer carrega o plugin do Tailwind. Dois motivos encadeados:
+      o Tailwind v4 faz auto-detecção a partir da raiz do projecto, portanto
+      qualquer candidato escrito aqui seria recolhido também pelo build da
+      BIBLIOTECA. O `src/styles/globals.css` exclui `src/app/` do varrimento
+      (`@source not`), o que repõe a garantia — mas continuaria a ser uma
+      dependência implícita entre a app e o pacote. Escrever CSS semântico
+      sobre os tokens torna a fronteira explícita: a app não tem como alterar
+      o `dist/arkhe-ui.css`, nem por acidente.
+
+   2. **O design system vem do pacote construído** — `@arkhe/ui/styles.css`
+      (importado em `main.tsx`), que é o que o `exports` do `package.json`
+      expõe e o que o `vite.config.ts` descreve como "consumido por outras
+      apps do monorepo". A app é um consumidor normal do pacote, não um
+      segundo build da biblioteca.
+
+   Os nomes de token usados são os da CAMADA SEMÂNTICA (`--surface`,
+   `--text-secondary`, …) — a única que os consumidores devem usar.
+   ===================================================================== */
+
+.app {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.app__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.app__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.app__lede,
+.app__hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.app__code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.app__badge-row {
+  margin-top: 0.25rem;
+}
+
+/* ---------------------------------------------------------------- formulário */
+.app-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.app-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.app-form__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ----------------------------------------------------------------- resultado */
+.app-result__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.app-result__stages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.app-result__stage {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.app-result__stage-label {
+  color: var(--text-secondary);
+}
+
+.app-result__cause {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.app-result__cause-term {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.app-failure__detail {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  color: var(--text-primary);
+}
