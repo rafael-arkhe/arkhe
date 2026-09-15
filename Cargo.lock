@@ -104,6 +104,7 @@ dependencies = [
  "rand 0.8.6",
  "serde",
  "serde_json",
+ "sha3",
  "thiserror 1.0.69",
 ]
 

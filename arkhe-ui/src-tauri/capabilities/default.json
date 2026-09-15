@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "As permissões da janela principal da app Arkhe. O conjunto `core:default` cobre o IPC do core (eventos, janela, webview, app, recursos); o comando da aplicação (`inspect_gguf_model`) não aparece aqui de propósito — comandos definidos pela própria app não passam pelo ACL, só os comandos de plugins passam.",
+  "description": "As permissões da janela principal da app Arkhe. O conjunto `core:default` cobre o IPC do core (eventos, janela, webview, app, recursos); o comando da aplicação (`inspect_gguf_model`) não aparece aqui de propósito — comandos definidos pela própria app não passam pelo ACL, só os comandos de plugins passam. `hashtree-updater:default` é o primeiro conjunto de plugin a passar por aqui: abre `allow-check` e `allow-download-and-install` (o `default.toml` do plugin), que são os dois únicos comandos que ele expõe.",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": ["core:default", "hashtree-updater:default"]
 }

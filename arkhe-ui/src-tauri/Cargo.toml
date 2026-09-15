@@ -1,6 +1,12 @@
 [package]
 name = "arkhe-ui-app"
-version = "0.1.0"
+# 0.2.0 e não 0.1.0: o binário muda de forma observável (ganha o plugin de
+# actualização), logo a versão declarada tem de mudar com ele. É também o que
+# torna a actualização **exercitável**: quem tem o 0.1.0 publicado vê
+# `updateAvailable: true` contra o 0.2.0, em vez de um "não há novidade" que
+# seria verdadeiro e não diria nada. `tauri.conf.json` leva a mesma versão — é
+# de lá (`package_info().version`) que o plugin lê a versão corrente.
+version = "0.2.0"
 edition = "2021"
 description = "Plano Arkhe OS §Fase 5 — o casco Tauri: a app de verificação como aplicativo instalável, ligado ao núcleo nativo de verificação (arkhe-verify)"
 authors = ["Arkhe OS Architects <arkhe@arkhe-os.org>"]
@@ -48,6 +54,32 @@ serde = { version = "1", features = ["derive"] }
 # app tem de verificar com o mesmo código que o `arkhe-verify-wasm` compila
 # para wasm — as duas cascas sobre o mesmo core.
 arkhe-verify = { path = "../../safe-core-monorepo/crates/arkhe-verify" }
+# A actualização in-app (Opção D). Versão **medida no registo**, não presumida:
+# `cargo info tauri-plugin-hashtree-updater` → 0.2.52 é a última publicada (a
+# série começa em 0.2.45). Depende de `tauri = "2"`, portanto casa com o
+# 2.11.5 desta app; não obriga a mexer na versão do Tauri.
+#
+# Fixar a série em `0.2` e não em `=0.2.52`: o plugin é do mesmo autor e do
+# mesmo ciclo do `htree` 0.2.51 que publica os releases, e um pin exacto
+# impediria um patch que corrija o resolvedor. O `Cargo.lock` desta app (que é
+# próprio — ver o comentário do `[workspace]`) é que congela o que é compilado.
+tauri-plugin-hashtree-updater = "0.2.52"
+# `serde_json` era só `[dev-dependencies]` até esta fase; passa a dependência
+# normal **por causa do plugin**, e o erro que o obriga é literal:
+#
+#   error[E0433]: failed to resolve: could not find `serde_json`
+#      --> src\lib.rs  .run(tauri::generate_context!())
+#
+# O `generate_context!` lê o `tauri.conf.json` e, para cada chave de `plugins`,
+# desserializa a configuração para o `Config` do plugin correspondente. Com o
+# `plugins.hashtree-updater` declarado, o macro passa a expandir código que
+# chama `serde_json::from_str` **a partir do crate raiz desta app** — e o crate
+# raiz não tinha `serde_json`. Sem a secção `plugins` o caminho não existia, por
+# isso o erro só apareceu agora.
+#
+# A entrada de `[dev-dependencies]` sai: as duas tabelas unificam para o mesmo
+# crate, e mantê-la seria declarar a mesma dependência duas vezes.
+serde_json = "1"
 
 [dev-dependencies]
 # `tauri` com a feature `test` — é ela que abre `tauri::test` (`src/test/mod.rs`,
@@ -67,8 +99,12 @@ arkhe-verify = { path = "../../safe-core-monorepo/crates/arkhe-verify" }
 # `InvokeBody::Json(Value)`, e `get_ipc_response` devolve o canal de erro como
 # `Value`. Sem ele os testes teriam de importar o `serde_json` do `tauri` por um
 # caminho interno (`tauri::ipc` não o reexporta).
+#
+# Já **não** é declarado aqui: passou a `[dependencies]` (ver a nota nessa
+# tabela — o `generate_context!` precisava dele no crate raiz desde que há
+# `plugins`). Uma dependência normal serve também os alvos de teste, portanto
+# uma segunda entrada nesta tabela seria a mesma dependência escrita duas vezes.
 tauri = { version = "2.11.5", features = ["test"] }
-serde_json = "1"
 
 # Perfil de release de uma app distribuível: um binário só, sem símbolos, e o
 # menor possível. `panic = "abort"` é seguro aqui — nada nesta app depende de

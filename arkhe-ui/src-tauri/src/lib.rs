@@ -167,9 +167,32 @@ pub fn registar_comandos<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri
 ///
 /// Chamada pelo `src/main.rs`. O registo do que o frontend pode pedir vive em
 /// [`registar_comandos`], partilhado com os testes.
+///
+/// # O plugin de actualização, e porque é que ele não pode impedir o arranque
+///
+/// `tauri_plugin_hashtree_updater::init()` é registado **aqui** e não em
+/// [`registar_comandos`]: essa função é a fronteira dos comandos *desta* app
+/// (é o que `tests/ipc.rs` exercita com o `MockRuntime`), e um plugin traz o
+/// seu próprio `invoke_handler` e a sua própria configuração — misturá-lo
+/// mudaria o significado do registo que os testes provam sem lhes acrescentar
+/// nada.
+///
+/// O `setup` do plugin (o único código que corre no arranque) limita-se a
+/// guardar a `Config` no estado gerido: não resolve a referência, não abre
+/// rede, não devolve `Err`. A resolução acontece só quando o frontend invoca
+/// `plugin:hashtree-updater|check`, que é um `async fn` cujo erro é entregue ao
+/// *chamador* como promessa rejeitada. Consequência que interessa ao requisito
+/// "a app tem de continuar funcional offline": **não há caminho em que uma
+/// resolução falhada chegue ao `expect` abaixo**. O `expect` continua a cobrir
+/// apenas a falha de criação da janela.
+///
+/// O plugin trata ainda `ReleaseNotFound` e `ManifestNotFound` como
+/// `Ok(None)` — "não há novidade", não erro (ver `updater.rs` do plugin). Só
+/// os erros de rede/relay sobem, e só na chamada explícita.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     registar_comandos(tauri::Builder::default())
+        .plugin(tauri_plugin_hashtree_updater::init())
         .run(tauri::generate_context!())
         .expect("falha ao arrancar a janela da app Arkhe");
 }
