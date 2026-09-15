@@ -14,7 +14,7 @@ e o entrega ao núcleo de verificação nativo.
 | `src/lib.rs` | `inspect_gguf_model` (o comando) e `run()` (a janela) |
 | `tauri.conf.json` | A configuração da app, no schema do **v2** |
 | `capabilities/default.json` | As permissões da janela principal |
-| `icons/icon.ico` | **Ícone provisório, não é arte** — ver `icons/PROVISORIO.md` |
+| `icons/` | **Conjunto de ícones provisório, não é arte** — PNG, `.icns` e `.ico`, gerados por `tauri icon`; ver `icons/PROVISORIO.md` |
 
 ## Como correr
 
@@ -72,16 +72,19 @@ nem é o `com.tauri.dev` do template:
 
 ## Ícones: um provisório, e o que isso fecha (e o que não fecha)
 
-Existe **um** ficheiro de ícone: `icons/icon.ico`. É **provisório e não é
-arte** — um losango geométrico gerado por aritmética, que existe por uma razão
-mecânica e não por uma razão de marca. A declaração completa está em
+Existe um **conjunto** de ícones em `icons/`. É **provisório e não é arte** — um
+losango geométrico gerado por aritmética, que existe por razões mecânicas e não
+por razões de marca: o `.ico` porque o `tauri-build` o exige para compilar no
+Windows, e os PNG + `.icns` porque o empacotamento de Linux/macOS os pede. A declaração completa está em
 [`icons/PROVISORIO.md`](icons/PROVISORIO.md), com o layout dos bytes, o sha256 e
 como foi validado.
 
 `bundle.icon` está declarado apontando para esse ficheiro:
 
 ```json
-"bundle": { "icon": ["icons/icon.ico"] }
+"bundle": { "icon": ["icons/32x32.png", "icons/128x128.png",
+                      "icons/128x128@2x.png", "icons/icon.icns",
+                      "icons/icon.ico"] }
 ```
 
 ### Medido: o ícone é pré-requisito de *compilação*, não só do empacotador
@@ -122,10 +125,11 @@ que o desenho presta. Quem fecha essa parte é o GDI+ (ver `PROVISORIO.md`).
 
 - **A arte.** Substituir o provisório. `npm run tauri icon <fonte.png>` gera o
   conjunto completo a partir de uma imagem quadrada.
-- **As outras plataformas.** Só existe o `.ico`. Não há `32x32.png`,
-  `128x128.png`, `128x128@2x.png` nem `icon.icns`, portanto `bundle.icon` lista
-  um ficheiro que serve o Windows e **não** serve Linux/macOS. Quando a arte
-  existir, a lista deve crescer para os incluir.
+- **As outras plataformas.** O conjunto existe (`32x32.png`, `128x128.png`,
+  `128x128@2x.png`, `icon.icns`) e `bundle.icon` lista os cinco, mas **nenhum
+  build de Linux ou macOS foi corrido** — esta máquina é Windows. Os formatos
+  são estruturalmente válidos e descodificam; que um empacotador de Linux/macOS
+  os aceite **não foi medido**.
 
 ### Nota: o `TAURI_CONFIG` como instrumento de diagnóstico (histórico)
 
