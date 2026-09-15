@@ -46,6 +46,12 @@ __pycache__/
 .pytest_cache/
 target/
 *.gguf
+# Exceção medida em 2026-09-15: a regra `*.gguf` acima existe para manter
+# modelos fora do repositório (dezenas de MB a GB). A fixture do arkhe-verify
+# tem 24 bytes e é o vetor de teste do leitor de cabeçalho de
+# `arkhe_verify::gguf` -- sem ela, `cargo test -p arkhe-verify` falha num clone
+# limpo. Versionada de propósito; a negociação tem de vir depois do `*.gguf`.
+!safe-core-monorepo/crates/arkhe-verify/fixtures/arkhe.gguf
 tests/*/bin/
 tests/*/obj/
 

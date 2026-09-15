@@ -1,0 +1,32 @@
+{
+  "records": [
+    {
+      "index": 0,
+      "description": "header + metadados arkhe.attestation.*",
+      "record_hash": "<BLAKE3>",
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "timestamp": "<unix>"
+    },
+    {
+      "index": 1,
+      "description": "assinatura (manifest DSSE)",
+      "record_hash": "<BLAKE3>",
+      "prev_hash": "<record[0].record_hash>",
+      "timestamp": "<unix>"
+    },
+    {
+      "index": 2,
+      "description": "ancoragem no Rekor",
+      "record_hash": "<BLAKE3>",
+      "prev_hash": "<record[1].record_hash>",
+      "timestamp": "<unix>"
+    },
+    {
+      "index": 3,
+      "description": "publicação no Hashtree",
+      "record_hash": "<BLAKE3>",
+      "prev_hash": "<record[2].record_hash>",
+      "timestamp": "<unix>"
+    }
+  ]
+}

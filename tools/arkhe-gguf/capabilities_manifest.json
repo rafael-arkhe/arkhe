@@ -1,0 +1,10 @@
+{
+  "arkhe.attestation.attested.declared_capabilities": [],
+  "arkhe.attestation.attested.not_capabilities": [
+    "code-execution",
+    "network-access",
+    "file-write",
+    "shell-execution"
+  ],
+  "arkhe.attestation.attested.disclaimer": "Capabilities são declarações do signatário, não verificações."
+}
