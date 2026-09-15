@@ -1,19 +1,22 @@
 [package]
 name = "arkhe-ui-app"
-# 0.2.1 e não 0.2.0: o frontend passou a *chamar* o plugin — o binário muda de
-# forma observável outra vez. O 0.2.0 levava o plugin integrado mas nenhum
-# código a invocá-lo (`guest-js` não copiado); o 0.2.1 traz a interface de
-# consulta e a cola que a liga. A versão declarada tem de mudar com o binário.
+# 0.2.2 e não 0.2.1: o binário passa a trazer os `relays` declarados no
+# `tauri.conf.json`, o que muda o conjunto de relays de que a resolução da raiz
+# depende — é uma mudança de comportamento observável, não de forma. O 0.2.0
+# levava o plugin integrado mas nenhum código a invocá-lo (`guest-js` não
+# copiado); o 0.2.1 trouxe a interface de consulta e a cola que a liga; o 0.2.2
+# acrescenta `relays` e **não** `blossomServers` (a razão, com a medição, está no
+# `README.md` deste directório). A versão declarada tem de mudar com o binário.
 #
 # A ordem importa e não é estética: `tauri.conf.json` é lido em tempo de
 # **compilação** pelo `generate_context!`, e é de lá (`package_info().version`)
 # que o plugin lê a versão corrente. Um binário compilado antes do bump
-# dir-se-ia 0.2.0 estando publicado como 0.2.1 — e oferecer-se-ia a si próprio
+# dir-se-ia 0.2.1 estando publicado como 0.2.2 — e oferecer-se-ia a si próprio
 # como actualização, para sempre. Por isso o bump vem antes do build.
 #
 # `Cargo.toml`, `tauri.conf.json` e o manifesto do release levam a mesma versão,
 # juntos: três sítios, um número.
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Plano Arkhe OS §Fase 5 — o casco Tauri: a app de verificação como aplicativo instalável, ligado ao núcleo nativo de verificação (arkhe-verify)"
 authors = ["Arkhe OS Architects <arkhe@arkhe-os.org>"]
