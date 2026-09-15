@@ -2,6 +2,7 @@
 name = "arkhe-bom"
 version.workspace = true
 edition = "2021"
+license.workspace = true
 description = "AI Bill of Materials — CycloneDX ML-BOM generation"
 
 [dependencies]

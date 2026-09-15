@@ -3,6 +3,7 @@
 name = "arkhe-identity"
 version.workspace = true
 edition.workspace = true
+license.workspace = true
 [dependencies]
 arkhe-core = { path = "../arkhe-core" }
 serde = { workspace = true }

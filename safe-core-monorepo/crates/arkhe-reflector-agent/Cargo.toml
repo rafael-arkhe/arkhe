@@ -2,6 +2,7 @@
 name = "arkhe-reflector-agent"
 version.workspace = true
 edition.workspace = true
+license.workspace = true
 description = "Reflects on sessions and extracts learning patterns"
 
 [dependencies]

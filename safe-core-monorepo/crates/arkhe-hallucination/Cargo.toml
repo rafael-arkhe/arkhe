@@ -2,6 +2,7 @@
 name = "arkhe-hallucination"
 version.workspace = true
 edition = "2021"
+license.workspace = true
 description = "Hallucination detection — confidence estimation and semantic consistency"
 
 [dependencies]
