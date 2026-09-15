@@ -18,6 +18,12 @@ import {
   type InspectionResult,
   type ModelInspection,
 } from './gguf-adapter';
+import {
+  checkForUpdate,
+  updaterRuntimeAvailable,
+  type UpdateCheck,
+  type UpdateInfo,
+} from './updater-adapter';
 import { loadVerify, type AttestationReport, type VerifyApi } from './verify-adapter';
 
 /** Os quatro estágios do pipeline, na ordem em que o crate os reporta. */
@@ -52,6 +58,13 @@ export function App() {
   const [modelPath, setModelPath] = useState('');
   const [inspection, setInspection] = useState<InspectionResult | null>(null);
   const [inspecting, setInspecting] = useState(false);
+
+  // O mesmo critério para o updater: é uma capacidade do ambiente. Lido à parte
+  // do `nativeAvailable` porque são fronteiras diferentes — o updater é um
+  // plugin de terceiros e esta fase só consulta; não descarrega nem instala.
+  const [updaterAvailable] = useState(updaterRuntimeAvailable);
+  const [updateCheck, setUpdateCheck] = useState<UpdateCheck | null>(null);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,6 +124,23 @@ export function App() {
     },
     [nativeAvailable, modelPath, inspecting],
   );
+
+  /**
+   * A consulta ao plugin de actualização.
+   *
+   * O botão fica desactivado durante o pedido, portanto há no máximo um em voo —
+   * a mesma razão do formulário do modelo acima. E `checkForUpdate` **nunca
+   * lança**: as cinco saídas vêm no resultado, incluindo a de "não há runtime
+   * Tauri", que é o que um `dist-app` servido no navegador recebe.
+   */
+  const onCheckUpdate = useCallback(() => {
+    if (checking) return;
+    setChecking(true);
+    checkForUpdate().then((result) => {
+      setUpdateCheck(result);
+      setChecking(false);
+    });
+  }, [checking]);
 
   return (
     <main className="app">
@@ -249,6 +279,47 @@ export function App() {
       </Card>
 
       {inspection !== null && <InspectionCard result={inspection} />}
+
+      <Card>
+        <CardHeader>
+          <div className="app-result__heading">
+            <CardTitle>Actualizações da aplicação</CardTitle>
+            <Badge status={updaterAvailable ? 'verified' : 'pending'}>
+              {updaterAvailable ? 'runtime: disponível' : 'runtime: indisponível'}
+            </Badge>
+          </div>
+          <CardDescription>
+            Resolve a referência de release publicada em hashtree e diz se há versão mais recente
+            para esta plataforma, pelo comando{' '}
+            <code className="app__code">plugin:hashtree-updater|check</code>. Este controlo{' '}
+            <strong>só lê o manifesto</strong>: não descarrega nem substitui nada.
+          </CardDescription>
+        </CardHeader>
+        {/*
+          O botão continua activo fora do Tauri, ao contrário do de inspecção.
+          É deliberado: se estivesse desactivado, o estado "indisponível fora do
+          Tauri" nunca seria mostrado — e é um dos desfechos que a interface tem
+          de saber dizer. Carregar aqui é o que o torna observável no navegador.
+        */}
+        {!updaterAvailable && (
+          <CardContent>
+            <p className="app__hint" role="note">
+              Não há processo nativo a atender o IPC: esta página está a correr fora do Tauri (no
+              navegador), onde não existe o runtime que fala com os relays. O botão funciona na
+              mesma e diz isso mesmo — não é um erro de rede nem um "não há novidade". Para
+              consultar a sério, correr <code className="app__code">npm run tauri:dev</code>.
+            </p>
+          </CardContent>
+        )}
+        <CardFooter>
+          <Button onClick={onCheckUpdate} disabled={checking}>
+            Procurar actualizações
+          </Button>
+          {checking && <span className="app__hint">a ler o manifesto publicado…</span>}
+        </CardFooter>
+      </Card>
+
+      {updateCheck !== null && <UpdateResultCard result={updateCheck} />}
     </main>
   );
 }
@@ -429,4 +500,164 @@ function InspectionReportCard({ inspection }: { inspection: ModelInspection }) {
       )}
     </Card>
   );
+}
+
+/**
+ * O resultado da consulta de actualizações — os cinco casos do
+ * [`UpdateCheck`](./updater-adapter.ts), cada um com o **seu próprio** texto.
+ *
+ * A separação que importa é entre `failed` e os dois "não há novidade"
+ * (`current` e `no-release`). Com os relays a não responder, o `check()`
+ * rejeita; apresentar isso como "está actualizado" seria trocar "não consegui
+ * perguntar" por "confirmei que não há nada" — a única resposta que este ecrã
+ * não pode dar. Os cartões de erro usam `role="alert"` e os restantes
+ * `role="status"`, como os outros resultados da app.
+ *
+ * `no-release` tem cartão próprio por uma segunda razão, mais fina: o plugin
+ * devolve `Ok(None)` tanto para "nada publicado" como para "nenhum asset serve
+ * este alvo", e o README dele recomenda tratá-lo como "sem novidade" e ficar
+ * calado — bom conselho para um banner automático, insuficiente para uma
+ * consulta que o utilizador pediu. Aqui diz-se o que se sabe: não houve nada
+ * aplicável, e portanto não houve comparação de versões nenhuma.
+ */
+function UpdateResultCard({ result }: { result: UpdateCheck }) {
+  if (result.kind === 'failed') {
+    return (
+      <Card variant="surface" role="alert">
+        <CardHeader>
+          <div className="app-result__heading">
+            <CardTitle>Não foi possível consultar</CardTitle>
+            {/*
+              O badge diz "falha na consulta" e não "erro de rede": o mesmo
+              caminho de rejeição transporta causas que não são de rede — o
+              plugin responde `AssetNotFound` ("no update asset matched target
+              …") quando o manifesto não tem asset para esta plataforma, e isso
+              não é um problema de rede. A causa vem em texto e é mostrada
+              abaixo, como veio. Com os relays em baixo — o estado de hoje — a
+              mensagem é de rede, e é o caso que este cartão mostra na prática.
+            */}
+            <Badge status="error">falha na consulta</Badge>
+          </div>
+          <CardDescription>
+            Isto <strong>não</strong> é "não há novidade": a consulta não chegou a produzir um
+            veredito. A causa está abaixo, no texto que o plugin devolveu — hoje é a resolução da
+            árvore de releases, que nenhum dos relays responde.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <pre className="app-failure__detail">{result.message}</pre>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (result.kind === 'unavailable') {
+    return (
+      <Card variant="surface" role="status">
+        <CardHeader>
+          <div className="app-result__heading">
+            <CardTitle>Consulta indisponível</CardTitle>
+            <Badge status="pending">fora do Tauri</Badge>
+          </div>
+          <CardDescription>
+            O pedido foi feito sem runtime Tauri, portanto não houve processo nativo que pudesse
+            falar com os relays. Isto não é um erro de rede nem um "não há novidade" — é uma
+            consulta que <strong>não foi feita</strong>. A verificação de atestações acima continua
+            a funcionar: é WASM.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  if (result.kind === 'no-release') {
+    return (
+      <Card variant="surface" role="status">
+        <CardHeader>
+          <div className="app-result__heading">
+            <CardTitle>Nada publicado</CardTitle>
+            <Badge status="pending">sem release</Badge>
+          </div>
+          <CardDescription>
+            O plugin não encontrou release nem manifesto no caminho declarado — é o que responde
+            quando ainda não se publicou nada. Deliberadamente distinto de "já actualizado": aqui
+            não houve comparação de versões nenhuma, e portanto não há nada a afirmar sobre estar
+            ou não em dia. (Um manifesto que exista mas não tenha asset para esta plataforma{' '}
+            <strong>não</strong> cai aqui: chega como falha, com a causa em texto.)
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  const available = result.kind === 'available';
+
+  return (
+    <Card role="status" aria-live="polite">
+      <CardHeader>
+        <div className="app-result__heading">
+          <CardTitle>{available ? 'Actualização disponível' : 'Sem novidade'}</CardTitle>
+          {/*
+            `partial` para "há actualização" não é um veredito de verificação — é
+            o estado de atenção da paleta. O texto é que carrega o significado
+            (WCAG 2.2 SC 1.4.1), como nos outros badges.
+          */}
+          <Badge status={available ? 'partial' : 'verified'}>
+            {available ? `versão ${result.update.version}` : 'já actualizado'}
+          </Badge>
+        </div>
+        <CardDescription>{updateSummary(result.update, available)}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {/* A mesma lista termo/valor da inspecção: aqui os valores longos são
+            nomes de asset, que têm de poder quebrar em vez de empurrar o termo
+            para fora do cartão. */}
+        <dl className="app-inspect__facts">
+          <div className="app-inspect__fact">
+            <dt className="app-inspect__fact-term">Versão em execução</dt>
+            <dd className="app-inspect__fact-value">{result.update.currentVersion}</dd>
+          </div>
+          <div className="app-inspect__fact">
+            <dt className="app-inspect__fact-term">Versão publicada</dt>
+            <dd className="app-inspect__fact-value">{result.update.version}</dd>
+          </div>
+          <div className="app-inspect__fact">
+            <dt className="app-inspect__fact-term">Asset seleccionado</dt>
+            <dd className="app-inspect__fact-value">{result.update.assetName}</dd>
+          </div>
+          <div className="app-inspect__fact">
+            <dt className="app-inspect__fact-term">Tipo</dt>
+            <dd className="app-inspect__fact-value">{result.update.assetKind}</dd>
+          </div>
+          <div className="app-inspect__fact">
+            <dt className="app-inspect__fact-term">Publicado em</dt>
+            <dd className="app-inspect__fact-value">
+              {result.update.publishedAt ?? 'não declarado'}
+            </dd>
+          </div>
+        </dl>
+      </CardContent>
+      {result.update.notes !== null && (
+        <CardFooter>
+          <p className="app-result__cause">
+            <span className="app-result__cause-term">Notas: </span>
+            {result.update.notes}
+          </p>
+        </CardFooter>
+      )}
+    </Card>
+  );
+}
+
+/**
+ * A frase de estado, com os números dentro.
+ *
+ * "Não é mais recente" e não "é mais antiga": as duas versões podem ser iguais
+ * (o caso normal) ou a publicada pode ser anterior — um rollback. Uma frase que
+ * só admitisse a igualdade estaria a mentir num dos dois casos.
+ */
+function updateSummary(update: UpdateInfo, available: boolean): string {
+  return available
+    ? `Corre a ${update.currentVersion}; está publicado ${update.version}, que é mais recente.`
+    : `Corre a ${update.currentVersion}; a versão publicada (${update.version}) não é mais recente.`;
 }
