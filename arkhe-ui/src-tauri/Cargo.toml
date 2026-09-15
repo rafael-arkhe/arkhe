@@ -31,7 +31,7 @@ edition = "2021"
 description = "Plano Arkhe OS §Fase 5 — o casco Tauri: a app de verificação como aplicativo instalável, ligado ao núcleo nativo de verificação (arkhe-verify)"
 authors = ["Arkhe OS Architects <arkhe@arkhe-os.org>"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/arkhe-os/arkhe"
+repository = "https://github.com/rafael-arkhe/arkhe"
 
 # Workspace próprio, deliberadamente.
 #
