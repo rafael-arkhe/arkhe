@@ -41,9 +41,24 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      # A CLI tem de bater com o crate: Cargo.lock fixa wasm-bindgen 0.2.114.
-      - name: wasm-bindgen-cli, fixado na versao do Cargo.lock
-        run: cargo install wasm-bindgen-cli --version 0.2.114 --locked
+      # A CLI do wasm-bindgen tem de ter *exactamente* a versao que o crate
+      # resolveu: o schema do bindgen embutido no .wasm e o da CLI tem de bater,
+      # senao `wasm-bindgen` sai com exit 1 ("rust Wasm file schema version:
+      # 0.2.126 / this binary schema version: 0.2.114 ... must exactly match").
+      # Um pin fixo nao pode estar certo aqui: o Cargo.lock de
+      # safe-core-monorepo nao esta' rastreado (regra global `Cargo.lock`), o
+      # runner resolve `wasm-bindgen = "0.2"` na versao mais recente publicada
+      # (0.2.128, 2026-09-04) e o lock local fixa outra (0.2.126). Derivar a
+      # versao da propria arvore de dependencias mantem os dois lados iguais por
+      # construcao — e a CLI e' publicada em lockstep com a lib (mesmas versoes
+      # em crates.io), portanto a versao derivada existe sempre.
+      - name: wasm-bindgen-cli, na versao que o crate resolveu
+        working-directory: safe-core-monorepo
+        run: |
+          WB=$(cargo tree -p arkhe-verify-wasm -i wasm-bindgen \
+                 | sed -n 's/^wasm-bindgen v\([0-9.]*\).*/\1/p' | head -1)
+          echo "wasm-bindgen resolvido: $WB"
+          cargo install wasm-bindgen-cli --version "$WB" --locked
 
       - name: Construir o artefacto WASM que o arkhe-ui importa
         working-directory: safe-core-monorepo

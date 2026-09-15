@@ -25,7 +25,13 @@ jobs:
         working-directory: safe-core-monorepo
     steps:
       - uses: actions/checkout@v4
+      # Ver o mesmo override em safe-core-monorepo.yml: sem isto o default
+      # `build-warnings: deny` do action transforma em erro os warnings de
+      # `missing_docs` que o workspace ja' tinha, e `cargo check --workspace`
+      # falhava com exit 101 sem relacao com arkhe-agent-vm.
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          build-warnings: warn
       - run: cargo check --workspace
       - run: cargo test -p arkhe-agent-vm
 
@@ -36,4 +42,13 @@ jobs:
         working-directory: safe-core-monorepo/crates/arkhe-agent-vm/proofs/lean
     steps:
       - uses: actions/checkout@v4
+      # `defaults.run.working-directory` so' se aplica a passos `run:` — um passo
+      # `uses:` nao o herda. O `lean-action` corre `lake build` no seu proprio
+      # `lake-package-directory`, que por omissao e' "." (a raiz do repositorio),
+      # onde nao existe lakefile nem lean-toolchain: daí o exit 1 neste passo.
+      # Medido localmente com o mesmo elan: `lake build` na raiz -> exit 1
+      # ("no configuration file with a supported extension"); neste directório
+      # -> exit 0 ("Build completed successfully (5 jobs)").
       - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: safe-core-monorepo/crates/arkhe-agent-vm/proofs/lean

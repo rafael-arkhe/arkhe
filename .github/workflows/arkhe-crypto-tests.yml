@@ -49,17 +49,27 @@ jobs:
         with:
           components: clippy
 
+      # Sem `--offline`: o runner comeca com CARGO_HOME vazio e este job nao tem
+      # passo de cache, portanto nao ha registry local de onde tirar as fontes.
+      # O Cargo.lock esta' rastreado (as versoes sao as do lock na mesma), mas o
+      # lock fixa versoes, nao traz os .crate: `--offline` num runner limpo falha
+      # na resolucao ("no matching package named `ml-kem` found ... offline
+      # mode", exit 101 — reproduzido com CARGO_HOME vazio).
       - name: Cargo — testes Feldman VSS (honesto/malicioso, 3/3)
-        run: cargo test -p arkhe-vss --offline
+        run: cargo test -p arkhe-vss
 
       - name: Cargo — testes PACTs (BIP-322, 4/4)
-        run: cargo test -p arkhe-pacts --offline
+        run: cargo test -p arkhe-pacts
 
       - name: Cargo — testes STARK PQ (4/4)
-        run: cargo test -p arkhe-stark --offline
+        run: cargo test -p arkhe-stark
 
-      - name: Cargo — testes arkhe-crypto (8/8: 4 dkg + 3 hash + 1 gate bip322 stub)
-        run: cargo test -p arkhe-crypto --offline
+      # O nome tem de ficar entre aspas: um ": " dentro de um scalar simples
+      # (o ":" de "8/8:") e' erro de sintaxe YAML, e um ficheiro invalido faz o
+      # GitHub criar o run e nao criar job nenhum (o run aparece com o path do
+      # ficheiro como nome, sem passos — medido no run 35034915665).
+      - name: 'Cargo — testes arkhe-crypto (8/8: 4 dkg + 3 hash + 1 gate bip322 stub)'
+        run: cargo test -p arkhe-crypto
 
       - name: Cargo — clippy all-targets (D warnings) nos quatro crates
-        run: cargo clippy -p arkhe-vss -p arkhe-pacts -p arkhe-stark -p arkhe-crypto --all-targets --offline -- -D warnings
+        run: cargo clippy -p arkhe-vss -p arkhe-pacts -p arkhe-stark -p arkhe-crypto --all-targets -- -D warnings
