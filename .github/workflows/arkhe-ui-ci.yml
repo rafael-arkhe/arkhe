@@ -33,6 +33,25 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      # O arkhe-ui importa o artefacto wasm-bindgen de
+      # safe-core-monorepo/crates/arkhe-verify-wasm/pkg-web, que e saida de
+      # build e nao entra no git. Sem o construir primeiro, o typecheck
+      # falha com TS2307. Comando conforme src/app/verify-adapter.ts:14.
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      # A CLI tem de bater com o crate: Cargo.lock fixa wasm-bindgen 0.2.114.
+      - name: wasm-bindgen-cli, fixado na versao do Cargo.lock
+        run: cargo install wasm-bindgen-cli --version 0.2.114 --locked
+
+      - name: Construir o artefacto WASM que o arkhe-ui importa
+        working-directory: safe-core-monorepo
+        run: |
+          cargo build --release --target wasm32-unknown-unknown -p arkhe-verify-wasm
+          wasm-bindgen --target web --out-dir crates/arkhe-verify-wasm/pkg-web \
+            target/wasm32-unknown-unknown/release/arkhe_verify_wasm.wasm
+
       - name: Typecheck
         run: npx tsc --noEmit
 
