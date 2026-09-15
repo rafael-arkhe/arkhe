@@ -117,7 +117,7 @@ quote = "1.0"
 proc-macro2 = "1.0"
 # ✅ F3: Dependências faltantes adicionadas
 unicode-normalization = "0.1"
-wasmtime = { version = "28.0" }
+wasmtime = { version = "36.0.15" }
 # ✅ F1: ed25519-dalek v2.2.0 — API v2.x (SigningKey, não Keypair)
 ed25519-dalek = { version = "2.2" }
 zeroize = { version = "1.8" }

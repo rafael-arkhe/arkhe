@@ -17,4 +17,4 @@ sled = { workspace = true }
 serde_json = { workspace = true }
 tempfile = { workspace = true }
 wasmtime = { workspace = true }
-wasmtime-wasi = "28"
+wasmtime-wasi = "36.0.15"

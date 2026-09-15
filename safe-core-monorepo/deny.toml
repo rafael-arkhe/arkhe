@@ -48,11 +48,15 @@ version = 2
 
 # ATENCAO — deliberadamente sem `ignore`.
 #
-# `cargo deny check advisories` FALHA, e deve continuar falhando enquanto as
-# 24 vulnerabilidades existirem: 17 delas em `wasmtime 28.0.1`, a biblioteca
-# de sandbox de que `arkhe-rsi` depende, incluindo duas de severidade 9 —
-# RUSTSEC-2026-0095 e RUSTSEC-2026-0096, ambas fuga de sandbox.
+# `cargo deny check advisories` FALHA, e deve continuar falhando enquanto
+# houver vulnerabilidade conhecida. Estado apos o upgrade do wasmtime para
+# 36.0.15 (as 20 advisories da linha wasmtime foram resolvidas, incluindo as
+# duas de severidade 9 — RUSTSEC-2026-0095 e RUSTSEC-2026-0096, fuga de
+# sandbox). Restam 4, todas fora da wasmtime:
+#   rsa 0.9.10 (RUSTSEC-2023-0071, sem correcao disponivel)
+#   crossbeam-epoch 0.9.18 (RUSTSEC-2026-0204)
+#   h2 0.4.15 (RUSTSEC-2026-0258)
+#   rustls 0.23.41 (RUSTSEC-2026-0285)
 #
 # Suprimi-las com `ignore` faria o check passar escondendo o achado. O
-# upgrade do wasmtime muda a superficie do arkhe-rsi e e decisao de
-# arquitetura; ate ela ser tomada, o vermelho e a informacao correta.
+# vermelho e a informacao correta enquanto elas existirem.
