@@ -38,8 +38,10 @@ O documento afirmava "29/29 defeitos resolvidos, zero APIs fantasma". Ao montar 
 
 ```bash
 cd safe-core-monorepo
-cargo check --workspace     # requer rustc >= 1.85 (usei 1.91)
+cargo check --workspace     # requer rustc >= 1.88 (usei 1.91)
 ```
+
+O piso de **1.88** é medido, não presumido: `rmcp` 3.3.0 — o SDK oficial do MCP que o `arkhe-mcp` (Fase 3) adicionou ao grafo — declara `rust-version = 1.88`, e é o requisito mais alto do grafo resolvido (ao lado de `hickory-resolver`, via `reqwest`, e de `darling`, via `rmcp-macros`).
 
 Veredito: dos ~41 crates que o documento apresentava como "completos e verificados", **15 realmente compilam** após correções pontuais. É um núcleo real e aproveitável — o resto precisa do mesmo tratamento, um por um.
 

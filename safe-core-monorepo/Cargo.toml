@@ -59,6 +59,16 @@ members = [
     # ausentes antigas já estão comentadas acima) e agora são membros.
     "crates/arkhe-tee",
     "crates/arkhe-event-bus",
+    # ✅ Plano Arkhe OS — Fase 3: o servidor MCP por stdio que expõe a
+    # verificação do Arkhe a agentes de IA. As quatro ferramentas delegam às
+    # funções reais da fachada de `arkhe-verify` (`verify_sha256`,
+    # `verify_signature`, `verify_inclusion`, `verify_attestation`); nenhuma
+    # verificação é reimplementada. Depende do SDK oficial `rmcp`.
+    # Note que esta é a crate que a triagem anotou como `arkhe-mcp-server`
+    # quando ela ainda não existia (a linha comentada acima) — e não se
+    # confunde com `crates/arkhe-mcp-bridge`, que é um bridge artesanal, fora do
+    # workspace e sem `rmcp`.
+    "crates/arkhe-mcp",
 ]
 resolver = "2"
 

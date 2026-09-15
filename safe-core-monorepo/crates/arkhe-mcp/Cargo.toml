@@ -1,0 +1,66 @@
+[package]
+name = "arkhe-mcp"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Plano Arkhe OS — Fase 3: servidor MCP (stdio) que expõe a verificação do Arkhe a agentes de IA. As ferramentas delegam às funções reais de `arkhe-verify` (as cinco verificações da casca nativa); nenhuma lógica de verificação é reimplementada aqui"
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "arkhe-mcp"
+path = "src/main.rs"
+
+[dependencies]
+# A verificação vem inteira da casca nativa: `arkhe-verify` reexporta os tipos
+# (`TrustRoot`, `WitnessJson`, `encoding`, `merkle_root_from_leaves`) e as cinco
+# funções da fachada. Esta crate não depende de `arkhe-verify-wasm` — quem já
+# fala com o core é o `arkhe-verify`.
+arkhe-verify = { path = "../arkhe-verify" }
+# O SDK oficial Rust do MCP (github.com/modelcontextprotocol/rust-sdk).
+#
+# Versão: o requisito está declarado como `3.2` (`^3.2` ⇒ `>=3.2.0, <4.0.0`).
+# Medido em 2026-09-14 com `cargo info rmcp`: a versão corrente no crates.io é
+# **3.3.0** — ou seja, ao contrário do que a premissa da tarefa supunha, a 3.3.0
+# existe e é ela que o `^3.2` resolve. `Cargo.lock` registra a versão resolvida.
+#
+# Toolchain: `cargo info rmcp` reporta `rust-version: 1.88`, e o crate é
+# `edition = "2024"` (que exige rustc >= 1.85). 1.88 é, portanto, o piso real
+# desta dependência — acima do `>= 1.85` que o README do workspace declarava.
+rmcp = { version = "3.2", features = [
+    # `server` e `macros` já são default; declarados para que a intenção fique
+    # explícita e a feature não se perca numa mudança de default upstream.
+    "server",
+    "macros",
+    # Não é default: gera o JSON Schema dos argumentos de cada tool (o
+    # `#[derive(JsonSchema)]` dos tipos em `tools.rs` depende disto).
+    "schemars",
+    # Não é default: o transporte de I/O por stdio (`transport::stdio()`), que é
+    # o transporte do binário.
+    "transport-io",
+] }
+# Mesma linha 1.0 que o `rmcp` resolve; o pin explícito existe para que uma
+# divergência de major falhe no build em vez de duplicar o trait `JsonSchema`.
+schemars = { version = "1.0", features = ["derive"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+# `rt-multi-thread` não está nas features do workspace (que traz `rt`, `macros`,
+# `sync`, `time`, `fs`, `process`): o `#[tokio::main]` do binário usa o runtime
+# multi-thread por default. `io-std`/`io-util`, de que o transporte stdio do
+# `rmcp` precisa, vêm ligadas pela própria dependência do `rmcp` no tokio.
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+
+[dev-dependencies]
+# As fixtures são *provas de verdade*, produzidas pelos mesmos crates que o
+# workspace já usa nos testes do `arkhe-verify`: chaves Ed25519 determinísticas e
+# uma árvore Merkle RFC 6962 real da mesma `ct-merkle` (0.3) que o core usa. Um
+# vetor fixo em hex testaria a minha memória do vetor; isto testa a verificação.
+ed25519-dalek = { workspace = true }
+ct-merkle = "0.3.0"
+# `ct-merkle` 0.3 usa o `digest` 0.11 — mesmo pin forçado que o `arkhe-verify`
+# documenta.
+sha2 = "0.11"
+# Só para montar as fixtures: o core expõe o decodificador de base64, não o
+# codificador (`arkhe_verify::encoding::decode_base64`). Mesma nota do
+# `arkhe-verify`.
+base64 = "0.22"
