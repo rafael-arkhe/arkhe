@@ -1,0 +1,58 @@
+# deny.toml — politica de dependencias do safe-core-monorepo
+#
+# Escrita a partir de MEDICAO, nao de suposicao: a lista de licencas abaixo e
+# exatamente o que `cargo deny list` reportou para a arvore real (922 crates).
+# Antes deste arquivo, `cargo deny check licenses` rejeitava TUDO — inclusive
+# MIT e Apache-2.0 — porque sem politica nenhuma licenca e explicitamente
+# permitida.
+#
+# Sobre copyleft: `cargo deny list` mostra `GPL-2.0-only` em ittapi/ittapi-sys
+# e `LGPL-2.1-or-later` em r-efi. Ambos sao DISJUNCOES — as mesmas crates
+# aparecem tambem sob BSD-3-Clause e MIT. Tomar o ramo permissivo satisfaz a
+# expressao, entao GPL/LGPL nao precisam ser permitidas e NAO sao.
+
+[licenses]
+version = 2
+
+allow = [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-1-Clause",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "CC0-1.0",
+    "Unlicense",
+    "Zlib",
+    "Unicode-3.0",
+    "CDLA-Permissive-2.0",
+]
+
+# 0.93 e o padrao. Mantido explicito para que a decisao seja visivel.
+confidence-threshold = 0.93
+
+[bans]
+# O projeto tem duplicatas conhecidas e deliberadas (sha2 0.10 + 0.11,
+# rand 0.8 + 0.10, base64 em quatro series). Banir duplicatas hoje
+# reprovaria a arvore por um problema que nao e o desta fase.
+multiple-versions = "allow"
+
+[sources]
+# Nenhuma politica de origem adicional: `cargo deny check sources` ja passa.
+# Registrado aqui como ausencia deliberada, nao como esquecimento.
+
+[advisories]
+version = 2
+
+# ATENCAO — deliberadamente sem `ignore`.
+#
+# `cargo deny check advisories` FALHA, e deve continuar falhando enquanto as
+# 24 vulnerabilidades existirem: 17 delas em `wasmtime 28.0.1`, a biblioteca
+# de sandbox de que `arkhe-rsi` depende, incluindo duas de severidade 9 —
+# RUSTSEC-2026-0095 e RUSTSEC-2026-0096, ambas fuga de sandbox.
+#
+# Suprimi-las com `ignore` faria o check passar escondendo o achado. O
+# upgrade do wasmtime muda a superficie do arkhe-rsi e e decisao de
+# arquitetura; ate ela ser tomada, o vermelho e a informacao correta.
