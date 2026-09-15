@@ -112,4 +112,11 @@ nsec*
 nsec1*
 npub*
 .netrc
-auth.cookie
+auth.cookie# --- excepcao: a regra global `lib/` engole codigo-fonte (2026-09-15) ---
+# A regra global `lib/` (destinada a saida de build) excluia
+# `arkhe-ui/src/lib/` do git. Sete componentes importam `../../lib/cn`.
+# O diretorio tem de ser desexcluido ANTES do ficheiro: o git nao
+# desce em diretorios excluidos.
+!arkhe-ui/src/lib/
+arkhe-ui/src/lib/*
+!arkhe-ui/src/lib/cn.ts
