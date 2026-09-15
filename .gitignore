@@ -126,3 +126,8 @@ auth.cookie# --- excepcao: a regra global `lib/` engole codigo-fonte (2026-09-15
 !arkhe-ui/src/lib/
 arkhe-ui/src/lib/*
 !arkhe-ui/src/lib/cn.ts
+# --- excepcao: o lock do workspace canonico fica rastreado (2026-09-15) ---
+# A regra global `Cargo.lock` deixava o runner resolver tudo de novo a cada
+# execucao -- foi isso que fez o pin do wasm-bindgen apodrecer (0.2.114 no CI,
+# 0.2.126 no lock local, 0.2.128 resolvido no runner).
+!safe-core-monorepo/Cargo.lock
