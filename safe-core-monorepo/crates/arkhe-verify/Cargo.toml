@@ -20,6 +20,13 @@ thiserror = { workspace = true }
 # Mesmo pin de `arkhe-orcid` (o outro cliente HTTP do workspace). Não está em
 # `[workspace.dependencies]`, então a versão é fixada aqui.
 reqwest = { version = "0.13.4", default-features = false, features = ["json", "rustls"] }
+# As duas seguintes servem ao **binário** `src/main.rs` (o CLI), não à
+# biblioteca: `clap` para os argumentos, `anyhow` para as mensagens dos erros de
+# entrada. O Cargo não tem tabela de dependências por alvo, então elas entram
+# aqui — o pin do `clap` vem do workspace (4.5, com a feature `derive`), e o do
+# `anyhow` (1.0) confere com o que o resto do repositório já usava.
+clap = { workspace = true }
+anyhow = "1.0"
 
 [dev-dependencies]
 # Mesma abordagem de `arkhe-orcid`: o adaptador HTTP é exercitado contra um
