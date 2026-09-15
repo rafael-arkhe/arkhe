@@ -16,7 +16,17 @@ name = "arkhe-ui-app"
 #
 # `Cargo.toml`, `tauri.conf.json` e o manifesto do release levam a mesma versão,
 # juntos: três sítios, um número.
-version = "0.2.2"
+#
+# 0.2.3 e não 0.2.2: o binário do 0.2.2 **abortava**. Com as features `ring` e
+# `aws_lc_rs` do `rustls` ligadas ao mesmo tempo, `CryptoProvider::
+# from_crate_features()` devolve `None` e o `expect` de
+# `get_default_or_install_from_crate_features` (`rustls-0.23.45/src/crypto/
+# mod.rs:249`) mata o processo — e `panic = "abort"` no perfil de release faz
+# disso morte instantânea, sem `catch_unwind` possível. O clique no botão do
+# updater abortava a app, e o mesmo pânico foi observado no arranque sem
+# clique. A correcção é instalar o provedor explicitamente no topo do `run()`;
+# a causa longa, com a prova crua, está no doc-comment de `run` em `src/lib.rs`.
+version = "0.2.3"
 edition = "2021"
 description = "Plano Arkhe OS §Fase 5 — o casco Tauri: a app de verificação como aplicativo instalável, ligado ao núcleo nativo de verificação (arkhe-verify)"
 authors = ["Arkhe OS Architects <arkhe@arkhe-os.org>"]
@@ -74,6 +84,43 @@ arkhe-verify = { path = "../../safe-core-monorepo/crates/arkhe-verify" }
 # impediria um patch que corrija o resolvedor. O `Cargo.lock` desta app (que é
 # próprio — ver o comentário do `[workspace]`) é que congela o que é compilado.
 tauri-plugin-hashtree-updater = "0.2.52"
+# O `rustls`, para **nomear** o provedor criptográfico em vez de o adivinhar.
+#
+# A árvore tem hoje dois provedores ligados ao mesmo `rustls 0.23.45`, por
+# unificação de features, e é isso que arma o pânico:
+#
+#   arkhe-verify      (dep de caminho)         → reqwest/rustls   → hyper-rustls/aws-lc-rs
+#   hashtree-blossom  (pelo plugin updater)    → rustls-tls-webpki-roots → hyper-rustls/ring
+#
+# `CryptoProvider::from_crate_features()` (privada) só responde quando
+# **exactamente uma** das features `ring`/`aws_lc_rs` está ligada
+# (`rustls-0.23.45/src/crypto/mod.rs:260-300`, os blocos `#[cfg(all(...,
+# not(feature = ...)))]`); com as duas, devolve `None`, e quem fica com o `None`
+# é o `expect` da linha 249. Ninguém instala o provedor: a única chamada a
+# `install_default()` na árvore é a do `tauri`, em
+# `tauri-2.11.5/src/protocol/tauri.rs:45`, e ela está dentro de um bloco
+# `#[cfg(all(dev, mobile))]` **e** de um `#[cfg(feature = "rustls-tls")]` — num
+# binário de release de desktop não existe, e a feature `rustls-tls` do `tauri`
+# nem sequer está ligada (o `tauri` não aparece na árvore de features do
+# `rustls`). A conclusão de uma rodada anterior de que "é o runtime do Tauri que
+# o instala" é, medidamente, falsa para esta plataforma.
+#
+# **`default-features = false` não é estilo, é a condição de o efeito ser
+# mínimo.** O `default` do `rustls` é
+# `[aws_lc_rs, logging, prefer-post-quantum, std, tls12]`
+# (`rustls-0.23.45/Cargo.toml:70-76`), e `logging` e `prefer-post-quantum`
+# **não** estão ligadas hoje. Pedir o `default` ligaria as duas — incluindo
+# `prefer-post-quantum = ["aws_lc_rs"]`, que muda a negocição TLS da app. Com
+# `default-features = false, features = ["ring"]` a aresta só pede `ring`, que
+# já vem pedida pelo `reqwest`/`hyper-rustls`; as features são aditivas em
+# Cargo, portanto o conjunto unificado não muda (medido, antes/depois, com
+# `cargo tree -e features -i rustls`). O que muda é a escolha passar a estar
+# **escrita** neste ficheiro em vez de depender de quem a pede por baixo.
+#
+# E é `ring` e não `aws-lc-rs` porque é `ring` que a cadeia nova já traz: o
+# `aws-lc-rs` obrigaria a rever a árvore do `arkhe-verify`, que é código
+# verificado. Uma linha, e reversível.
+rustls = { version = "0.23", default-features = false, features = ["ring"] }
 # `serde_json` era só `[dev-dependencies]` até esta fase; passa a dependência
 # normal **por causa do plugin**, e o erro que o obriga é literal:
 #

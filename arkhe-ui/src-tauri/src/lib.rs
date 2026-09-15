@@ -168,6 +168,50 @@ pub fn registar_comandos<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri
 /// Chamada pelo `src/main.rs`. O registo do que o frontend pode pedir vive em
 /// [`registar_comandos`], partilhado com os testes.
 ///
+/// # O provedor criptográfico do `rustls`, e porque é que ele é instalado aqui
+///
+/// A primeira instrução desta função não é do Tauri: é a escolha explícita do
+/// `CryptoProvider` do processo. Sem ela o binário **aborta**.
+///
+/// O `rustls 0.23` recusa adivinhar quando a ambiguidade é real. Duas features
+/// de provedor estão ligadas ao mesmo `rustls 0.23.45` — `aws_lc_rs` (via
+/// `arkhe-verify` → `reqwest` → `hyper-rustls/aws-lc-rs`) e `ring` (via
+/// `hashtree-blossom`, pelo plugin updater → `reqwest` →
+/// `hyper-rustls/ring`) — e `from_crate_features()` só responde quando
+/// **exactamente uma** está ligada. Com as duas devolve `None`, e o `None` cai
+/// no `expect` de `get_default_or_install_from_crate_features`
+/// (`rustls-0.23.45/src/crypto/mod.rs:249`). Com `panic = "abort"` no perfil de
+/// release isso não é um erro recuperável: o processo morre. Foi assim que o
+/// clique no botão do updater matou o 0.2.2, com a prova
+/// `thread 'tokio-rt-worker' panicked at .../crypto/mod.rs:249`.
+///
+/// **Porque é que a chamada está aqui e não no `setup`.** O `setup` de um
+/// plugin Tauri corre depois de o `Builder` estar construído, depois de o
+/// plugin estar registado e depois de a janela existir — e o pânico foi
+/// observado também **no arranque, sem clique nenhum**. Uma correcção posta no
+/// `setup` deixaria de fora tudo o que corre antes dele, que é onde o pânico
+/// apareceu. Aqui não sobra nada à frente: `main.rs` chama `run()` como
+/// primeira instrução, portanto esta é a primeira coisa que este processo faz,
+/// em qualquer fio.
+///
+/// Instalar no arranque e não junto do pedido que precisa dele é deliberado: o
+/// provedor é um `OnceLock` de processo, partilhado por todos os fios, e o
+/// pânico pode vir de qualquer um deles. Uma instalação por pedido seria uma
+/// corrida em que o primeiro a chegar ganhasse — precisamente o
+/// não-determinismo (2 de ~5 lançamentos) que se quer fechar.
+///
+/// **O `Result` é tratado, não escondido.** `install_default` devolve `Err`
+/// quando já há um provedor instalado, e isso é benigno: significa que um
+/// destes correu primeiro e o processo já está num estado utilizável. Não é
+/// `unwrap` — um `unwrap` faria abortar exactamente no caso inofensivo. É a
+/// mesma forma que o próprio `rustls` usa no seu autocaminho
+/// (`crypto/mod.rs:255`, `let _ = provider.install_default();`).
+///
+/// A escolha é `ring` e não `aws-lc-rs` porque é `ring` que a cadeia nova já
+/// traz; `aws-lc-rs` obrigaria a rever a árvore do `arkhe-verify`, que é código
+/// verificado. É reversível: apagar esta instrução devolve o comportamento
+/// anterior, que é abortar.
+///
 /// # O plugin de actualização, e porque é que ele não pode impedir o arranque
 ///
 /// `tauri_plugin_hashtree_updater::init()` é registado **aqui** e não em
@@ -186,11 +230,19 @@ pub fn registar_comandos<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri
 /// resolução falhada chegue ao `expect` abaixo**. O `expect` continua a cobrir
 /// apenas a falha de criação da janela.
 ///
+/// O parágrafo anterior já era verdade no 0.2.2 e não evitou nada: o que
+/// matava o arranque não era uma resolução falhada a chegar ao `expect` da
+/// janela, era o `expect` do `rustls`, dentro da resolução, num fio de trabalho
+/// do tokio — onde nenhum `expect` desta função o podia apanhar. É a razão de a
+/// correcção estar na primeira linha, e não numa análise de caminhos.
+///
 /// O plugin trata ainda `ReleaseNotFound` e `ManifestNotFound` como
 /// `Ok(None)` — "não há novidade", não erro (ver `updater.rs` do plugin). Só
 /// os erros de rede/relay sobem, e só na chamada explícita.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let _ = rustls::crypto::ring::default_provider().install_default();
+
     registar_comandos(tauri::Builder::default())
         .plugin(tauri_plugin_hashtree_updater::init())
         .run(tauri::generate_context!())
