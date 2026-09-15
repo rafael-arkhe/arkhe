@@ -74,10 +74,16 @@ contract ERC20VulnerableTest is Test {
     /// `src/verify/kani_harness.rs`.
     function test_attackerCannotWithdrawMoreThanVaultHolds() public {
         vm.deal(address(attacker), 1 ether);
+        // O saldo do atacante nao comeca em zero: `vm.deal` deu-lhe 1 ETH, e o
+        // `msg.value` que o `attack()` recebe vem do contrato de teste, nao
+        // desse saldo. Comparar o saldo *final* com `vaultTotal` comparava 7 ETH
+        // com 6 ETH e falhava; a propriedade que este teste afirma e' que o
+        // *ganho* do atacante nao excede o que o cofre tinha.
+        uint256 attackerBefore = address(attacker).balance;
         uint256 vaultTotal = address(vault).balance + 1 ether;
 
         attacker.attack{value: 1 ether}();
 
-        assertLe(address(attacker).balance, vaultTotal);
+        assertLe(address(attacker).balance - attackerBefore, vaultTotal);
     }
 }
