@@ -35,6 +35,12 @@ impl SafetyVerifier for AlwaysAllowVerifier {
 
 /// Verificador que sempre rejeita — útil para testes.
 pub struct AlwaysRejectVerifier {
+    /// Motivo devolvido em **todas** as [`SafetyVerdict::Rejected`] que este
+    /// verificador produz. É fixo — definido na construção e clonado a cada
+    /// `verify` — porque o objetivo é uma recusa incondicional para testes, não
+    /// uma política. O campo é público e inicializa-se por literal de struct
+    /// (`AlwaysRejectVerifier { reason: "blocked".into() }`), pelo que não há
+    /// construtor.
     pub reason: String,
 }
 

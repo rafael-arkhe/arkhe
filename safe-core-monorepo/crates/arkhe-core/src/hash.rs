@@ -1,3 +1,16 @@
+//! Hashing BLAKE3 de conteúdo.
+//!
+//! [`blake3_hash`] produz os 32 bytes que [`ArkheHash`] tipa; [`hash_to_hex`]
+//! é a forma textual — 64 caracteres hexadecimais — usada onde o hash tem de
+//! ser chave, nome ou identificador legível (por exemplo o id de nó de
+//! `arkhe-geometric-verifier/memory_graph.rs`).
+//!
+//! As crates consumidoras passam por aqui em vez de dependerem do `blake3`
+//! diretamente (ver `arkhe-geometric-verifier/README.md`), para que haja **uma
+//! só versão do hash em jogo**: um `blake3` próprio numa crate poderia subir de
+//! versão sem que as outras dessem por isso — e dois hashes diferentes do mesmo
+//! conteúdo são precisamente o que uma cadeia de evidência não pode ter.
+
 use crate::ArkheHash;
 
 /// Computa hash BLAKE3 dos dados.
