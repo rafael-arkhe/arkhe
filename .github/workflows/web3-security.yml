@@ -35,6 +35,10 @@ jobs:
         with:
           build-warnings: warn
       - run: cargo check --workspace
+        env:
+          # O action escreve CARGO_BUILD_WARNINGS=deny no $GITHUB_ENV, e isso
+          # vale para os passos seguintes -- o `with: build-warnings` nao chega.
+          CARGO_BUILD_WARNINGS: warn
       - run: cargo test -p arkhe-crypto-pqc -p arkhe-web3-security
 
   lean-check:

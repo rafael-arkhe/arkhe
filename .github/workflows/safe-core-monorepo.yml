@@ -53,4 +53,8 @@ jobs:
           build-warnings: warn
       - run: rustup target add wasm32-wasip1
       - run: cargo check --workspace
+        env:
+          # O action escreve CARGO_BUILD_WARNINGS=deny no $GITHUB_ENV, e isso
+          # vale para os passos seguintes -- o `with: build-warnings` nao chega.
+          CARGO_BUILD_WARNINGS: warn
       - run: cargo test --workspace --exclude arkhe-session-evaluator --no-fail-fast
