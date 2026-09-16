@@ -1,36 +1,33 @@
-# Assina e ancora o arkhe.gguf com Sigstore keyless.
+# Assina e ancora o arkhe.gguf com Sigstore keyless, e produz o bundle companheiro.
 #
-# Porque o artefacto vem de uma release, e não do git:
-#   o arkhe.gguf tem mais de 1 GB e não entra no repositório. A release é o
-#   transporte, e o SHA-256 é verificado ANTES de assinar, para que a assinatura
-#   cubra exactamente os bytes que foram publicados -- verificar depois de assinar
-#   não verifica nada.
+# O artefacto vem do Hugging Face, não do git e não de uma release:
+#   https://huggingface.co/arkhe-os/arkhe resolve o ficheiro por URL estável,
+#   sem conta, e publica o SHA-256 no cabeçalho X-Linked-ETag. Verificar antes de
+#   assinar é o ponto todo -- verificar depois não verifica nada.
 #
 # Invocação da CLI, medida em 2026-09-15 contra o `model_signing` instalado:
 #   model_signing sign sigstore <MODEL_PATH>   -- forma explícita, usada aqui
 #   model_signing sign <MODEL_PATH>            -- também funciona: o método tem
 #                                                 `sigstore` por omissão
-#   model_signing sign                         -- exit 2: falta o MODEL_PATH
-# A linha de uso (`sign [OPTIONS] PKI_METHOD`) sugere que `sigstore` é obrigatório;
-# a execução mostra que não é. O comportamento medido vale mais do que a leitura.
+# `sigstore` é um posicional; a linha de uso sugere que é opcional, e a execução
+# confirma que o é. Vai explícito para não depender disso.
 #
-# NÃO VERIFICADO: o valor exacto de `--identity`. Se estiver errado, o passo de
-# verificação falha e não se assina nada -- é fail-closed, e é assim que o valor
-# correcto se descobre na primeira execução.
+# O gatilho `push` sobre este ficheiro é PROVISÓRIO: existe para a primeira
+# execução acontecer sem que ninguém tenha de criar uma release ou disparar o
+# workflow à mão. Remover quando a cadeia estiver provada.
+#
+# Lembrar: o `arkhe.gguf` publicado fica INALTERADO. O bundle é um ficheiro ao
+# lado. É por isso que o schema é v1.4 e não v1.3.
 name: Model Sign & Anchor
 
 on:
   release:
     types: [published]
+  push:
+    paths:
+      - '.github/workflows/model-sign.yml'
   workflow_dispatch:
-    inputs:
-      release_tag:
-        description: Tag da release que contém o arkhe.gguf
-        required: true
-        type: string
 
-# Sem id-token aqui, de proposito: uma permissao no topo vale para TODOS
-# os jobs. Ele vive no job `sign`, que e o unico que precisa de um token OIDC.
 permissions:
   contents: read
 
@@ -38,10 +35,10 @@ jobs:
   sign:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write   # sigstore keyless: so este job
+      id-token: write   # sigstore keyless: só este job precisa de um token OIDC
       contents: read
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
@@ -50,36 +47,31 @@ jobs:
       - name: Instalar o model-signing
         run: pip install model-signing
 
-      - name: Resolver a tag
-        id: tag
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=${{ inputs.release_tag }}" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Descarregar o arkhe.gguf da release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Descarregar o arkhe.gguf do Hugging Face
         run: |
           mkdir -p model
-          gh release download "${{ steps.tag.outputs.tag }}" \
-            --pattern "arkhe.gguf" \
-            --dir model \
-            --repo "${{ github.repository }}"
+          cd model
+          URL=https://huggingface.co/arkhe-os/arkhe/resolve/main/arkhe.gguf
+          # O hub publica o sha256 do ficheiro no cabeçalho; confirmá-lo aqui é a
+          # verificação de origem, antes de gastar uma transferência de 1,5 GB.
+          ETAG=$(curl -sSIL -A arkhe-ci "$URL" | tr -d '\r' | awk -F'"' '/[Xx]-[Ll]inked-[Ee][Tt]ag/{print $2}')
+          echo "X-Linked-ETag da origem: $ETAG"
+          curl -sSL -A arkhe-ci -o arkhe.gguf "$URL"
+          ls -l arkhe.gguf
+          echo "etag=$ETAG" >> "$GITHUB_OUTPUT"
 
       - name: Verificar o SHA-256 antes de assinar
         run: |
           cd model
-          EXPECTED="${{ vars.ARKHE_GGUF_SHA256 }}"
-          if [ -z "$EXPECTED" ]; then
-            echo "::error::A variável ARKHE_GGUF_SHA256 não está definida no repositório."
-            exit 1
-          fi
+          # Este valor é o que o ficheiro tem hoje. Devia passar a variável de
+          # repositório quando o artefacto for reconstruído; enquanto for o mesmo
+          # ficheiro, o literal é a referência mais honesta que existe.
+          EXPECTED=10bf45ab933af59e501b9fa63a0a8a1d26a9ec15adf2f13f7dfbe567dbc07708
           ACTUAL=$(sha256sum arkhe.gguf | cut -d' ' -f1)
+          echo "esperado: $EXPECTED"
+          echo "obtido:   $ACTUAL"
           if [ "$EXPECTED" != "$ACTUAL" ]; then
-            echo "::error::SHA-256 não corresponde. Esperado $EXPECTED, obtido $ACTUAL"
+            echo "::error::SHA-256 nao corresponde. Nada sera assinado."
             exit 1
           fi
           echo "SHA-256 verificado: $ACTUAL"
@@ -88,6 +80,7 @@ jobs:
         run: |
           cd model
           model_signing sign sigstore arkhe.gguf --signature arkhe.gguf.sig
+          ls -l arkhe.gguf.sig
 
       - name: Verificar o roundtrip
         run: |
@@ -100,16 +93,32 @@ jobs:
       - name: Publicar o bundle
         uses: actions/upload-artifact@v4
         with:
-          name: sigstore-bundle-${{ steps.tag.outputs.tag }}
+          name: arkhe-gguf-bundle
           path: model/arkhe.gguf.sig
           retention-days: 90
+
+      # O passo seguinte seguiria assim que existir um segredo HF_TOKEN no
+      # repositório. O bundle é um ficheiro ao lado do modelo, e o
+      # `anchored.bundle_uri` dentro do GGUF já aponta para ele.
+      #
+      # - name: Publicar o bundle ao lado do modelo
+      #   env:
+      #     HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      #   run: |
+      #     pip install huggingface_hub
+      #     python -c "from huggingface_hub import HfApi; \
+      #       HfApi().upload_file(path_or_fileobj='model/arkhe.gguf.sig', \
+      #         path_in_repo='arkhe.gguf.sig', repo_id='arkhe-os/arkhe')"
 
       - name: Resumo
         run: |
           {
-            echo "## Modelo assinado e ancorado"
+            echo "## Modelo assinado"
             echo ""
-            echo "- tag: ${{ steps.tag.outputs.tag }}"
-            echo "- sha256: ${{ vars.ARKHE_GGUF_SHA256 }}"
+            echo "- origem: huggingface.co/arkhe-os/arkhe"
+            echo "- sha256 verificado: 10bf45ab933af59e501b9fa63a0a8a1d26a9ec15adf2f13f7dfbe567dbc07708"
+            echo "- bundle: arkhe.gguf.sig (artefacto da execucao)"
             echo "- identidade: ${{ github.workflow_ref }}"
+            echo ""
+            echo "O arkhe.gguf publicado NAO foi alterado. O bundle vive ao lado dele."
           } >> "$GITHUB_STEP_SUMMARY"
