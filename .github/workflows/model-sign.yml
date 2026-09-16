@@ -36,6 +36,7 @@ permissions:
 
 jobs:
   sign:
+    runs-on: ubuntu-latest
     permissions:
       id-token: write   # sigstore keyless: so este job
       contents: read
