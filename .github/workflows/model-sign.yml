@@ -58,7 +58,6 @@ jobs:
           echo "X-Linked-ETag da origem: $ETAG"
           curl -sSL -A arkhe-ci -o arkhe.gguf "$URL"
           ls -l arkhe.gguf
-          echo "etag=$ETAG" >> "$GITHUB_OUTPUT"
 
       - name: Verificar o SHA-256 antes de assinar
         run: |
