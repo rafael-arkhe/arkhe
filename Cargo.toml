@@ -56,7 +56,3 @@ embedded = []
 tokio-test = "0.4"
 mockall = "0.13"
 criterion = "0.5"
-
-[[bench]]
-name = "phi_c_compute"
-harness = false
