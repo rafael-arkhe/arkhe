@@ -29,13 +29,16 @@ on:
         required: true
         type: string
 
+# Sem id-token aqui, de proposito: uma permissao no topo vale para TODOS
+# os jobs. Ele vive no job `sign`, que e o unico que precisa de um token OIDC.
 permissions:
-  id-token: write
   contents: read
 
 jobs:
   sign:
-    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # sigstore keyless: so este job
+      contents: read
     steps:
       - uses: actions/checkout@v7.0.1
 
