@@ -75,12 +75,20 @@ jobs:
           fi
           echo "SHA-256 verificado: $ACTUAL"
 
-      - name: Assinar com Sigstore keyless (OIDC do GitHub)
+      - name: Assinar com Sigstore keyless (token OIDC explicito)
         run: |
           cd model
-          model_signing sign sigstore arkhe.gguf --signature arkhe.gguf.sig
+          # A CLI diz que as credenciais ambientes "could be used" num runner.
+          # A execucao mostrou que nao sao. Pede-se o token ao runner, que o
+          # emite por causa do `id-token: write` no job, e passa-se explicito.
+          IDTOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sigstore" \
+            | python -c "import sys,json; print(json.load(sys.stdin)['value'])" )
+          if [ -z "$IDTOKEN" ]; then echo "::error::sem token OIDC"; exit 1; fi
+          model_signing sign sigstore arkhe.gguf \
+            --signature arkhe.gguf.sig \
+            --identity_token "$IDTOKEN"
           ls -l arkhe.gguf.sig
-
       - name: Verificar o roundtrip
         run: |
           cd model
