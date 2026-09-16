@@ -14,7 +14,28 @@ thiserror = { workspace = true }
 blake3 = { workspace = true }
 hex = { workspace = true }
 chrono = { workspace = true }
-uuid = { workspace = true }
 tracing = { workspace = true }
 async-trait = { workspace = true }
-tokio = { workspace = true }
+# `uuid` saiu: não era usado em nenhum sítio de `src/` (nem o tipo `Uuid` nem o
+# módulo), e o pin do workspace traz a feature `v4`, que em wasm32-unknown-unknown
+# exige uma fonte de aleatoriedade explícita (`uuid` erra o build sem uma de
+# `js`/`rng-getrandom`/`rng-rand`) — a segunda razão do wasm32 fechar. Nenhum
+# crate perde a feature: os 16 que declaram `uuid` usam `uuid = { workspace =
+# true }` por si, e são eles que habilitam a `v4` que os `Uuid::new_v4()`
+# consomem.
+# Deixa de herdar o pin do workspace para ficar com as features de tokio que o
+# wasm aceita. O tokio documenta o conjunto suportado em wasm como
+# `sync,macros,io-util,rt,time` (qualquer outra dá `compile_error!`), e o pin do
+# workspace trazia duas de fora: `process` e `fs`.
+#
+# - `process` habilita `mio/net`, `mio/os-poll` e `mio/os-ext` em qualquer alvo, e
+#   o `mio` tem `compile_error!` para wasm32-unknown-unknown ("This wasm target is
+#   unsupported by mio").
+# - `fs` é recusada pelo próprio tokio em wasm.
+#
+# Nenhuma das duas é usada: o `arkhe-core` só usa `tokio::sync::RwLock` (feature
+# `sync`) e o `#[tokio::test]` (`rt` + `macros`), e não há uma única ocorrência de
+# `tokio::fs`, `tokio::process` ou `tokio::net` em `crates/*/src` — pelo que a
+# perda destas features não pode partir nada que hoje compile. `time` fica
+# (é aceite em wasm) e a versão (1.0) confere com a do workspace.
+tokio = { version = "1", features = ["sync", "rt", "time", "macros"] }

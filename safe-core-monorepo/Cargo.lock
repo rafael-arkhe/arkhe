@@ -295,7 +295,6 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tracing",
- "uuid 1.23.4",
 ]
 
 [[package]]
@@ -643,6 +642,7 @@ name = "arkhe-verify"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arkhe-core",
  "arkhe-verify-wasm",
  "base64 0.22.1",
  "clap",
@@ -655,6 +655,7 @@ dependencies = [
  "sha2 0.11.0",
  "thiserror 1.0.69",
  "tokio",
+ "tracing",
 ]
 
 [[package]]

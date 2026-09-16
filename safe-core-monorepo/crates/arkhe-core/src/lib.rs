@@ -13,7 +13,9 @@ pub mod error;
 pub mod hash;
 pub mod safety;
 pub mod memory_traits;
+pub mod typed_value;
 
 pub use error::{ArkheError, ArkheResult, ArkheHash};
 pub use safety::{SafetyVerdict, SafetyVerifier, AlwaysAllowVerifier, AlwaysRejectVerifier};
 pub use memory_traits::{AgentMemory, MemoryEntry, MemoryLayer, InMemoryAgentMemory};
+pub use typed_value::TypedValue;

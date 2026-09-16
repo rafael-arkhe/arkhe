@@ -72,12 +72,21 @@
 #![deny(unsafe_code)]
 #![warn(missing_docs)]
 
+/// Verificação de calibração — decisões com probabilidade e incerteza.
+///
+/// O `verify` é *fail-closed*: uma decisão que não satisfaça os limiares, ou
+/// que venha sem metadados de calibração, é rejeitada. Uma decisão
+/// **vendor-tested** é aceita pelo `verify` e **só** rejeitada pelo
+/// `verify_independent` — a diferença é intencional e está fixada nos testes do
+/// módulo (`calibrated_decision_accepts_valid` afirma explicitamente o `is_ok`).
+pub mod calibration;
 pub mod error;
 pub mod facade;
 pub mod gguf;
 pub mod rekor;
 pub mod report;
 
+pub use calibration::{CalibratedDecision, CalibrationError, CalibrationMetadata, EvaluationType};
 pub use error::RekorError;
 pub use facade::{
     attestation_subject, verify_attestation, verify_inclusion, verify_sha256, verify_signature,

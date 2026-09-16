@@ -14,9 +14,16 @@ repository.workspace = true
 # reimplementado aqui.
 [dependencies]
 arkhe-verify-wasm = { path = "../arkhe-verify-wasm" }
+# O `calibration` transporta o `TypedValue` do core como carga da decisão. É o
+# tipo que o `arkhe-core` define para "valor de domínio tipado"; redefini-lo
+# aqui criaria a chance de as duas definições divergirem.
+arkhe-core = { path = "../arkhe-core" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
+# Só o `calibration` usa `tracing`, e só para o `warn!` que registra a aceitação
+# de uma decisão vendor-tested (a decisão passa; o aviso fica).
+tracing = { workspace = true }
 # Mesmo pin de `arkhe-orcid` (o outro cliente HTTP do workspace). Não está em
 # `[workspace.dependencies]`, então a versão é fixada aqui.
 reqwest = { version = "0.13.4", default-features = false, features = ["json", "rustls"] }
