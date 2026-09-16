@@ -70,7 +70,7 @@ fn prove_reentrancy_guard_rejects_nested_enter_after_any_prior_cycles() {
 fn prove_execute_guarded_releases_lock_after_completion() {
     let mut guard = ReentrancyGuard::new();
     let result = guard.execute_guarded(|| 7u8);
-    assert_eq!(result, Ok(7));
+    assert!(result == Ok(7));
     assert!(guard.enter().is_ok());
 }
 
@@ -91,5 +91,5 @@ fn prove_cei_check_matches_spec_for_all_three_op_sequences() {
     });
 
     let impl_violates = !check_effects_interactions_order(&ops).holds();
-    assert_eq!(spec_violates, impl_violates);
+    assert!(spec_violates == impl_violates);
 }
