@@ -47,6 +47,15 @@
 //!    a ligação a uma atestação existente — que delega o pipeline a
 //!    [`verify_attestation`]. A API inteira é sobre `&[u8]`: não há `Path` nem
 //!    I/O, porque o core compila para wasm e quem lê o arquivo é quem chama.
+//! 5. **A sanitização dos metadados** ([`sanitize`], o **Gate 0**): percorre os
+//!    pares chave-valor e os descritores de tensor de um ficheiro GGUF sobre os
+//!    **bytes crus**, com aritmética verificada, e verifica que a estrutura que
+//!    o ficheiro **declara** cabe nos bytes que ele **tem** — antes de qualquer
+//!    alocação guiada por essa declaração. É a defesa comum a seis CVEs de
+//!    leitores GGUF (a tabela está na nota de [`sanitize`]), e é o **primeiro**
+//!    gate do CLI `arkhe-verify`: quando ele recusa um ficheiro, nada mais corre.
+//!    Como a API de [`gguf`], é sobre `&[u8]` e não aloca a partir de nada que o
+//!    ficheiro declare.
 //!
 //! # O que esta crate **não** faz
 //!
@@ -59,10 +68,15 @@
 //!   um servidor local (`mockito`), como o `arkhe-orcid` faz.
 //! - Não instala `sigstore`. Ver a seção do README sobre a rota opcional e o
 //!   pin `0.13` com `features = ["wasm"]`.
-//! - Não valida o **conteúdo** de um GGUF além do cabeçalho: [`gguf`] lê 24
-//!   bytes de estrutura e o digest dos bytes, e não os pares chave-valor, os
-//!   descritores de tensor nem o bloco de dados. Ver a nota "o que este módulo
-//!   não prova" em [`gguf`].
+//! - Não valida o **conteúdo** de um GGUF no sentido de "o modelo é bom":
+//!   [`sanitize`] percorre os pares chave-valor e os descritores de tensor com
+//!   aritmética verificada (sem os descodificar em tipos do domínio) e
+//!   [`gguf`] lê 24 bytes de estrutura mais o digest dos bytes. Nenhum dos dois
+//!   valida a **extensão dos dados dos tensores** — o tamanho em bytes de um
+//!   tensor depende da tabela de tipos GGML do `llama.cpp` —, a semântica dos
+//!   metadados, a quantização ou a integridade dos pesos. Ver as notas "o que
+//!   este módulo não prova" em [`gguf`] e "o que o Gate 0 não prova" em
+//!   [`sanitize`].
 //!
 //! # Rede
 //!
@@ -85,6 +99,7 @@ pub mod facade;
 pub mod gguf;
 pub mod rekor;
 pub mod report;
+pub mod sanitize;
 
 pub use calibration::{CalibratedDecision, CalibrationError, CalibrationMetadata, EvaluationType};
 pub use error::RekorError;
@@ -103,6 +118,10 @@ pub use rekor::{
     WitnessSignature, DEFAULT_BASE_URL, KEY_ID_LEN,
 };
 pub use report::{InclusionReport, QuorumReport, Sha256Report, SignatureReport};
+pub use sanitize::{
+    sanitize_gguf, sanitize_gguf_with_limits, Field, Limit, Rejection, SanitizeLimits,
+    SanitizeReport,
+};
 
 /// O relatório do pipeline de atestação, do core.
 ///

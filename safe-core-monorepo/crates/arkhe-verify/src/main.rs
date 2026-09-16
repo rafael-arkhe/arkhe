@@ -26,11 +26,22 @@
 //!
 //! | Gate | API real |
 //! |:---|:---|
+//! | sanitização (**Gate 0**) | `arkhe_verify::sanitize::sanitize_gguf` (`sanitize.rs:578`) |
 //! | cabeçalho | `arkhe_verify::gguf::parse_header` (`gguf.rs:192`) |
 //! | digest | `arkhe_verify::gguf::model_digest` (`gguf.rs:326`), comparado por `arkhe_verify::facade::verify_sha256` (`facade.rs:51`, ligado em `gguf.rs:415`) |
 //! | assinatura, inclusão, quórum | o pipeline de `arkhe_verify::gguf::verify_model_attestation` (`gguf.rs:395`), que delega a `arkhe_verify::facade::verify_attestation` (`facade.rs:155`) |
 //! | trust root | `TrustRoot::parse` (`arkhe-verify-wasm/src/encoding.rs:82`) |
 //! | consistência | **nenhuma** — não existe no core, e o gate diz isso |
+//!
+//! O gate da **sanitização** é o primeiro e é **exclusivo**: se ele recusar os
+//! bytes, nenhum outro gate corre. Não é uma preferência de ordenação — é o
+//! ponto do gate. A classe de vulnerabilidade que ele fecha é a de leitores que
+//! alocam ou leem com base em metadados declarados antes de confirmar que eles
+//! correspondem aos dados reais (seis CVEs: 2026-5757, 2026-86289, 2026-65315,
+//! 2026-7482, 2026-53923 e 2025-53630, na nota de `sanitize.rs`), e um gate
+//! construído sobre um parser já teria alocado quando chegasse a vez dele. Por
+//! isso, quando o Gate 0 recusa, o CLI reporta os restantes como **não
+//! avaliados** com o motivo — sem os invocar. Ver [`gate_0_refused_gates`].
 //!
 //! O gate da **consistência** é o caso em que o CLI reporta
 //! [`Status::Skipped`] com o motivo em vez de fingir sucesso: o core não tem um
@@ -75,6 +86,7 @@ use clap::Parser;
 use arkhe_verify::gguf::{
     model_digest, parse_header, verify_model_attestation, GgufAttestationReport,
 };
+use arkhe_verify::sanitize::{sanitize_gguf_with_limits, SanitizeLimits, SanitizeReport};
 use arkhe_verify::TrustRoot;
 
 /// Exit code de um erro de entrada (ficheiro, manifesto ou trust root).
@@ -236,6 +248,24 @@ fn run(args: &Args) -> Result<ExitCode> {
     let bytes = fs::read(&args.file)
         .with_context(|| format!("não foi possível ler o ficheiro `{}`", args.file.display()))?;
 
+    // **Gate 0 primeiro, e antes de tudo o resto.** O argumento é o de
+    // `sanitize.rs:8-24`: a validação tem de preceder qualquer leitura guiada
+    // pelos metadados, e é por isso que ela corre sobre os bytes crus e antes de
+    // o manifesto e o trust root serem sequer lidos. Um ficheiro recusado aqui
+    // não chega ao digest, nem à atestação, nem ao `TrustRoot::parse`.
+    //
+    // Os limites são construídos aqui e passados explicitamente — e não deixados
+    // no `sanitize_gguf` por omissão — para que o gate imprima os limites que de
+    // facto correram. Um CLI que imprimisse uma cópia deles poderia divergir da
+    // cópia que aplica.
+    let limits = SanitizeLimits::default();
+    let sanitize = sanitize_gguf_with_limits(&bytes, &limits);
+    if !sanitize.ok {
+        let gates = gate_0_refused_gates();
+        print_report(args, &bytes, &sanitize, &limits, None, None, &gates);
+        return Ok(ExitCode::from(EXIT_GATES));
+    }
+
     let trust_root = match &args.trust_root {
         Some(path) => {
             let json = fs::read_to_string(path).with_context(|| {
@@ -301,7 +331,15 @@ fn run(args: &Args) -> Result<ExitCode> {
         consistency_gate(),
     ];
 
-    print_report(args, &bytes, &trust_root, report.as_ref(), &gates);
+    print_report(
+        args,
+        &bytes,
+        &sanitize,
+        &limits,
+        Some(&trust_root),
+        report.as_ref(),
+        &gates,
+    );
 
     let failed = gates.iter().filter(|g| g.status == Status::Failed).count();
     let skipped = gates.iter().filter(|g| g.status == Status::Skipped).count();
@@ -316,11 +354,18 @@ fn run(args: &Args) -> Result<ExitCode> {
     Ok(ExitCode::from(EXIT_OK))
 }
 
-/// Imprime o relatório: o cabeçalho, os gates, o veredito do core e o resumo.
+/// Imprime o relatório: o cabeçalho, o Gate 0, os seis gates, o veredito do core
+/// e o resumo.
+///
+/// O `trust_root` é um `Option` porque há um caminho em que ele **não** é lido:
+/// quando o Gate 0 recusa o ficheiro, o CLI não chega a ler o ficheiro de chaves,
+/// e imprimir "0 chaves confiáveis" afirmaria uma leitura que não aconteceu.
 fn print_report(
     args: &Args,
     bytes: &[u8],
-    trust_root: &TrustRoot,
+    sanitize: &SanitizeReport,
+    limits: &SanitizeLimits,
+    trust_root: Option<&TrustRoot>,
     report: Option<&GgufAttestationReport>,
     gates: &[Gate],
 ) {
@@ -335,15 +380,25 @@ fn print_report(
         Some(path) => println!("manifesto:  {}", path.display()),
         None => println!("manifesto:  nenhum (sem --manifest)"),
     }
-    println!(
-        "trust root: {} chave(s) confiáveis{}",
-        trust_root.len(),
-        if args.trust_root.is_none() {
-            " (sem --trust-root)"
-        } else {
-            ""
-        }
-    );
+    match trust_root {
+        Some(trust_root) => println!(
+            "trust root: {} chave(s) confiáveis{}",
+            trust_root.len(),
+            if args.trust_root.is_none() {
+                " (sem --trust-root)"
+            } else {
+                ""
+            }
+        ),
+        None => println!(
+            "trust root: não lido — o Gate 0 recusou o ficheiro antes dos restantes gates"
+        ),
+    }
+    println!();
+
+    // O Gate 0 vem primeiro e fora da lista dos seis: ver a nota de
+    // [`print_gate_0`] sobre porque ele tem bloco próprio.
+    print_gate_0(sanitize, limits, args.verbose);
     println!();
 
     println!("gates:");
@@ -400,8 +455,18 @@ fn print_report(
 
     println!();
     println!(
-        "resumo: {passed} de {} gates passaram ({failed} falharam, {skipped} não avaliados)",
-        gates.len()
+        "resumo: {passed} de {} gates passaram ({failed} falharam, {skipped} não avaliados){}",
+        gates.len(),
+        if sanitize.ok {
+            // O Gate 0 não entra na conta dos seis (ver a nota de
+            // [`print_gate_0`]), então o veredito dele é dito aqui — um resumo
+            // que dissesse só "0 de 6" num ficheiro recusado esconderia a razão
+            // do exit code.
+            "; Gate 0: passou"
+        } else {
+            "; Gate 0: RECUSADO — e é a recusa dele que impede os seis de correrem e que dá o exit code. \
+             Nenhum dos seis deu negativo: nenhum foi invocado."
+        }
     );
 
     let non_passed: Vec<&Gate> = gates
@@ -439,6 +504,145 @@ fn print_report(
              mesmo sem --strict; --strict é o que trata os {skipped} gate(s) não avaliados como falha também."
         );
     }
+}
+
+/// O resumo de um gate que não correu porque o Gate 0 recusou o ficheiro.
+const NOT_RUN_AFTER_GATE_0: &str = "não avaliado: o Gate 0 recusou o ficheiro antes deste gate";
+
+/// O motivo, por extenso, de um gate não ter corrido depois de o Gate 0 recusar.
+const NOT_RUN_AFTER_GATE_0_REASON: &str =
+    "o Gate 0 (sanitização) recusou os metadados deste ficheiro, e a recusa acontece antes dos \
+     restantes gates — nada mais corre sobre bytes cuja estrutura declarada não foi validada. O \
+     cabeçalho não é relido (é o Gate 0 que o lê), o digest SHA-256 não é calculado, o manifesto e \
+     o trust root não são lidos e o pipeline da atestação não é invocado. Os gates de assinatura, \
+     inclusão e quórum não ficam por isso \"não passados\": ficam **não avaliados**, que é o que de \
+     facto aconteceu.";
+
+/// Os seis gates de um ficheiro que o Gate 0 recusou: **todos** não avaliados.
+///
+/// Nenhuma função dos seis é invocada — não é só a ordem da lista, é a ausência
+/// da chamada. Construído aqui em vez de no `run` para que a decisão fique num só
+/// sítio, com o motivo escrito uma vez.
+fn gate_0_refused_gates() -> Vec<Gate> {
+    let not_run = |name: &'static str| {
+        Gate::skipped(name, NOT_RUN_AFTER_GATE_0, NOT_RUN_AFTER_GATE_0_REASON)
+    };
+    vec![
+        not_run("cabeçalho"),
+        not_run("digest"),
+        not_run("assinatura"),
+        not_run("inclusão"),
+        not_run("quórum"),
+        not_run("consistência"),
+    ]
+}
+
+/// Imprime o **Gate 0**: `arkhe_verify::sanitize::sanitize_gguf_with_limits`
+/// (`sanitize.rs:590`).
+///
+/// # Porque ele é um bloco e não uma linha da lista dos seis gates
+///
+/// O Gate 0 é o que decide se os outros correm, e o relatório diz isso na
+/// primeira linha depois do cabeçalho. Mas ele **não** entra na lista dos seis
+/// nem no `resumo: N de 6 gates passaram`, e a razão não é estética: o contrato
+/// do resumo de seis gates está fixado nos testes que já existiam
+/// (`tests/cli_test.rs:243`, `:392`, `:403` — o `1 de 6`, o `5 de 6` e a contagem
+/// de marcas `[ ok ]`), e este trabalho não altera testes pré-existentes. O
+/// Gate 0 tem também mais a dizer do que cabe numa linha: dois orçamentos
+/// independentes, os limites que correram e o layout que ele localizou. O
+/// veredito dele tem vocabulário próprio (`passou`/`RECUSADO`) justamente para
+/// não ser confundido com uma das seis marcas.
+///
+/// O que ele mede não é o conteúdo do modelo — é se a estrutura que o ficheiro
+/// **declara** cabe nos bytes que ele **tem**, antes de qualquer alocação
+/// guiada por essa declaração. Um veredito positivo aqui não diz nada sobre o
+/// modelo; um negativo diz que não se deve ler mais nada dele.
+///
+/// `limits` é o que o `run` passou ao Gate 0: o bloco imprime os limites que
+/// correram, não uma cópia deles numa frase.
+fn print_gate_0(report: &SanitizeReport, limits: &SanitizeLimits, verbose: bool) {
+    println!("Gate 0 — sanitização dos metadados (corre antes dos gates abaixo):");
+    if report.ok {
+        println!(
+            "  passou: 0 limites excedidos — {} pares chave-valor e {} tensor(es) percorridos, \
+             {} byte(s) de metadados lidos e {} descodificados",
+            report.kv_pairs_walked,
+            report.tensors_walked,
+            report.metadata_bytes,
+            report.decoded_metadata_bytes,
+        );
+    } else {
+        println!(
+            "  RECUSADO: {}",
+            report
+                .rejection
+                .as_ref()
+                .map(ToString::to_string)
+                .unwrap_or_else(|| "recusado sem causa reportada".to_string())
+        );
+    }
+
+    if !verbose {
+        return;
+    }
+
+    println!(
+        "              versão: {} (o mesmo leitor do gate `cabeçalho`: \
+         `arkhe_verify::gguf::parse_header`)",
+        field(report.version)
+    );
+    println!(
+        "              orçamentos: {} byte(s) lidos do ficheiro (máx {}), {} descodificados (máx {})",
+        report.metadata_bytes,
+        limits.max_metadata_size,
+        report.decoded_metadata_bytes,
+        limits.max_decoded_metadata_size,
+    );
+    println!(
+        "              percurso: {} de {} pares chave-valor, {} de {} tensor(es)",
+        report.kv_pairs_walked,
+        field(report.declared_kv_count),
+        report.tensors_walked,
+        field(report.declared_tensor_count),
+    );
+    println!(
+        "              secção de dados: início {}, {} byte(s) disponíveis, maior deslocamento de \
+         tensor declarado {}",
+        field(report.data_offset),
+        field(report.data_bytes_available),
+        field(report.max_tensor_offset),
+    );
+    println!(
+        "              aninhamento de arrays: máximo {} (limite {})",
+        report.max_array_nesting_seen, limits.max_array_nesting,
+    );
+    println!(
+        "              limites: max_string_len={}, max_array_elements={}, max_array_nesting={}, \
+         max_kv_pairs={}, max_tensor_count={}, max_tensor_dims={}, max_tensor_dim_value={}, \
+         max_metadata_size={} B, max_decoded_metadata_size={} B",
+        limits.max_string_len,
+        limits.max_array_elements,
+        limits.max_array_nesting,
+        limits.max_kv_pairs,
+        limits.max_tensor_count,
+        limits.max_tensor_dims,
+        limits.max_tensor_dim_value,
+        limits.max_metadata_size,
+        limits.max_decoded_metadata_size,
+    );
+    println!(
+        "              fonte: arkhe_verify::sanitize::sanitize_gguf_with_limits \
+         (crates/arkhe-verify/src/sanitize.rs:590), invocado com SanitizeLimits::default() \
+         (sanitize.rs:227). O percurso é sobre os bytes crus: cada fim de campo passa por \
+         `usize::try_from`/`checked_add`/`checked_mul`, e nenhum valor declarado é usado como \
+         capacidade de alocação (sanitize.rs:63-74)."
+    );
+    println!(
+        "              não medido por este bloco: a extensão dos dados dos tensores. O tamanho em \
+         bytes de um tensor depende da tabela de tipos GGML do `llama.cpp`, que não vive neste \
+         crate — o que o Gate 0 valida é o deslocamento declarado de cada tensor contra os bytes da \
+         secção de dados (sanitize.rs:48-62)."
+    );
 }
 
 /// O gate do cabeçalho: `arkhe_verify::gguf::parse_header` (`gguf.rs:192`).
