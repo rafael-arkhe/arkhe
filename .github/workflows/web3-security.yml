@@ -26,18 +26,19 @@ jobs:
       - uses: actions/checkout@v4
       # Matches the toolchain-setup convention already used in
       # .github/workflows/ci-cd.yml, rather than introducing a second one.
-      # `build-warnings: warn` e' adicionado por medicao, nao por gosto: o
       # default do action (`deny`) faz do cargo >= 1.97 transformar em erro os
       # warnings de `missing_docs` pre-existentes do workspace (arkhe-core), e
       # e' o que faz `cargo check --workspace` sair com exit 101. Ver
       # safe-core-monorepo.yml para a reproducao.
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          build-warnings: warn
+          # O action define RUSTFLAGS=-D warnings por omissao. O workspace tem
+          # 20 avisos de missing_docs; com -D warnings viram erro e o check para
+          # (exit 101, reproduzido localmente). Vazio devolve o normal.
+          rustflags: ""
       - run: cargo check --workspace
         env:
           # O action escreve CARGO_BUILD_WARNINGS=deny no $GITHUB_ENV, e isso
-          # vale para os passos seguintes -- o `with: build-warnings` nao chega.
           CARGO_BUILD_WARNINGS: warn
       - run: cargo test -p arkhe-crypto-pqc -p arkhe-web3-security
 

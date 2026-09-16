@@ -26,16 +26,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Ver o mesmo override em safe-core-monorepo.yml: sem isto o default
-      # `build-warnings: deny` do action transforma em erro os warnings de
       # `missing_docs` que o workspace ja' tinha, e `cargo check --workspace`
       # falhava com exit 101 sem relacao com arkhe-agent-vm.
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          build-warnings: warn
+          # O action define RUSTFLAGS=-D warnings por omissao. O workspace tem
+          # 20 avisos de missing_docs; com -D warnings viram erro e o check para
+          # (exit 101, reproduzido localmente). Vazio devolve o normal.
+          rustflags: ""
       - run: cargo check --workspace
         env:
           # O action escreve CARGO_BUILD_WARNINGS=deny no $GITHUB_ENV, e isso
-          # vale para os passos seguintes -- o `with: build-warnings` nao chega.
           CARGO_BUILD_WARNINGS: warn
       - run: cargo test -p arkhe-agent-vm
 

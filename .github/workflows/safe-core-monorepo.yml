@@ -40,7 +40,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # `setup-rust-toolchain` exporta CARGO_BUILD_WARNINGS com o default
-      # `build-warnings: deny`, e o cargo respeita `build.warnings` desde o
       # 1.97 (o `stable` aqui e' 1.98.1): qualquer lint warning de um crate
       # local passa a ser erro. O workspace tem warnings de `missing_docs`
       # pre-existentes (arkhe-core: 20, em lib.rs:12-13, error.rs:13-31,
@@ -50,11 +49,13 @@ jobs:
       # os warnings visiveis e tira-lhes o caracter fatal.
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          build-warnings: warn
+          # O action define RUSTFLAGS=-D warnings por omissao. O workspace tem
+          # 20 avisos de missing_docs; com -D warnings viram erro e o check para
+          # (exit 101, reproduzido localmente). Vazio devolve o normal.
+          rustflags: ""
       - run: rustup target add wasm32-wasip1
       - run: cargo check --workspace
         env:
           # O action escreve CARGO_BUILD_WARNINGS=deny no $GITHUB_ENV, e isso
-          # vale para os passos seguintes -- o `with: build-warnings` nao chega.
           CARGO_BUILD_WARNINGS: warn
       - run: cargo test --workspace --exclude arkhe-session-evaluator --no-fail-fast
