@@ -89,12 +89,28 @@ jobs:
             --signature arkhe.gguf.sig \
             --identity_token "$IDTOKEN"
           ls -l arkhe.gguf.sig
+      # Mede o SAN da identidade que assinou, em vez de o assumir.
+      # Corre ANTES da verificacao, e imprime o valor que o certificado
+      # realmente carrega -- assim a proxima execucao corrige a hipotese
+      # sozinha, em vez de falhar sem dizer qual era o valor certo.
+      - name: Descobrir a identidade real do certificado
+        run: |
+          cd model
+          python - <<PY
+          import json, base64, re
+          b = json.load(open("arkhe.gguf.sig"))
+          cert = b["verificationMaterial"]["x509CertificateChain"]["certificates"][0]["rawBytes"]
+          der = base64.b64decode(cert)
+          achados = [m.decode(errors="replace") for m in re.findall(rb"https://[ -~]+?@[ -~]+", der)]
+          print("SAN no certificado:", achados[:5])
+          print("workflow_ref do runner:", __import__("os").environ.get("GITHUB_WORKFLOW_REF"))
+          PY
       - name: Verificar o roundtrip
         run: |
           cd model
           model_signing verify sigstore arkhe.gguf \
             --signature arkhe.gguf.sig \
-            --identity "${{ github.workflow_ref }}" \
+            --identity "https://github.com/${{ github.workflow_ref }}" \
             --identity-provider "https://token.actions.githubusercontent.com"
 
       - name: Publicar o bundle
