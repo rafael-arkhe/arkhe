@@ -82,6 +82,16 @@ jobs:
       # - name: Testes de stories (addon-vitest)
       #   run: npx vitest run --project=storybook
 
+      # O webServer do playwright.config.ts serve `storybook-static/`
+      # (`npx http-server storybook-static -p 6006`). Esse directório e' saída de
+      # build e está no .gitignore: nenhum passo o produzia, e sem ele o
+      # http-server arranca mas responde 404 na URL do webServer — o Playwright
+      # só aceita 2xx–403 e desiste com
+      # "Error: Timed out waiting 60000ms from config.webServer" (medido: 404 sem
+      # o directório, 200 com ele). Build obrigatório antes do e2e.
+      - name: Construir o Storybook estático que o e2e serve
+        run: npm run build-storybook
+
       - name: Instalar browsers do Playwright
         run: npx playwright install --with-deps
 
