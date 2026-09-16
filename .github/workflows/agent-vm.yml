@@ -35,9 +35,6 @@ jobs:
           # (exit 101, reproduzido localmente). Vazio devolve o normal.
           rustflags: ""
       - run: cargo check --workspace
-        env:
-          # O action escreve CARGO_BUILD_WARNINGS=deny no $GITHUB_ENV, e isso
-          CARGO_BUILD_WARNINGS: warn
       - run: cargo test -p arkhe-agent-vm
 
   lean-check:

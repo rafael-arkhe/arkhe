@@ -39,7 +39,6 @@ jobs:
         working-directory: safe-core-monorepo
     steps:
       - uses: actions/checkout@v4
-      # `setup-rust-toolchain` exporta CARGO_BUILD_WARNINGS com o default
       # 1.97 (o `stable` aqui e' 1.98.1): qualquer lint warning de um crate
       # local passa a ser erro. O workspace tem warnings de `missing_docs`
       # pre-existentes (arkhe-core: 20, em lib.rs:12-13, error.rs:13-31,
@@ -55,7 +54,4 @@ jobs:
           rustflags: ""
       - run: rustup target add wasm32-wasip1
       - run: cargo check --workspace
-        env:
-          # O action escreve CARGO_BUILD_WARNINGS=deny no $GITHUB_ENV, e isso
-          CARGO_BUILD_WARNINGS: warn
       - run: cargo test --workspace --exclude arkhe-session-evaluator --no-fail-fast
