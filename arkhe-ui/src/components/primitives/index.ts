@@ -28,3 +28,8 @@ export {
   iconButtonVariants,
   type IconButtonProps,
 } from './IconButton';
+export {
+  StatusBadge,
+  statusBadgeVariants,
+  type StatusBadgeProps,
+} from './StatusBadge';
