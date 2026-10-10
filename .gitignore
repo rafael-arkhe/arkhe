@@ -131,3 +131,4 @@ arkhe-ui/src/lib/*
 # execucao -- foi isso que fez o pin do wasm-bindgen apodrecer (0.2.114 no CI,
 # 0.2.126 no lock local, 0.2.128 resolvido no runner).
 !safe-core-monorepo/Cargo.lock
+venv/
