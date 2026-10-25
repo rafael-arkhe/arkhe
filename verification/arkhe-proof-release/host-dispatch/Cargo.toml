@@ -1,0 +1,9 @@
+[package]
+name = "arkhe-host-dispatch"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[dependencies]
+arkhe-kernel = { path = "../kernel/arkhe-kernel", features = ["sqlite-broker"] }
+arkhe-governance = { path = "../governance/arkhe-governance" }
+arkhe-verify-core = { path = "../verification/crates/arkhe-verify-core" }

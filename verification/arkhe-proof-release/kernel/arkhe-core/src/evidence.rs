@@ -14,6 +14,14 @@ pub struct EvidenceEnvelope {
 
 #[async_trait]
 pub trait EvidenceReader: Send + Sync {
+    /// Untrusted signed-policy JSON keyed by the exact legacy WER. The kernel
+    /// independently validates signatures, policy and legacy parameter bindings.
+    async fn authenticated_policy_request(
+        &self,
+        _worker: Digest32,
+    ) -> Result<Option<Vec<u8>>, String> {
+        Ok(None)
+    }
     async fn get(&self, record_hash: Digest32) -> Result<Option<EvidenceEnvelope>, String>;
 
     /// Opt-in untrusted transport. A required predicate with no proof fails closed.

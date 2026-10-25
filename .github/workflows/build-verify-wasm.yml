@@ -1,7 +1,7 @@
 name: Verified Arkhe WASM and policy release
 on:
   push:
-    branches: ['codex/verified-wasm-policy-20261025']
+    branches: ['codex/verified-wasm-policy-20261025', 'codex/legacy-journal-20261025']
     paths:
       - 'verification/arkhe-proof-release/**'
       - '.github/workflows/build-verify-wasm.yml'
@@ -35,6 +35,10 @@ jobs:
           mkdir -p artifacts
           export ARKHE_POLICY_VECTORS_OUT="$PWD/artifacts/policy-vectors.json"
           cargo test --locked -p arkhe-verify-core --test policy_compatibility --test policy_adversarial 2>&1 | tee artifacts/policy-tests.txt
+      - name: Legacy dispatch atomicity, crash recovery and replay
+        run: |
+          cargo check --locked -p arkhe-host-dispatch 2>&1 | tee artifacts/host-dispatch-check.txt
+          cargo test --locked -p arkhe-kernel --features sqlite-broker --test authenticated_dispatch --test broker_durable --test action_broker 2>&1 | tee artifacts/legacy-journal-tests.txt
       - name: Build actual production verifier WASM
         run: |
           cargo build --locked --release --target wasm32-unknown-unknown -p arkhe-verify-wasm 2>&1 | tee artifacts/wasm-build.txt

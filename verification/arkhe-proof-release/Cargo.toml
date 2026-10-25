@@ -1,6 +1,6 @@
 [workspace]
 resolver="2"
-members=["kernel/arkhe-core", "integration/auth-md", "verification/crates/arkhe-verify-core", "verification/crates/arkhe-verify-wasm"]
+members=["kernel/arkhe-core", "integration/auth-md", "verification/crates/arkhe-verify-core", "verification/crates/arkhe-verify-wasm", "kernel/arkhe-kernel", "governance/arkhe-governance", "cognition/arkhe-agent", "cognition/arkhe-cognition-sdk", "host-dispatch"]
 
 [workspace.package]
 edition = "2021"

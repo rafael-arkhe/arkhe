@@ -1,0 +1,10 @@
+[package]
+name = "arkhe-governance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+arkhe-core = { path = "../../kernel/arkhe-core" }
+arkhe-verify-core = { path = "../../verification/crates/arkhe-verify-core" }
+serde.workspace = true

@@ -11,11 +11,63 @@
     },
     {
       "path": "Cargo.lock",
-      "sha256": "cadc6dc4d7145c148d34e226a121564e09945d84d0f71aaf12d7533c7bc8b73e"
+      "sha256": "09d17299d6eceb72930d1beb1cdcb043b573dd1c04ad98e52a4caf0a25e3c17c"
     },
     {
       "path": "Cargo.toml",
-      "sha256": "4e49f790572ce7e85276a1f42b39ac41ad4b3d4a9b0f519e3337b6b5fae6b7d8"
+      "sha256": "d8716dceced2636aac9219bbd5d3f6d5a689c68dc744ef4245883c1a66ec77ad"
+    },
+    {
+      "path": "cognition/arkhe-agent/Cargo.toml",
+      "sha256": "020e5f86dbac50140f365fb07662cba6485b4b92987fa5f0ad1cb247629e6d58"
+    },
+    {
+      "path": "cognition/arkhe-agent/src/bin/arkhe-eval-worker.rs",
+      "sha256": "0c8634738577713641ea6064b87a24abccc2e415485d5203ee46b3611c155a87"
+    },
+    {
+      "path": "cognition/arkhe-agent/src/budget_pco.rs",
+      "sha256": "54049d9ddb73d2b9eb368a57e609bd33c803716a4d0df328d3c442ce2e35ffc9"
+    },
+    {
+      "path": "cognition/arkhe-agent/src/eval_learning.rs",
+      "sha256": "c0e9200b152412cc73dfc6d88d6efa3c2f2328d28fa29a46376347e26b382771"
+    },
+    {
+      "path": "cognition/arkhe-agent/src/lib.rs",
+      "sha256": "425d05ca3817f616ffa063b279cf444de6ef66a0621a0b135e3299c15f4971fe"
+    },
+    {
+      "path": "cognition/arkhe-agent/src/license_pco.rs",
+      "sha256": "378a9ca9132d1b52417e0b4eb7b173d70d4af29e6c0fedadaaf1bc58b928829e"
+    },
+    {
+      "path": "cognition/arkhe-cognition-sdk/Cargo.toml",
+      "sha256": "9e99dcae6184b9f14995930f8e10022310f6bd5f206902381ef2c044a0758556"
+    },
+    {
+      "path": "cognition/arkhe-cognition-sdk/src/lib.rs",
+      "sha256": "53264e30d9cf716f5ea88729bb7588c04b078493ceca60267984469e4d53c1a1"
+    },
+    {
+      "path": "governance/arkhe-governance/Cargo.toml",
+      "sha256": "55ab4ce82e377b512fe8f6cb2171c308d06ba27b42857eef90c55404412e14f7"
+    },
+    {
+      "path": "governance/arkhe-governance/src/authenticated.rs",
+      "sha256": "aecb55ada1acaed1792d89d8316aea8ca5ccf385f176167c46b87889017ba13f"
+    },
+    {
+      "path": "governance/arkhe-governance/src/lib.rs",
+      "sha256": "1ee682f20354e3ad9d952107f9d71a2925abf805382af2aa88659fa1f95e577b"
+    },
+    {
+      "path": "host-dispatch/Cargo.toml",
+      "sha256": "7f36d97d3b7779bc2f087b4eeedb0f8654bc516a94cc51fb693d824539347d9d"
+    },
+    {
+      "path": "host-dispatch/src/lib.rs",
+      "sha256": "79310f6cbab70488a7310d2a21ac5c7ec20418f015aac948707e15e2badcf99e"
     },
     {
       "path": "integration/auth-md/Cargo.toml",
@@ -59,7 +111,7 @@
     },
     {
       "path": "kernel/arkhe-core/src/evidence.rs",
-      "sha256": "fd742f1c7b087136b9e6f0eef195a3746597c804e2de44ac47c9614969a38b5a"
+      "sha256": "62eb1ee0421d9e9cbb6224cd4e55b54bed5afc900a5d0b7ad3c30be87c526b78"
     },
     {
       "path": "kernel/arkhe-core/src/formal_proof.rs",
@@ -84,6 +136,38 @@
     {
       "path": "kernel/arkhe-core/src/worker.rs",
       "sha256": "7e679effa2fd942c89f11b6e58b280c8d7871dadda546fa690ae800e2645086c"
+    },
+    {
+      "path": "kernel/arkhe-kernel/Cargo.toml",
+      "sha256": "43dabc8759f801662c566dc8e373b62fa3102247992c21ed7aabcc6d41a5bf19"
+    },
+    {
+      "path": "kernel/arkhe-kernel/src/authenticated_transport.rs",
+      "sha256": "f5488054d8f39a23291b0474201aac3ca1bcb160d8fbe78f4767e75a0649e162"
+    },
+    {
+      "path": "kernel/arkhe-kernel/src/broker.rs",
+      "sha256": "6ff8252796971ccf4fde8bdd504f1644997a1a6b1b63ba4328a8055cb1c176c8"
+    },
+    {
+      "path": "kernel/arkhe-kernel/src/broker_sqlite.rs",
+      "sha256": "4bb7e1f4be021f2b2e7614b29f163456452dfaf3e35dc30f04a41ffa5d9e3ed3"
+    },
+    {
+      "path": "kernel/arkhe-kernel/src/lib.rs",
+      "sha256": "898cce4a9fe628f87ff0e89afa5158382042c93b11ca2da8164b459e856595e1"
+    },
+    {
+      "path": "kernel/arkhe-kernel/tests/action_broker.rs",
+      "sha256": "ea18db8dba8b6d0804b9e9490a09f33991de8cdfe77cc71066d9c878b4fe01cc"
+    },
+    {
+      "path": "kernel/arkhe-kernel/tests/authenticated_dispatch.rs",
+      "sha256": "d88afe2f3d7b0c6db5d273520efbd994419b81bdb5eab8e42beb529803ba66dd"
+    },
+    {
+      "path": "kernel/arkhe-kernel/tests/broker_durable.rs",
+      "sha256": "b2a37711f31d87d3915c3e1ca372b383af8f11764ae2b28fd5fbc0845d04389f"
     },
     {
       "path": "loader/.gitignore",
@@ -171,7 +255,19 @@
     },
     {
       "path": "README.md",
-      "sha256": "79913998fb7a546bcb8c8725e552f26b04ab72209108346cb42e77766b1da45d"
+      "sha256": "5ea06d5a4cf944414548811ad08e2ae4854282c1a0437942c95afade7226530d"
+    },
+    {
+      "path": "runtime-reference/Cargo.toml",
+      "sha256": "6a5978df7a618808d1198228e7713641e338773e080711f4d04f209dcefeed5b"
+    },
+    {
+      "path": "runtime-reference/src/authenticated_dispatch.rs",
+      "sha256": "79310f6cbab70488a7310d2a21ac5c7ec20418f015aac948707e15e2badcf99e"
+    },
+    {
+      "path": "runtime-reference/src/lib.rs",
+      "sha256": "9cffd49c801e3be915892afd25fd5bd62ce3166aa94940ee700a6771cee2c9d3"
     },
     {
       "path": "rust-toolchain.toml",
@@ -271,7 +367,7 @@
     },
     {
       "path": "verification/crates/arkhe-verify-core/src/policy.rs",
-      "sha256": "bc9cd2d3b21ac37804ffce53238f9bbec288376fc668579dd4cfe23b9abe1fc1"
+      "sha256": "71afcbe82151e9ac422c79b1ce5c3b22829344aa1f025949765809800540e41e"
     },
     {
       "path": "verification/crates/arkhe-verify-core/src/reconciliation.rs",
