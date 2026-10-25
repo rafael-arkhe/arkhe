@@ -31,10 +31,37 @@ root directory is trusted host configuration; never trust a root supplied solely
 by an unverified bundle. The Rust 0.6.6 TUF acquisition path failed locally; the
 workflow deliberately uses Cosign's TUF client instead, without bypassing checks.
 
-Scope limits: this profile does not replace existing legacy governance policies
-automatically, consume operation nonces, provide journal atomicity, certify SLSA
-levels, or prove universal policy compatibility. The loaded binary, its build,
-host trust configuration and dispatcher remain part of the trust boundary.
+Legacy integration: the production runtime factory wraps the existing resolver
+with an operator-configured authenticated context. Existing admission and broker
+calls then require the signed request, bind its principal, worker, operation,
+canonical parameters and policy to the legacy intent, and preserve the original
+governance requirements. `AuthenticatedEvidence` transports untrusted proof bytes;
+it grants no authority. Executors must implement `execute_authenticated` and use
+the verified typed action; the default refuses execution. The `host-dispatch`
+package compiles the exact factory source from the runtime; it is not the entire
+runtime HTTP service.
+
+The SQLite journal atomically consumes the caller nonce with the operation
+reservation. Completed operations replay their saved receipt. In the local SQL
+path, effect, receipt, reservation and nonce commit in one transaction, or all
+roll back, including on panic. The callback is trusted to perform local SQL only.
+For external effects, the reservation is durable before dispatch. Error, panic,
+abrupt process exit or receipt-write failure leaves `UNCERTAIN`; restart refuses
+redispatch and requires reconciliation. This is not an atomic transaction with
+an external provider and does not promise exactly-once provider execution.
+
+Enable `sqlite-dispatch` in the full runtime and construct its authenticated
+factory using trusted operator registries/policy, a durable database path and an
+adapted executor. Existing callers without that configured resolver retain their
+legacy profile; no live deployment is changed by this snapshot. The authenticated
+AP2 payment path refuses dispatch until closed-mandate and nonce consumption can
+be combined. SLSA levels and universal compatibility remain outside this evidence.
+The loader binary, build, host configuration and dispatcher remain trusted.
+
+The journal suite includes a real subprocess exiting with code 86 after a synced
+external-effect marker, concurrent independent connections, restart/replay,
+nonce reuse, parameter mismatch and SQL rollback. Its ignored child test is
+invoked explicitly by the parent crash test; it is not missing coverage.
 
 Artifacts contain the actual WASM, bundle, captured trust, source/run/commit
 metadata and observed native/WASM test results. Check the workflow conclusion;

@@ -7,6 +7,33 @@ use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub type Hash = [u8; 32];
+
+/// Migrated executors receive this exact typed action, not independent parameters.
+pub fn legacy_parameters_digest(action: &Action) -> arkhe_core::Digest32 {
+    arkhe_core::Digest32::blake3(
+        b"AKG:LEGACY:POLICY:PARAMETERS:v1\0",
+        &action.canonical_bytes(),
+    )
+}
+pub fn verify_legacy(
+    request: &Request,
+    ctx: &Context,
+    intent: &arkhe_core::work::WorkIntent,
+    worker: &arkhe_core::worker::WorkerExecutionRecord,
+    binding: arkhe_core::Digest32,
+) -> Result<(), String> {
+    evaluate(request, ctx).map_err(|e| e.to_string())?;
+    if request.signed_intent.intent.principal_id != intent.requested_by
+        || request.action.operation_id != intent.operation_id().to_hex()
+        || request.action.module_id != worker.module_id
+        || request.action.module_version != worker.module_version
+        || legacy_parameters_digest(&request.action) != intent.parameters_digest
+        || binding.0 != ctx.policy.digest()
+    {
+        return Err("authenticated action does not bind legacy intent/worker/policy".into());
+    }
+    Ok(())
+}
 fn hash(bytes: &[u8]) -> Hash {
     Sha256::digest(bytes).into()
 }
