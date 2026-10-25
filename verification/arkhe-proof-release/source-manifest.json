@@ -1,0 +1,313 @@
+{
+  "source": "D:/arkhe reviewed source snapshot",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "sha256": "4c6b9b2e3a93a8068801cb3f6d1e55f057e9b598bf97da0664b45e5a39dcca3f"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "16c5b9916733023034db21a55eb71ad69e32c51b3b3fc9c6bbe97e02a1fdfcad"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "cadc6dc4d7145c148d34e226a121564e09945d84d0f71aaf12d7533c7bc8b73e"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "4e49f790572ce7e85276a1f42b39ac41ad4b3d4a9b0f519e3337b6b5fae6b7d8"
+    },
+    {
+      "path": "integration/auth-md/Cargo.toml",
+      "sha256": "e8dcce11de5fbb0d4a661d3b40ebfc3ad8fb596476c229d2451a3a96787c3bac"
+    },
+    {
+      "path": "integration/auth-md/src/claims.rs",
+      "sha256": "90145725830642790ebb03da82bc1941625beb496291f88d55fce777bc4cb3dc"
+    },
+    {
+      "path": "integration/auth-md/src/lib.rs",
+      "sha256": "94a5226e914cefb26e7fca964fa5280b8104d7c552e083414587b034a6e784d8"
+    },
+    {
+      "path": "integration/auth-md/src/protocol.rs",
+      "sha256": "69bce49c834123ce91a9e23f3221a3899446abb9585c789f8aee0d3001702d58"
+    },
+    {
+      "path": "integration/auth-md/src/service.rs",
+      "sha256": "19c8a84a329cfef541ff0669eb7da7da39ffbb88415a6d8c3109d705bcdafb39"
+    },
+    {
+      "path": "integration/auth-md/src/token.rs",
+      "sha256": "a3e9787652f9afa6ee2bd160d9b1b95afda0a34eda73ff2da211c0447b7e9272"
+    },
+    {
+      "path": "kernel/arkhe-core/Cargo.toml",
+      "sha256": "0401d7d516b88eebaa1627cbc0564d514a253c25007c97d8288f8c4ab4a9f773"
+    },
+    {
+      "path": "kernel/arkhe-core/src/canonical.rs",
+      "sha256": "668629c6c466a2707f93dabbeac8129bd3937de8753606a35aa33efae3a7f15d"
+    },
+    {
+      "path": "kernel/arkhe-core/src/digest.rs",
+      "sha256": "d338b847a10cd3e98ec98f86e5ef4c2eda72ee980f901e03cc238940694e491a"
+    },
+    {
+      "path": "kernel/arkhe-core/src/error.rs",
+      "sha256": "cc59eb3780b5c0f6df91c40b8f03e1c4104a38e2c770fa91940b00705bc059d2"
+    },
+    {
+      "path": "kernel/arkhe-core/src/evidence.rs",
+      "sha256": "fd742f1c7b087136b9e6f0eef195a3746597c804e2de44ac47c9614969a38b5a"
+    },
+    {
+      "path": "kernel/arkhe-core/src/formal_proof.rs",
+      "sha256": "9b3de8fc208baef17c8105f394f4901f933c3e8a44e767ff0e7d9786d0308596"
+    },
+    {
+      "path": "kernel/arkhe-core/src/lib.rs",
+      "sha256": "ede94a9b8bffef3da18568431911965f9c6fe6419840f1c9d2aaa791158479e3"
+    },
+    {
+      "path": "kernel/arkhe-core/src/output_proof.rs",
+      "sha256": "72ed9dfa1bc2fef19a458ec09b34b17cd2c068a72a0f7a4c035cbf1d382f32eb"
+    },
+    {
+      "path": "kernel/arkhe-core/src/review.rs",
+      "sha256": "8e3b2c9cafebd5876dd40dfa346e38a74cfc0ed03f5166a34ebd82a3771c06da"
+    },
+    {
+      "path": "kernel/arkhe-core/src/work.rs",
+      "sha256": "6df1dc7eada12c589b6bbccdd7d993af48a7147ba818f34f63bec2cf9500b27f"
+    },
+    {
+      "path": "kernel/arkhe-core/src/worker.rs",
+      "sha256": "7e679effa2fd942c89f11b6e58b280c8d7871dadda546fa690ae800e2645086c"
+    },
+    {
+      "path": "loader/.gitignore",
+      "sha256": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368"
+    },
+    {
+      "path": "loader/build.rs",
+      "sha256": "97fd036e1609a1fda044cbc5a6ebec255e4ce4f7edbdd65dc7eb5680f8c5896f"
+    },
+    {
+      "path": "loader/Cargo.lock",
+      "sha256": "c953244fa1a6c31b99d5d85c8643e642d26bc009d87c7fdffe839b5eecdef514"
+    },
+    {
+      "path": "loader/Cargo.toml",
+      "sha256": "d7af307d9b10f5139f26d9a38174ec1c8f11151f62064be0a619168586e70c54"
+    },
+    {
+      "path": "loader/fixtures/arkhe_verify.wasm",
+      "sha256": "ccf59f0f7a7625ee380ed228905aadfa11072ac14cea1c53d1e7f3953d4d48c6"
+    },
+    {
+      "path": "loader/fixtures/arkhe_verify.wasm.bundle.json",
+      "sha256": "2661e7c6f3baec3069d39b08d6c3a0bc48b57e76baf4daaece0184ff40174740"
+    },
+    {
+      "path": "loader/fixtures/other.wasm",
+      "sha256": "e159e0902ff2c98470ddd66f6df3faa05bf0655de3d58fa0b2bd561f55a2dd43"
+    },
+    {
+      "path": "loader/fixtures/other.wasm.bundle.json",
+      "sha256": "3cce9eee313693df3615f6fe046e19b82d440c45d5e63c7e488abec24a991f4b"
+    },
+    {
+      "path": "loader/fixtures/public-cosign/artifact.txt",
+      "sha256": "e194b99df6639501325c5f44da79fe3a8efae6f239bd79443a19787e06fb1764"
+    },
+    {
+      "path": "loader/fixtures/public-cosign/bundle.json",
+      "sha256": "f7afd1c87706839b6ac19974ce23e47c4988c22807791e8257734202308923ec"
+    },
+    {
+      "path": "loader/fixtures/public-cosign/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "loader/fixtures/public-cosign/trusted_root.json",
+      "sha256": "6494e21ea73fa7ee769f85f57d5a3e6a08725eae1e38c755fc3517c9e6bc0b66"
+    },
+    {
+      "path": "loader/fixtures/trust-policy.json",
+      "sha256": "a057f0f137a7b45fe537249e2328b109e04625c89f56a876cd62b51c8ddbc87a"
+    },
+    {
+      "path": "loader/fixtures/trusted_root.json",
+      "sha256": "583cc77c3a08b4b6d1685d50a7bfc97569e013d9db8a28de365bdad5e3e4aeb7"
+    },
+    {
+      "path": "loader/rust-toolchain.toml",
+      "sha256": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+    },
+    {
+      "path": "loader/src/bin/release.rs",
+      "sha256": "48cfee4ee285ce8521545c00ca8b0a4da8f30d0af8d571fb181970e47fa8aa78"
+    },
+    {
+      "path": "loader/src/lib.rs",
+      "sha256": "b166125814860884b85c139067595ab74a231fc1c6a72e707f710028b7087c78"
+    },
+    {
+      "path": "loader/src/production.rs",
+      "sha256": "248c0e6cb601a363d51fa84968fecc7ab39241309346c98ca7d6d81ea920e1e1"
+    },
+    {
+      "path": "loader/tests/negative.rs",
+      "sha256": "660cbeea55f29db32fbe3db4c64f5b07626e98672e1d147e12de3480a7f031fd"
+    },
+    {
+      "path": "loader/tests/positive.rs",
+      "sha256": "0c7a071f587bb289cd793ccaf7362da6c465ba627e92a54318f6233c3d3804b1"
+    },
+    {
+      "path": "loader/tests/public_cosign.rs",
+      "sha256": "e29a633a3fc71d7e47b5bf4c342fbeb93354c6601fd9be918a131fa7a4e4664f"
+    },
+    {
+      "path": "README.md",
+      "sha256": "79913998fb7a546bcb8c8725e552f26b04ab72209108346cb42e77766b1da45d"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "dad73043643ef4285aca2153b3f6e50dd70ebace44c4f913bcd1be2d4403717b"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/Cargo.toml",
+      "sha256": "577052caac3da703b08126b5a0f35f16f28f2c26897fff0e53e0ffbdec63ccf7"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/action_proof.rs",
+      "sha256": "a0ef867c254a8bc91ce063f25bf2cf8aa0581b225634e31423c73e14c09dcc43"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/c2pa/claim.rs",
+      "sha256": "cd79db5d23980b77e200d5a3f47915dceb5ab48ed6f9e3cdee36601cf05dfb92"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/c2pa/mod.rs",
+      "sha256": "e77b8253e17a8a1e124ffcc6f7d6c9b8a8767c0a0d0d8b040e50a48fa91e0407"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/c2pa/signature.rs",
+      "sha256": "15f030aaaf1d087fed2ff4ed5790b46c58d293385acd6beaeb7c73f07a285229"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/cbor/canonical.rs",
+      "sha256": "65e5791cc4087d3c6826bfd02bd21b94758bdae9de0c362aa163c4b07a36e35c"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/cbor/domain.rs",
+      "sha256": "062c7d23610f4c45947371076cca384cd12e9787f7fe578e52b29520fcb22038"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/cbor/mod.rs",
+      "sha256": "445ba38c3a5ec5f28df5436e2a1463908656c4a8cee6c236aea1836324139b2e"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/error.rs",
+      "sha256": "aee703eeefac7e35352859493f382bbc7d36e7481b73cec842375b31b75aae4a"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/gguf/canonical.rs",
+      "sha256": "5310dabc82084063c66e7948df74ac0650524b5f2a5d84ec2fef12e123f88545"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/gguf/mod.rs",
+      "sha256": "246388cacc1a7f55ca285472913df3dec7cf565585dfbe3b3293eb51ddc14768"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/gguf/supply_chain.rs",
+      "sha256": "92617884504717d781a75a72c416e911ffefd2a998f610f07712da1b429e6d4b"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/gov.rs",
+      "sha256": "73bfa97eeec882e2dbde865c10d57ea0bf58d52c8fb9d6177729256af86d81cf"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/gov_lifecycle.rs",
+      "sha256": "25ba2ffbc488274566af711b78576ecf97a9189347945643f9c18c39618c8f4d"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/hash.rs",
+      "sha256": "cc2417cbbb3984ef42529cbc42138eaef3a0eac7bd909bdde881569657958534"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/lib.rs",
+      "sha256": "ab0a8e1b48f29f632d887ea86d3863ddaf1235625ebd61080c180374cd0f39ab"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/license.rs",
+      "sha256": "57613f340e11d9cd692e8feb072ce2ab9e208d42c3a01d505fc1fe0126ddfd67"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/memo_reconciliation.rs",
+      "sha256": "f665a3ec714f8af20d7e32466389cf0ec65c1ef51cd8dd7f4fe1b4937947d2a5"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/mmr/inclusion.rs",
+      "sha256": "dda079e83737ca9ab924b293377781b4d82f814bcdba7e18a37bc9e071c89ac7"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/mmr/mod.rs",
+      "sha256": "6f5ba4dea00aa43f45b21288071535786c4caca82da7fab8381be374ce31be11"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/mmr/profile.rs",
+      "sha256": "e97846c8fa96af239dfbbb6e69f5e6d8242ca7c5f92dc0dfe5b7bd4a0d88c9d6"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/output_proof.rs",
+      "sha256": "77c61654d948f25177a2c5722bc441cf8eb8a20d935d2ce4ba828d2a9b01d503"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/payment.rs",
+      "sha256": "8b989e537df4fa56b7882a5399bb6a99c9429098d50a0378d826fbfb7b32fa70"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/policy.rs",
+      "sha256": "bc9cd2d3b21ac37804ffce53238f9bbec288376fc668579dd4cfe23b9abe1fc1"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/reconciliation.rs",
+      "sha256": "0a9a9cd392268a7b339ba9a24c4b5a577a5fe3f612a5daace51cd234379798a7"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/types.rs",
+      "sha256": "0812e9fbc8de2e90b4782c0583636091bc5cdafbc1ba8fc49aa1dcabf9fcb23b"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/verification/artifact.rs",
+      "sha256": "6b074b27780bf7a831b15ad20ddc8bbce6d69837eb2d4972a99c468dcf1a1199"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/src/verification/mod.rs",
+      "sha256": "4d82f38cbaf9b1d7c9d4a2c68be3df340ec19e6d5be46d16c7aced5eb679214b"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/tests/policy_adversarial.rs",
+      "sha256": "3b29ddede4c116e155c082f3c67ce7362ec7ccd4631f137af904842b119511a4"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/tests/policy_compatibility.rs",
+      "sha256": "cc6cb046bbf4a69ff5a72d7696032a0bf0bce9245bcfe2988555f2b628e243ca"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-core/tests/support/policy_cases.rs",
+      "sha256": "2575d4a074631092681f7f138a817728048cd33fd9eabc4b1b8f139a39e3e92b"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-wasm/Cargo.toml",
+      "sha256": "46a890106e0781de0db1eea5752b2e426d44affe1d5670fbb010bacd41cd0217"
+    },
+    {
+      "path": "verification/crates/arkhe-verify-wasm/src/lib.rs",
+      "sha256": "091e2d63a909ed37c52e5c6faa0152966ac06a5d2757379f0f03acc850f6fe9f"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+name: Verified Arkhe WASM and policy release
+on:
+  push:
+    branches: ['codex/verified-wasm-policy-20261025']
+    paths:
+      - 'verification/arkhe-proof-release/**'
+      - '.github/workflows/build-verify-wasm.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  build-sign-verify-execute:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: verification/arkhe-proof-release
+        shell: bash
+    env:
+      CARGO_TERM_COLOR: never
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@d86e0fa8f147d6539442c26a61ebba8becc19489
+        with:
+          toolchain: '1.96.0'
+          targets: wasm32-unknown-unknown
+      - uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5
+        with:
+          cosign-release: 'v2.6.1'
+      - name: Native policy compatibility and adversarial tests
+        run: |
+          mkdir -p artifacts
+          export ARKHE_POLICY_VECTORS_OUT="$PWD/artifacts/policy-vectors.json"
+          cargo test --locked -p arkhe-verify-core --test policy_compatibility --test policy_adversarial 2>&1 | tee artifacts/policy-tests.txt
+      - name: Build actual production verifier WASM
+        run: |
+          cargo build --locked --release --target wasm32-unknown-unknown -p arkhe-verify-wasm 2>&1 | tee artifacts/wasm-build.txt
+          cp target/wasm32-unknown-unknown/release/arkhe_verify_wasm.wasm artifacts/arkhe-verify.wasm
+          sha256sum artifacts/arkhe-verify.wasm > artifacts/wasm.sha256
+      - name: Build pinned native admission loader
+        run: cargo build --locked --manifest-path loader/Cargo.toml --bin release
+      - name: Capture authenticated public trust using Cosign TUF
+        run: |
+          loader/target/debug/release capture-trust-cosign "$(command -v cosign)" artifacts/trust 2>&1 | tee artifacts/trust-acquisition.txt
+      - name: Public keyless signing with GitHub OIDC and Rekor v1
+        run: |
+          cosign version --json > artifacts/cosign-version.json
+          cosign sign-blob --yes --new-bundle-format --bundle artifacts/arkhe-verify.wasm.bundle.json --rekor-url https://rekor.sigstore.dev artifacts/arkhe-verify.wasm 2>&1 | tee artifacts/signing.txt
+      - name: Independently verify with Cosign offline
+        env:
+          EXPECTED_IDENTITY: https://github.com/${{ github.repository }}/.github/workflows/build-verify-wasm.yml@${{ github.ref }}
+        run: |
+          cosign verify-blob --offline --new-bundle-format --bundle artifacts/arkhe-verify.wasm.bundle.json --trusted-root artifacts/trust/trusted_root.json --certificate-identity "$EXPECTED_IDENTITY" --certificate-oidc-issuer https://token.actions.githubusercontent.com artifacts/arkhe-verify.wasm 2>&1 | tee artifacts/cosign-offline-verify.txt
+      - name: Admit and execute policy vectors in the signed production WASM
+        env:
+          EXPECTED_IDENTITY: https://github.com/${{ github.repository }}/.github/workflows/build-verify-wasm.yml@${{ github.ref }}
+        run: |
+          digest=$(sha256sum artifacts/arkhe-verify.wasm | cut -d' ' -f1)
+          loader/target/debug/release verify-run artifacts/arkhe-verify.wasm artifacts/arkhe-verify.wasm.bundle.json artifacts/trust "$EXPECTED_IDENTITY" "$digest" artifacts/policy-vectors.json artifacts/production-verification.json 2>&1 | tee artifacts/native-offline-verify.txt
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib
+          root=pathlib.Path('artifacts')
+          files={p.relative_to(root).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file()}
+          (root/'release-manifest.json').write_text(json.dumps({'repository':os.environ['GITHUB_REPOSITORY'],'commit':os.environ['GITHUB_SHA'],'workflow_ref':os.environ['GITHUB_WORKFLOW_REF'],'run_id':os.environ['GITHUB_RUN_ID'],'files':files},indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: arkhe-production-verified-wasm-${{ github.sha }}
+          path: verification/arkhe-proof-release/artifacts/
+          if-no-files-found: error
+          retention-days: 30

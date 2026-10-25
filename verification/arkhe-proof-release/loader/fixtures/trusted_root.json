@@ -1,0 +1,54 @@
+{
+  "mediaType": "application/vnd.dev.sigstore.trustedroot+json;version=0.1",
+  "tlogs": [
+    {
+      "baseUrl": "https://rekor.arkhe.test.invalid",
+      "hashAlgorithm": "SHA2_256",
+      "publicKey": {
+        "rawBytes": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGtUoICvbb90+p6TmzAYf1/fonOOUJxFI/rodYwwm2yiadC7oel2pXksAUo08pdv7kCZbwGf4Pp+smECfdS9CQg==",
+        "keyDetails": "PKIX_ECDSA_P256_SHA_256",
+        "validFor": {
+          "start": "2020-01-01T00:00:00Z"
+        }
+      },
+      "logId": {
+        "keyId": "oBWidXEyeHUx8BXESYeRoPSGdzSKQjoqTTy3XzYydYo="
+      }
+    }
+  ],
+  "ctlogs": [
+    {
+      "baseUrl": "https://ct.arkhe.test.invalid",
+      "hashAlgorithm": "SHA2_256",
+      "publicKey": {
+        "rawBytes": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEr+lLEwXEAYAt5Y5Zvf2SWGn7pPjm3tvpRXzHP550PcE0ZGCak4Iuxx6nNIWqrGKE1NAvWSxGIKwxhX8DghRzHA==",
+        "keyDetails": "PKIX_ECDSA_P256_SHA_256",
+        "validFor": {
+          "start": "2020-01-01T00:00:00Z"
+        }
+      },
+      "logId": {
+        "keyId": "YLGaBoKrD3sGWE8RJ2gZir33j5ZShHaVaXBM/JC3jK4="
+      }
+    }
+  ],
+  "certificateAuthorities": [
+    {
+      "subject": {
+        "commonName": "Arkhe LOCAL TEST CA"
+      },
+      "uri": "https://fulcio.arkhe.test.invalid",
+      "certChain": {
+        "certificates": [
+          {
+            "rawBytes": "MIIBUTCB96ADAgECAgEBMAoGCCqGSM49BAMCMB4xHDAaBgNVBAMME0Fya2hlIExPQ0FMIFRFU1QgQ0EwHhcNMjAwMTAxMDAwMDAwWhcNNDAwMTAxMDAwMDAwWjAeMRwwGgYDVQQDDBNBcmtoZSBMT0NBTCBURVNUIENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAETX+7tDYe8S3UJHtAfgHd47dxZdzD/XefXS8LpGc9YwVjuZgtnEp/gCW04YzLWqeKhH+GwYMV9aH580LqAbXlAKMmMCQwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwCgYIKoZIzj0EAwIDSQAwRgIhAN6iLW21VtsL2R7u4dO1ebSOBnqI8AWrd+bBUNds00iNAiEA7HdAYkwO5lVQk9ofX59MJH/7JvnqPPp98/9RE/alPsI="
+          }
+        ]
+      },
+      "validFor": {
+        "start": "2020-01-01T00:00:00Z",
+        "end": "2040-01-01T00:00:00Z"
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "domain": "LOCAL TEST ONLY",
+  "identity": "https://arkhe.test.invalid/build-verify-wasm.yml@refs/tags/v0.1.0",
+  "issuer": "https://issuer.arkhe.test.invalid",
+  "captured_at_unix": 1792915551,
+  "root_sha256": "8bcaf3e2ae1ce901e95a574494697055c7eab1b2d647e4cd173fe23be7791513",
+  "signed_at_unix": 1767225600
+}
