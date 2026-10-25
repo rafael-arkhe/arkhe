@@ -1,0 +1,31 @@
+[package]
+name = "arkhe-verify-self-demo"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+sigstore-verify = "=0.6.6"
+sigstore-trust-root = "=0.6.6"
+sigstore-types = "=0.6.6"
+sigstore-merkle = "=0.6.6"
+sha2 = "=0.10.9"
+hex = "=0.4.3"
+thiserror = "=2.0.17"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "=0.22.1"
+wasmtime = { version = "=38.0.3", default-features = false, features = ["cranelift", "runtime", "std"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+
+[build-dependencies]
+sha2 = "=0.10.9"
+hex = "=0.4.3"
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0
