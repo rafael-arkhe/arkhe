@@ -1,0 +1,70 @@
+{
+  "report_id": "arkhe-test-run-1793591586",
+  "timestamp": 1793591586,
+  "pipeline_version": "1.0.0",
+  "stages": {
+    "stage_1": {
+      "feature_flags_audit": {
+        "status": "PASS",
+        "violations": []
+      },
+      "unit_tests": {
+        "status": "PASS",
+        "duration_seconds": 0.376,
+        "output": "..............                                                           [100%]\n14 passed in 0.04s"
+      },
+      "property_tests": {
+        "status": "PASS",
+        "duration_seconds": 0.349,
+        "output": "..                                                                       [100%]\n2 passed in 0.02s"
+      },
+      "stage_passed": true
+    },
+    "stage_2": {
+      "integration": {
+        "status": "PASS",
+        "duration_seconds": 0.341,
+        "output": "...                                                                      [100%]\n3 passed in 0.02s"
+      },
+      "network": {
+        "status": "PASS",
+        "duration_seconds": 0.338,
+        "output": "..                                                                       [100%]\n2 passed in 0.02s"
+      },
+      "mobile": {
+        "status": "PASS",
+        "duration_seconds": 0.333,
+        "output": ".                                                                        [100%]\n1 passed in 0.02s"
+      },
+      "wasm": {
+        "status": "PASS",
+        "duration_seconds": 0.331,
+        "output": "..                                                                       [100%]\n2 passed in 0.02s"
+      },
+      "stage_passed": true
+    },
+    "stage_3": {
+      "adversarial_invariants": {
+        "status": "PASS",
+        "duration_seconds": 0.48,
+        "output": "......................                                                   [100%]\n22 passed in 0.05s",
+        "invariants_covered": [
+          "I-01",
+          "I-02",
+          "I-03",
+          "I-04",
+          "I-05",
+          "I-06",
+          "I-07",
+          "I-08",
+          "I-09",
+          "I-10"
+        ],
+        "fail_closed_guarantee": true
+      },
+      "stage_passed": true
+    }
+  },
+  "overall_status": "PASS",
+  "content_hash": "3de6c5682b486b192036390bf6dd2c6645fac2421381aaf06f36b772279a19e8"
+}
