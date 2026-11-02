@@ -1,0 +1,8 @@
+{
+  "checkpoint_id": "cp-2026-epoch-100",
+  "epoch": 100,
+  "device_id": "tpm20-infineon-device-42",
+  "attestation_quote": "quote-tpm-valid-sha3-verified",
+  "mmr_root": "daccd06d38abbc3cc17244944283692797af6b8bf1b847de8cbde9aee6013718",
+  "timestamp": 1761984050
+}

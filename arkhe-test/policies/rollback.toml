@@ -1,0 +1,37 @@
+# Arkhe Rollback Policy Configuration
+# Fundamental Invariant: Rollback rewrites code/config only; NEVER overwrites MMR, receipts, or checkpoints.
+# rollback => existing evidence remains intact
+
+[policy]
+schema_version = "1.0.0"
+enforce_fail_closed = true
+
+[scope]
+mutable_targets = [
+    "executable_binary",
+    "runtime_configuration",
+    "feature_flags",
+    "service_unit"
+]
+
+immutable_evidence_targets = [
+    "mmr_storage",
+    "afir_receipts",
+    "checkpoints",
+    "temporal_chain_anchors",
+    "fraud_proofs",
+    "audit_bundles"
+]
+
+[rules]
+allow_code_rollback = true
+allow_config_rollback = true
+allow_evidence_rewrite = false
+allow_mmr_pruning = false
+require_backward_evidence_compatibility = true
+migration_strategy = "append_only"
+
+[audit]
+record_rollback_event = true
+sign_rollback_intent = true
+max_rollback_execution_time_seconds = 600

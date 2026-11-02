@@ -1,0 +1,62 @@
+# Arkhe Feature Flags Policy Configuration
+# Rule: flag ∉ {signature check, hash check, MMR append-only, role separation}
+# Flags can enable optional behaviors; they can NEVER disable mandatory security invariants.
+
+[policy]
+schema_version = "1.0.0"
+enforce_fail_closed = true
+strict_mode = true
+
+# Mandatory security invariants that must NEVER be disabled or modified by any feature flag
+[immutable_invariants]
+mandatory_checks = [
+    "signature_check",
+    "hash_check",
+    "mmr_append_only",
+    "role_separation",
+    "device_attestation",
+    "constitutional_human_governance"
+]
+
+# Permitted flags and their operational boundaries
+[flags."network.experimental_transport"]
+description = "Alternative peer-to-peer transport protocol"
+default = false
+allowed_controls = ["transport_layer", "quic_multiplexing", "fallback_tcp"]
+forbidden_controls = ["chunk_validation", "hash_verification", "signature_check"]
+
+[flags."moe.receipt_tree"]
+description = "Sparse receipt tree activation for batch verifications"
+default = true
+allowed_controls = ["receipt_batching", "tree_depth_optimization"]
+forbidden_controls = ["receipt_signature", "nonce_verification", "hash_check"]
+
+[flags."audit.bundle_v2"]
+description = "Extended bundle format for offline audit"
+default = true
+allowed_controls = ["bundle_compression", "metadata_envelope_version"]
+forbidden_controls = ["mmr_append_only", "root_verification", "leaf_proof"]
+
+[flags."cal.anchor_batching"]
+description = "Batching frequency of anchors to TemporalChain"
+default = false
+allowed_controls = ["batch_interval_seconds", "max_batch_size"]
+forbidden_controls = ["offline_evidence_validity", "chain_agnostic_verification"]
+
+[flags."inference.zk_sampling"]
+description = "Zero-knowledge sampling rate for non-critical inferences"
+default = false
+allowed_controls = ["sampling_rate_percent", "telemetry_reporting"]
+forbidden_controls = ["minimum_mandatory_verification", "signature_check"]
+
+[flags."mcp.action_tools"]
+description = "Expose Model Context Protocol write action tools"
+default = false
+allowed_controls = ["tool_exposure_whitelist", "rate_limit_per_minute"]
+forbidden_controls = ["signed_mandate", "immutable_audit_log", "constitutional_boundary"]
+
+[flags."governance.proposals"]
+description = "Allow autonomous proposal submission"
+default = true
+allowed_controls = ["proposal_queue_size", "discussion_epoch_duration"]
+forbidden_controls = ["human_canonification", "constitution_amendment", "self_modification"]

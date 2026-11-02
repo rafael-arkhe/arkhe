@@ -1,0 +1,10 @@
+{
+  "epoch": 100,
+  "nonce": "nonce-arkhe-9988776655",
+  "receipt_id": "afir-test-rec-001",
+  "result_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "task_cid": "bafy-arkhe-raw-task-001",
+  "timestamp": 1761984000,
+  "worker_did": "did:arkhe:worker-alpha",
+  "signature": "mldsa65-sig:885f8793ff4fa62c3a3bac2dd64c32421edc4fef5fdee2559471e9965acb3abc27a6313558945159f979c648df49799d1ec1225cc0b5dbd2a336a25285a1ebf7"
+}
